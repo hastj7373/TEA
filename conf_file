@@ -1,0 +1,12 @@
+samtools_home = /cluster/data/scratch/share/samtools-0.1.19
+bwa_home = /cluster/data/scratch/share/bwa-0.7.5a
+blast_home = /cluster/bio/bin
+cap3_home = /cluster/data/scratch/share/CAP3/
+fasta_location = /cluster/data/scratch/db/hg19/hg19.fasta
+meerkat_home= /cluster/data/scratch/share/Meerkat/scripts
+tea_home = /home/hcjung/Tea
+tea_run = scripts/tea.pl
+tea_assembly = lib/assembly
+tmp_dir = /cluster/data/scratch/TEA_COAD/tmp
+retro = repeat.combined.div30.isize150.fa
+virus = hvir.collapsed.fa

@@ -1,0 +1,136 @@
+#! /bin/bash
+
+### Check on "conf_file" ###
+if [ ! -f conf_file ]
+then
+	echo "You need a \"conf_file\" file."
+	exit 0
+fi
+
+### Export env. variable ###
+while read line
+do
+	export `echo $line | sed -e 's/ //g'`
+done < "conf_file"
+
+### Confirm the options ###
+idx=0
+flag=false
+for arg
+do
+	if [ "$arg" == "-K" ]
+	then
+		flag=true
+	elif [ "$arg" == "-p" ]
+	then
+		nth=`expr $idx + 2`
+		th_num=${!nth}
+	elif [ "$arg" == "-c" ]
+	then
+		nth=`expr $idx + 2`
+		ref=${!nth}
+	fi
+
+	((idx++))
+done
+
+if [ "$ref" == "" ]
+then
+	ref="hg19"
+fi
+
+
+base_name=$1
+curr_dir_path=`pwd`
+bam_file=$base_name.bam
+
+if [ ! -d $base_name ]
+then
+	mkdir $base_name
+fi
+
+if [ ! -d $base_name/bam ]
+then
+	mkdir $base_name/bam
+fi
+
+if [ ! -f $base_name/bam/$bam_file ]
+then
+	ln -s $curr_dir_path/$bam_file $curr_dir_path/$base_name/bam/$bam_file
+fi
+
+
+### 
+if [ $flag == true ]
+then
+	cd $base_name/bam
+
+	cp -a $curr_dir_path/conf_file .
+
+	if [ "$th_num" == "" ]
+	then
+		perl $tea_home/scripts/run_meerkat.al.pl $bam_file $ref
+	else
+		perl $tea_home/scripts/run_meerkat.al.pl $bam_file $ref $th_num
+	fi
+
+	for i in `ls *.sh`
+	do
+		./$i
+	done
+
+	rm -rf conf_file
+fi
+cd $curr_dir_path
+
+
+### TEA RUN ###
+idx=0
+opt=""
+if [ "$2" == "tea" ]
+then
+	if [ "$3" == "ra" ]
+	then
+		uType=$tea_assembly/$retro
+	elif [ "$3" == "va" ]
+	then
+		uType=$tea_assembly/$virus
+	elif [ "$3" == "um" ]
+	then
+		uType=$tea_assembly/
+	fi
+
+	opt=$opt" -g "$curr_dir_path/$base_name/bam/$bam_file" -d "$curr_dir_path" -s "$tmp_dir" -P "$tea_home" -r "$uType" -R "$3
+	for arg
+	do
+		if [ $idx -gt 2 -a "$arg" != "-K" ]
+		then
+			opt=$opt" "$arg
+		fi
+		((idx++))
+	done
+else
+	echo $2
+	for arg
+	do
+		if [ $idx -gt 1 ]
+		then
+			opt=$opt" "$arg
+		fi
+		((idx++))
+	done
+fi
+
+if [ ! -d $curr_dir_path/script ]
+then
+	mkdir $curr_dir_path/script
+fi
+
+echo "TEA script:: "perl $tea_home/$tea_run $2 $opt $base_name
+perl $tea_home/$tea_run $2 $opt $base_name > $curr_dir_path/script/$base_name.$3.sh
+sed -i 's/	//g' $curr_dir_path/script/$base_name.$3.sh
+
+chmod 744 $curr_dir_path/script/$base_name.$3.sh
+sh $curr_dir_path/script/$base_name.$3.sh
+
+### Complete ###

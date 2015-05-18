@@ -1,0 +1,68 @@
+# User must change this line
+#tea.base = "/data/home/jluquette/alice/Tea"
+tea.base = "/bitools/TEA/Tea-0.6.2"
+
+source(paste(tea.base, "/R/rid.r", sep=""))
+args <- commandArgs(trailingOnly=T)
+
+if ( args[1] == "rid") {
+  rlist.file=NULL; lsf=T; min.single.ram=3; verbose=F
+  for(i in 2:length(args)) eval(parse(text=args[[i]]))
+  write.msg(paste("sample:", sample))
+  write.msg(paste("rlist.file:", rlist.file))
+  write.msg(paste("min.single.ram:", min.single.ram))
+  write.msg(paste("lsf:", lsf))
+  write.msg(paste("verbose:", verbose))
+  write.msg("calling rid")
+  rid(sample, min.single.ram, lsf, verbose, rlist.file)
+} else if ( args[1] == "rid.r") {
+  min.single.ram=3; verbose=F
+  for(i in 2:length(args)) eval(parse(text=args[[i]]))
+  write.msg(paste("sample:", sample))
+  write.msg(paste("r:", r))
+  write.msg(paste("min.single.ram:", min.single.ram))
+  write.msg(paste("verbose:", verbose))
+  rid.r(sample, r, min.single.ram, verbose)
+} else if ( args[1] == "rid.disc") {
+  dir="/files/CBMI/parklab/alee/ra"; min.ram=2; jittering=2; verbose=F; chr=NULL; chr.ram=F; short=F
+	for(i in 2:length(args)) eval(parse(text=args[[i]]))
+  write.msg(paste("sample:", sample))
+  write.msg(paste("dir:", dir))
+  write.msg(paste("min.ram:", min.ram))
+  write.msg(paste("jittering:", jittering))
+  write.msg(paste("verbose:", verbose))+   write.msg(paste("chr:", chr))
+  write.msg(paste("chr.ram:", chr.ram))
+  write.msg(paste("short:", short))
+  rid.disc(sample, dir, min.ram, jittering, verbose, chr, chr.ram, short)
+} else if (args[1] == "somatic") {
+  dir="/files/CBMI/parklab/alee/ra2"; verbose=T
+  for(i in 2:length(args)) eval(parse(text=args[[i]]))
+  call.somatic(dir, sample, verbose=T)
+} else if (args[1] == "cram") {
+  dir="/files/CBMI/parklab/alee/ra2"; verbose=T
+  for(i in 2:length(args)) eval(parse(text=args[[i]]))
+  write.msg(paste("dir:", dir))
+  write.msg(paste("sample:", sample))
+  write.msg(paste("verbose:", verbose )) 
+  make.cram.rfile2(dir, sample, verbose)
+} else if (args[1] == "ccr") {
+  dir="/files/CBMI/parklab/alee/ra2"; verbose=T
+  for(i in 2:length(args)) eval(parse(text=args[[i]]))
+  write.msg(paste("dir:", dir))
+  write.msg(paste("sample:", sample))
+  write.msg(paste("verbose:", verbose )) 
+  make.ccr.rfile2(dir, sample, verbose)
+} else if (args[1] == "germline") {
+  dir="/files/CBMI/parklab/alee/ra2"; verbose=T
+  for(i in 2:length(args)) eval(parse(text=args[[i]]))
+  call.germline(dir, sample, verbose=verbose)
+} else if (args[1] == "ref.filtering") {
+  dir="/files/CBMI/parklab/alee/ra2"
+  for(i in 2:length(args)) eval(parse(text=args[[i]]))
+  ref.filtering.sample(dir, sample)
+} else if (args[1] == "normal.specific") {
+  dir="/files/CBMI/parklab/alee/ra2"; verbose=F
+  for(i in 2:length(args)) eval(parse(text=args[[i]]))
+  write.msg(paste("sample:", sample))
+  call.normal.specific(dir, sample)
+}

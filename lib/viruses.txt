@@ -1,0 +1,1231 @@
+gi|9632550|ref|NC_000855.1| Viral hemorrhagic septicemia virus Fil3, complete genome
+gi|9632565|ref|NC_000858.1| Simian T-lymphotropic virus 1, complete genome
+gi|356457872|ref|NC_000883.2| Human parvovirus B19, complete genome
+gi|9633069|ref|NC_000898.1| Human herpesvirus 6B, complete genome
+gi|9633173|ref|NC_000899.1| Fowl adenovirus D, complete genome
+gi|9633477|ref|NC_000903.1| Snakehead rhabdovirus, complete genome
+gi|9633619|ref|NC_000940.1| Porcine enteric sapovirus, complete genome
+gi|6446580|ref|NC_000942.1| Murine adenovirus A, complete genome
+gi|9633622|ref|NC_000943.1| Murray Valley encephalitis virus, complete genome
+gi|18450236|ref|NC_001132.2| Myxoma virus, complete genome
+gi|9633809|ref|NC_001266.1| Rabbit fibroma virus, complete genome
+gi|9625568|ref|NC_001344.1| Duck hepatitis B virus, complete genome
+gi|9625875|ref|NC_001348.1| Human herpesvirus 3, complete genome
+gi|9625955|ref|NC_001350.1| Saimiriine herpesvirus 2, complete genome
+gi|9626032|ref|NC_001352.1| Human papillomavirus - 2, complete genome
+gi|9626041|ref|NC_001354.1| Human papillomavirus type 41, complete genome
+gi|9626053|ref|NC_001355.1| Human papillomavirus type 6b, complete genome
+gi|9626063|ref|NC_001356.1| Human papillomavirus - 1, complete genome
+gi|9626069|ref|NC_001357.1| Human papillomavirus - 18, complete genome
+gi|9626078|ref|NC_001358.1| Parvovirus H1, complete genome
+gi|9626096|ref|NC_001362.1| Friend murine leukemia virus, complete genome
+gi|9626103|ref|NC_001364.1| Simian foamy virus, complete genome
+gi|9626123|ref|NC_001366.1| Theilovirus, complete genome
+gi|110645916|ref|NC_001401.2| Adeno-associated virus - 2, complete genome
+gi|9626152|ref|NC_001402.1| Avian carcinoma virus, complete genome
+gi|9626154|ref|NC_001403.1| Fujinami sarcoma virus, complete genome
+gi|9626158|ref|NC_001405.1| Human adenovirus C, complete genome
+gi|9626196|ref|NC_001407.1| Rous sarcoma virus, complete genome
+gi|9626201|ref|NC_001408.1| Avian leukosis virus - RSA, complete genome
+gi|9626219|ref|NC_001413.1| Bovine immunodeficiency virus, complete genome
+gi|9626225|ref|NC_001414.1| Bovine leukemia virus, complete genome
+gi|9626429|ref|NC_001427.1| Chicken anemia virus, complete genome
+gi|9626433|ref|NC_001428.1| Human enterovirus C, complete genome
+gi|9626436|ref|NC_001430.1| Human enterovirus D, complete genome
+gi|9626440|ref|NC_001434.1| Hepatitis E virus, complete genome
+gi|9626453|ref|NC_001436.1| Human T-lymphotropic virus 1, complete genome
+gi|9626460|ref|NC_001437.1| Japanese encephalitis virus, genome
+gi|9626482|ref|NC_001442.1| Bovine polyomavirus, complete genome
+gi|9626526|ref|NC_001449.1| Venezuelan equine encephalitis virus, complete genome
+gi|9626530|ref|NC_001450.1| Equine infectious anemia virus, complete genome
+gi|9626535|ref|NC_001451.1| Avian infectious bronchitis virus, complete genome
+gi|9626546|ref|NC_001452.1| Visna/Maedi virus, complete genome
+gi|9626553|ref|NC_001454.1| Human adenovirus F, complete genome
+gi|9626597|ref|NC_001457.1| Human papillomavirus type 4, complete genome
+gi|9626605|ref|NC_001458.1| Human papillomavirus type 63, complete genome
+gi|9626621|ref|NC_001460.1| Human adenovirus A, complete genome
+gi|9626649|ref|NC_001461.1| Bovine viral diarrhea virus 1, complete genome
+gi|9626651|ref|NC_001463.1| Caprine arthritis-encephalitis virus, complete genome
+gi|9626677|ref|NC_001472.1| Human enterovirus B, complete genome
+gi|158976983|ref|NC_001474.2| Dengue virus 2, complete genome
+gi|163644368|ref|NC_001475.2| Dengue virus 3, complete genome
+gi|9626685|ref|NC_001477.1| Dengue virus 1, complete genome
+gi|9626692|ref|NC_001479.1| Encephalomyocarditis virus, complete genome
+gi|28212283|ref|NC_001481.2| Feline calicivirus, complete genome
+gi|9626701|ref|NC_001482.1| Feline immunodeficiency virus, complete genome
+gi|9626714|ref|NC_001484.1| Ground squirrel hepatitis virus, complete genome
+gi|9626719|ref|NC_001486.1| Heron hepatitis B virus, complete genome
+gi|9626726|ref|NC_001488.1| Human T-lymphotropic virus 2, complete genome
+gi|9626732|ref|NC_001489.1| Hepatitis A virus, complete genome
+gi|9626735|ref|NC_001490.1| Human rhinovirus 14, complete genome
+gi|50313241|ref|NC_001491.2| Equid herpesvirus 1, complete genome
+gi|9626914|ref|NC_001494.1| Jaagsiekte sheep retrovirus, complete genome
+gi|9626945|ref|NC_001498.1| Measles virus, complete genome
+gi|9626953|ref|NC_001499.1| Abelson murine leukemia virus, complete genome
+gi|9626955|ref|NC_001500.1| Spleen focus-forming virus, complete genome
+gi|9626958|ref|NC_001501.1| Moloney murine leukemia virus, complete genome
+gi|9626962|ref|NC_001502.1| Moloney murine sarcoma virus, complete genome
+gi|9626965|ref|NC_001503.1| Mouse mammary tumor virus, complete genome
+gi|28376615|ref|NC_001505.2| Murine pneumotropic virus, complete genome
+gi|9626984|ref|NC_001506.1| Murine osteosarcoma virus, complete genome
+gi|9626993|ref|NC_001510.1| Minute virus of mice, complete genome
+gi|9627001|ref|NC_001511.1| Ovine lentivirus, complete genome
+gi|9627007|ref|NC_001512.1| O'nyong-nyong virus, complete genome
+gi|9627014|ref|NC_001514.1| Squirrel monkey retrovirus - HLB, complete genome
+gi|9627020|ref|NC_001515.1| Murine polyomavirus, complete genome
+gi|9627056|ref|NC_001522.1| Bovine papillomavirus - 1, complete genome
+gi|9627065|ref|NC_001523.1| Deer papillomavirus, complete genome
+gi|9627074|ref|NC_001524.1| European elk papillomavirus, complete genome
+gi|310698439|ref|NC_001526.2| Human papillomavirus type 16, complete genome
+gi|9627145|ref|NC_001531.1| Human papillomavirus - 5, complete genome
+gi|9627180|ref|NC_001538.1| BK polyomavirus, complete genome
+gi|9627186|ref|NC_001539.1| Canine parvovirus, complete genome
+gi|9627190|ref|NC_001540.1| Bovine parvovirus, complete genome
+gi|9627196|ref|NC_001541.1| Cottontail rabbit papillomavirus, complete genome
+gi|9627197|ref|NC_001542.1| Rabies virus, complete genome
+gi|9790292|ref|NC_001543.1| Rabbit hemorrhagic disease virus-FRG, complete genome
+gi|9790297|ref|NC_001544.1| Ross River virus, complete genome
+gi|336284682|ref|NC_001545.2| Rubella virus, complete genome
+gi|9790313|ref|NC_001547.1| Sindbis virus, complete genome
+gi|9627204|ref|NC_001549.1| Simian immunodeficiency virus, complete genome
+gi|9627210|ref|NC_001550.1| Mason-Pfizer monkey virus, complete genome
+gi|9627219|ref|NC_001552.1| Sendai virus, complete genome
+gi|9627229|ref|NC_001560.1| Vesicular stomatitis Indiana virus, complete genome
+gi|11528013|ref|NC_001563.2| West Nile virus, complete genome
+gi|9627242|ref|NC_001564.1| Cell fusing agent virus, complete genome
+gi|9627257|ref|NC_001576.1| Human papillomavirus type 10, complete genome
+gi|9627305|ref|NC_001583.1| Human papillomavirus type 26, complete genome
+gi|9627327|ref|NC_001586.1| Human papillomavirus type 32, complete genome
+gi|9627334|ref|NC_001587.1| Human papillomavirus type 34, complete genome
+gi|9627363|ref|NC_001591.1| Human papillomavirus type 49, complete genome
+gi|9627377|ref|NC_001593.1| Human papillomavirus type 53, complete genome
+gi|9627389|ref|NC_001595.1| Human papillomavirus type 7, complete genome
+gi|9627396|ref|NC_001596.1| Human papillomavirus type 9, complete genome
+gi|9627486|ref|NC_001605.1| Mastomys natalensis papillomavirus, complete genome
+gi|9627493|ref|NC_001607.1| Borna disease virus, complete genome
+gi|158539108|ref|NC_001608.3| Lake Victoria marburgvirus - Musoke, complete genome
+gi|9627521|ref|NC_001611.1| Variola virus, complete genome
+gi|9627719|ref|NC_001612.1| Human enterovirus A, complete genome
+gi|9627730|ref|NC_001617.1| Human rhinovirus 89, complete genome
+gi|9627732|ref|NC_001618.1| UR2 sarcoma virus, complete genome
+gi|9627734|ref|NC_001619.1| Canine oral papillomavirus, complete genome
+gi|9627947|ref|NC_001630.1| Mouse parvovirus 1, complete genome
+gi|9627971|ref|NC_001639.1| Lactate dehydrogenase-elevating virus, complete genome
+gi|9628002|ref|NC_001650.1| Equid herpesvirus 2, complete genome
+gi|9628082|ref|NC_001652.1| Infectious hematopoietic necrosis virus, complete genome
+gi|13277517|ref|NC_001653.2| Hepatitis delta virus, complete genome
+gi|9628113|ref|NC_001659.1| African swine fever virus, complete genome
+gi|9628278|ref|NC_001662.1| Aleutian mink disease virus, complete genome
+gi|9628283|ref|NC_001663.1| Hamster polyomavirus, complete genome
+gi|224020395|ref|NC_001664.2| Human herpesvirus 6A, complete genome
+gi|9628421|ref|NC_001669.1| Simian virus 40, complete genome
+gi|9628431|ref|NC_001672.1| Tick-borne encephalitis virus, complete genome
+gi|9628437|ref|NC_001676.1| Human papillomavirus 54, complete genome
+gi|9628445|ref|NC_001678.1| Rhesus monkey papillomavirus, complete genome
+gi|9628542|ref|NC_001690.1| Human papillomavirus type 48, complete genome
+gi|9628550|ref|NC_001691.1| Human papillomavirus type 50, complete genome
+gi|9628566|ref|NC_001693.1| Human papillomavirus type 60, complete genome
+gi|9628574|ref|NC_001694.1| Human papillomavirus - 61, complete genome
+gi|9628642|ref|NC_001699.1| JC polyomavirus, complete genome
+gi|9628649|ref|NC_001701.1| Goose parvovirus, complete genome
+gi|9628654|ref|NC_001702.1| Murine type C retrovirus, complete genome
+gi|51874225|ref|NC_001716.2| Human herpesvirus 7, complete genome
+gi|9628826|ref|NC_001718.1| Porcine parvovirus, complete genome
+gi|9628835|ref|NC_001720.1| Fowl adenovirus A, complete genome
+gi|9628880|ref|NC_001722.1| Human immunodeficiency virus 2, complete genome
+gi|9628892|ref|NC_001724.1| Snakehead retrovirus, complete genome
+gi|9628918|ref|NC_001729.1| Adeno-associated virus - 3, complete genome
+gi|9628932|ref|NC_001731.1| Molluscum contagiosum virus subtype 1, complete genome
+gi|9629096|ref|NC_001734.1| Canine adenovirus, complete genome
+gi|9629198|ref|NC_001781.1| Human respiratory syncytial virus, complete genome
+gi|9629246|ref|NC_001786.1| Barmah Forest virus, complete genome
+gi|9629249|ref|NC_001789.1| Ovine papillomavirus - 1, complete genome
+gi|12280941|ref|NC_001792.2| Porcine circovirus 1, complete genome
+gi|10937870|ref|NC_001796.2| Human parainfluenza virus 3, complete genome
+gi|9629267|ref|NC_001798.1| Human herpesvirus 2, complete genome
+gi|9629357|ref|NC_001802.1| Human immunodeficiency virus 1, complete genome
+gi|9629367|ref|NC_001803.1| Respiratory syncytial virus, complete genome
+gi|9629378|ref|NC_001806.1| Human herpesvirus 1, complete genome
+gi|9629456|ref|NC_001809.1| Louping ill virus, complete genome
+gi|9629466|ref|NC_001813.1| Duck adenovirus A, complete genome
+gi|9629498|ref|NC_001815.1| Simian T-lymphotropic virus 2, complete genome
+gi|9629514|ref|NC_001819.1| Rauscher murine leukemia virus, complete genome
+gi|9695413|ref|NC_001824.1| Lymphocystis disease virus 1, complete genome
+gi|146261990|ref|NC_001826.2| Murid herpesvirus 4, complete genome
+gi|9629641|ref|NC_001829.1| Adeno-associated virus - 4, complete genome
+gi|9629644|ref|NC_001831.1| Bovine foamy virus, complete genome
+gi|9629720|ref|NC_001838.1| Common chimpanzee papillomavirus 1, complete genome
+gi|9629732|ref|NC_001844.1| Equid herpesvirus 4, complete genome
+gi|9629812|ref|NC_001846.1| Murine hepatitis virus strain A59, complete genome
+gi|9629818|ref|NC_001847.1| Bovine herpesvirus 1, complete genome
+gi|9629892|ref|NC_001859.1| Bovine enterovirus, complete genome
+gi|9629900|ref|NC_001866.1| Avian myelocytomatosis virus, complete genome
+gi|9629902|ref|NC_001867.1| Walleye dermal sarcoma virus, complete genome
+gi|9629914|ref|NC_001870.1| Simian-Human immunodeficiency virus, complete genome
+gi|9629925|ref|NC_001871.1| Feline foamy virus, complete genome
+gi|9630091|ref|NC_001876.1| Bovine adenovirus B, complete genome
+gi|312839924|ref|NC_001885.2| Gibbon ape leukemia virus, complete genome
+gi|9630376|ref|NC_001897.1| Human parechovirus, genome
+gi|29468603|ref|NC_001906.2| Hendra virus, complete genome
+gi|9630635|ref|NC_001915.1| Infectious pancreatic necrosis virus segment A, complete sequence
+gi|9630638|ref|NC_001916.1| Infectious pancreatic necrosis virus segment B, complete sequence
+gi|9630643|ref|NC_001918.1| Aichi virus, complete genome
+gi|9630645|ref|NC_001921.1| Canine distemper virus, complete genome
+gi|9630656|ref|NC_001925.1| Bunyamwera virus L segment, complete sequence
+gi|9630658|ref|NC_001926.1| Bunyamwera virus M segment, complete sequence
+gi|9630660|ref|NC_001927.1| Bunyamwera virus segment S, complete sequence
+gi|9630707|ref|NC_001940.1| Feline leukemia virus, complete genome
+gi|9630726|ref|NC_001943.1| Human astrovirus, complete genome
+gi|9630729|ref|NC_001944.1| Beak and feather disease virus, complete genome
+gi|9630778|ref|NC_001958.1| Turkey adenovirus A, complete genome
+gi|106060735|ref|NC_001959.2| Norwalk virus, complete genome
+gi|9630807|ref|NC_001961.1| Porcine respiratory and reproductive syndrome virus, complete genome
+gi|9631195|ref|NC_001987.1| Ateline herpesvirus 3, complete genome
+gi|9631267|ref|NC_001989.1| Bovine respiratory syncytial virus, complete genome
+gi|8486122|ref|NC_002016.1| Influenza A virus (A/Puerto Rico/8/34(H1N1)) segment 7, complete sequence
+gi|8486125|ref|NC_002017.1| Influenza A virus (A/Puerto Rico/8/34(H1N1)) segment 4, complete sequence
+gi|8486127|ref|NC_002018.1| Influenza A virus (A/Puerto Rico/8/34(H1N1)) segment 6, complete sequence
+gi|8486129|ref|NC_002019.1| Influenza A virus (A/Puerto Rico/8/34(H1N1)) segment 5, complete sequence
+gi|8486131|ref|NC_002020.1| Influenza A virus (A/Puerto Rico/8/34(H1N1)) segment 8, complete sequence
+gi|8486134|ref|NC_002021.1| Influenza A virus (A/Puerto Rico/8/34(H1N1)) segment 2, complete sequence
+gi|8486136|ref|NC_002022.1| Influenza A virus (A/Puerto Rico/8/34(H1N1)) segment 3, complete sequence
+gi|8486138|ref|NC_002023.1| Influenza A virus (A/Puerto Rico/8/34(H1N1)) segment 1, complete sequence
+gi|9627244|ref|NC_002031.1| Yellow fever virus, complete genome
+gi|9629506|ref|NC_002032.1| Bovine viral diarrhea virus genotype 2, complete genome
+gi|12408699|ref|NC_002058.3| Poliovirus, complete genome
+gi|29502191|ref|NC_002076.2| Torque teno virus 1, complete genome
+gi|9632547|ref|NC_002077.1| Adeno-associated virus - 1, complete genome
+gi|9634109|ref|NC_002161.1| Bovine parainfluenza virus 3, complete genome
+gi|9634679|ref|NC_002188.1| Fowlpox virus, complete genome
+gi|9634957|ref|NC_002195.1| Torque teno mini virus 9, complete genome
+gi|9634968|ref|NC_002199.1| Tupaia paramyxovirus, complete genome
+gi|9695415|ref|NC_002200.1| Mumps virus, complete genome
+gi|9634977|ref|NC_002201.1| Equine foamy virus, complete genome
+gi|8486164|ref|NC_002204.1| Influenza B virus RNA 1, complete sequence
+gi|8486148|ref|NC_002205.1| Influenza B virus RNA-2, complete sequence
+gi|8486150|ref|NC_002206.1| Influenza B virus RNA-3, complete sequence
+gi|8486152|ref|NC_002207.1| Influenza B virus RNA 4, complete sequence
+gi|8486154|ref|NC_002208.1| Influenza B virus RNA 5, complete sequence
+gi|8486156|ref|NC_002209.1| Influenza B virus RNA 6, complete sequence
+gi|8486159|ref|NC_002210.1| Influenza B virus RNA 7, complete sequence
+gi|8486161|ref|NC_002211.1| Influenza B virus RNA 8, complete sequence
+gi|125745044|ref|NC_002229.3| Gallid herpesvirus 2, complete genome
+gi|9635132|ref|NC_002232.1| Rabbit oral papillomavirus, complete genome
+gi|315192962|ref|NC_002306.3| Feline infectious peritonitis virus, complete genome
+gi|9635461|ref|NC_002361.1| Columbid circovirus, complete genome
+gi|9635572|ref|NC_002469.1| Ovine astrovirus, complete genome
+gi|9635576|ref|NC_002470.1| Turkey astrovirus, complete genome
+gi|9635795|ref|NC_002501.1| Frog adenovirus 1, complete genome
+gi|20198505|ref|NC_002512.2| Murid herpesvirus 2, complete genome
+gi|9845468|ref|NC_002513.1| Ovine adenovirus A, complete genome
+gi|10086561|ref|NC_002526.1| Bovine ephemeral fever virus, complete genome
+gi|10140926|ref|NC_002531.1| Alcelaphine herpesvirus 1, complete genome
+gi|14583260|ref|NC_002532.2| Equine arteritis virus, complete genome
+gi|10313991|ref|NC_002549.1| Ebola virus - Mayinga, Zaire, 1976 strain Mayinga
+gi|10314005|ref|NC_002551.1| Vesicular exanthema of swine virus, complete genome
+gi|10445391|ref|NC_002554.1| Foot-and-mouth disease virus - type C, complete genome
+gi|10834856|ref|NC_002577.1| Gallid herpesvirus 3, complete genome
+gi|11462417|ref|NC_002615.1| European brown hare syndrome virus, complete genome
+gi|11545722|ref|NC_002617.1| Newcastle disease virus B1, complete genome
+gi|12084822|ref|NC_002640.1| Dengue virus 4, complete genome
+gi|12084824|ref|NC_002641.1| Meleagrid herpesvirus 1, complete genome
+gi|12084983|ref|NC_002642.1| Yaba-like disease virus, complete genome
+gi|12175745|ref|NC_002645.1| Human coronavirus 229E, complete genome
+gi|12657941|ref|NC_002657.1| Classical swine fever virus, complete genome
+gi|13095578|ref|NC_002665.1| Bovine herpesvirus 4, complete genome
+gi|34303903|ref|NC_002685.2| Bovine adenovirus D, complete genome
+gi|126882977|ref|NC_002686.2| Cercopithecine herpesvirus 9, complete genome
+gi|13249660|ref|NC_002690.1| Nodamura virus RNA1, complete sequence
+gi|13249663|ref|NC_002691.1| Nodamura virus RNA2, complete genome
+gi|13487858|ref|NC_002702.1| Porcine adenovirus C, complete genome
+gi|13559808|ref|NC_002728.1| Nipah virus, complete genome
+gi|14250967|ref|NC_002794.1| Tupaiid herpesvirus 1, complete genome
+gi|14336454|ref|NC_002803.1| Spring viraemia of carp virus, complete genome
+gi|15011550|ref|NC_003027.1| Lumpy skin disease virus NI-2490, complete genome
+gi|15081567|ref|NC_003043.1| Avian paramyxovirus 6, complete genome
+gi|15081544|ref|NC_003045.1| Bovine coronavirus, complete genome
+gi|15148076|ref|NC_003054.1| Goose circovirus, complete genome
+gi|15187162|ref|NC_003059.1| Porcine endogenous retrovirus E, complete genome
+gi|16156223|ref|NC_003077.1| Equine rhinitis B virus 2, complete genome
+gi|15426259|ref|NC_003092.1| Simian hemorrhagic fever virus, complete genome
+gi|16767845|ref|NC_003215.1| Semliki forest virus, complete genome
+gi|17158068|ref|NC_003243.1| Australian bat lyssavirus, complete genome
+gi|51527264|ref|NC_003266.2| Human adenovirus E, complete genome
+gi|17974913|ref|NC_003310.1| Monkeypox virus Zaire-96-I-16, complete genome
+gi|18071203|ref|NC_003323.1| Simian T-lymphotropic virus 3, complete genome
+gi|18138516|ref|NC_003348.1| Phocoena spinipinnis papillomavirus, complete genome
+gi|18640086|ref|NC_003389.1| Swinepox virus, complete genome
+gi|18640237|ref|NC_003391.1| Camelpox virus, complete genome
+gi|18653809|ref|NC_003401.1| Macacine herpesvirus 5, genome
+gi|18875309|ref|NC_003410.1| Canary circovirus, complete genome
+gi|19073904|ref|NC_003417.1| Mayaro virus, complete genome
+gi|19352423|ref|NC_003433.1| Sleeping disease virus, complete genome
+gi|19387576|ref|NC_003436.1| Porcine epidemic diarrhea virus, complete genome
+gi|19525721|ref|NC_003443.1| Human parainfluenza virus 2, complete genome
+gi|19550999|ref|NC_003448.1| Striped Jack nervous necrosis virus RNA1, complete sequence
+gi|19551002|ref|NC_003449.1| Striped Jack nervous necrosis virus, complete genome
+gi|19718363|ref|NC_003461.1| Human parainfluenza virus 1, complete genome
+gi|19744949|ref|NC_003466.1| Andes virus segment S, complete sequence
+gi|23464593|ref|NC_003467.2| Andes virus segment M, complete genome
+gi|23464594|ref|NC_003468.2| Andes virus segment L, complete genome
+gi|19881405|ref|NC_003494.1| Infectious spleen and kidney necrosis virus, complete genome
+gi|20177455|ref|NC_003635.1| Modoc virus, complete genome
+gi|30844336|ref|NC_003663.2| Cowpox virus, complete genome
+gi|20178608|ref|NC_003675.1| Rio Bravo virus, genome
+gi|20178606|ref|NC_003676.1| Apoi virus, genome
+gi|20178632|ref|NC_003678.1| Pestivirus Giraffe-1, complete genome
+gi|20198945|ref|NC_003679.1| Border disease virus X818, complete genome
+gi|20260779|ref|NC_003687.1| Powassan virus, complete genome
+gi|20260781|ref|NC_003690.1| Langat virus, complete genome
+gi|20279540|ref|NC_003696.1| Eyach virus segment 1, complete genome
+gi|20279542|ref|NC_003697.1| Eyach virus segment 2, complete genome
+gi|20279544|ref|NC_003698.1| Eyach virus segment 3, complete genome
+gi|20279546|ref|NC_003699.1| Eyach virus segment 4, complete genome
+gi|20279548|ref|NC_003700.1| Eyach virus segment 5, complete genome
+gi|20279550|ref|NC_003701.1| Eyach virus segment 6, complete genome
+gi|20279552|ref|NC_003702.1| Eyach virus segment 7, complete genome
+gi|20279554|ref|NC_003703.1| Eyach virus segment 8, complete genome
+gi|20279556|ref|NC_003704.1| Eyach virus segment 9, complete genome
+gi|20279559|ref|NC_003705.1| Eyach virus segment 10, complete genome
+gi|20279561|ref|NC_003706.1| Eyach virus segment 11, complete genome
+gi|20279563|ref|NC_003707.1| Eyach virus segment 12, complete genome
+gi|20428628|ref|NC_003748.1| Equus caballus papillomavirus - 1, complete genome
+gi|20514394|ref|NC_003790.1| Chicken astrovirus, complete genome
+gi|21218484|ref|NC_003899.1| Eastern equine encephalitis virus, complete genome
+gi|21218488|ref|NC_003900.1| Aura virus, complete genome
+gi|21238454|ref|NC_003908.1| Western equine encephalomyelitis virus, complete genome
+gi|21321727|ref|NC_003930.1| Salmon pancreas disease virus, complete genome
+gi|21326229|ref|NC_003973.1| Psittacus erithacus timneh papillomavirus, complete genome
+gi|146334864|ref|NC_003976.2| Ljungan virus, complete genome
+gi|21326584|ref|NC_003977.1| Hepatitis B virus, complete genome
+gi|21328570|ref|NC_003982.1| Equine rhinitis A virus, complete genome
+gi|21335364|ref|NC_003983.1| Equine rhinitis B virus 1, complete genome
+gi|21363123|ref|NC_003985.1| Porcine teschovirus 1, complete genome
+gi|21363127|ref|NC_003987.1| Porcine sapelovirus 1, complete genome
+gi|21389216|ref|NC_003988.1| Simian enterovirus A, complete genome
+gi|21389214|ref|NC_003990.1| Avian encephalomyelitis virus, complete genome
+gi|48477070|ref|NC_003992.2| Foot-and-mouth disease virus - type SAT 2, complete genome
+gi|21397174|ref|NC_003996.1| Tamana bat virus, genome
+gi|21426071|ref|NC_004002.1| Sheeppox virus 17077-99, complete genome
+gi|21426072|ref|NC_004003.1| Goatpox virus Pellor, complete genome
+gi|21426907|ref|NC_004004.1| Foot-and-mouth disease virus - type O, complete genome
+gi|163869641|ref|NC_004037.2| Ovine adenovirus D, complete genome
+gi|21699776|ref|NC_004064.1| Calicivirus strain NB, complete genome
+gi|21716071|ref|NC_004065.1| Murid herpesvirus 1, complete genome
+gi|21844535|ref|NC_004068.1| Fringilla coelebs papillomavirus, complete genome
+gi|22003842|ref|NC_004074.1| Tioman virus, complete genome
+gi|22129792|ref|NC_004102.1| Hepatitis C virus genotype 1, complete genome
+gi|22138122|ref|NC_004104.1| Human papillomavirus type 90, complete genome
+gi|22164589|ref|NC_004105.1| Ectromelia virus, complete genome
+gi|22256030|ref|NC_004107.1| Woodchuck hepatitis virus, complete genome
+gi|22256023|ref|NC_004108.1| La Crosse virus segment L, complete genome
+gi|22256025|ref|NC_004109.1| La Crosse virus segment M, complete genome
+gi|22256027|ref|NC_004110.1| La Crosse virus segment S, complete genome
+gi|22550315|ref|NC_004119.1| Montana myotis leukoencephalitis virus, complete genome
+gi|22681117|ref|NC_004136.1| Epinephelus tauvina nervous necrosis virus RNA 2, complete sequence
+gi|22681120|ref|NC_004137.1| Epinephelus tauvina nervous necrosis virus RNA 1, complete sequence
+gi|22681027|ref|NC_004142.1| Boolarra virus RNA1, complete genome
+gi|22711868|ref|NC_004145.1| Boolarra virus RNA 2, complete sequence
+gi|46852132|ref|NC_004148.2| Human metapneumovirus, complete genome
+gi|22788698|ref|NC_004157.1| Dugbe virus segment S, complete sequence
+gi|22788700|ref|NC_004158.1| Dugbe virus segment M, complete sequence
+gi|22788702|ref|NC_004159.1| Dugbe virus segment L, complete sequence
+gi|22789222|ref|NC_004161.1| Reston ebolavirus, complete genome
+gi|27754751|ref|NC_004162.2| Chikungunya virus, complete genome
+gi|22855189|ref|NC_004168.1| Yellowtail ascites virus segment A, complete sequence
+gi|22855191|ref|NC_004176.1| Yellowtail ascites virus segment B, complete sequence
+gi|22855166|ref|NC_004178.1| Infectious bursal disease virus segment A, complete sequence
+gi|22855169|ref|NC_004179.1| Infectious bursal disease virus segment B, complete sequence
+gi|22960697|ref|NC_004180.1| Colorado tick fever virus segment 9, complete sequence
+gi|22960700|ref|NC_004181.1| Colorado tick fever virus segment 1, complete sequence
+gi|22960702|ref|NC_004182.1| Colorado tick fever virus segment 2, complete sequence
+gi|22960704|ref|NC_004183.1| Colorado tick fever virus segment 3, complete sequence
+gi|22960706|ref|NC_004184.1| Colorado tick fever virus segment 4, complete sequence
+gi|22960708|ref|NC_004185.1| Colorado tick fever virus segment 5, complete sequence
+gi|22960710|ref|NC_004186.1| Colorado tick fever virus segment 6, complete sequence
+gi|22960712|ref|NC_004187.1| Colorado tick fever virus segment 7, complete sequence
+gi|22960714|ref|NC_004188.1| Colorado tick fever virus segment 8, complete sequence
+gi|22960716|ref|NC_004189.1| Colorado tick fever virus segment 10, complete sequence
+gi|22960718|ref|NC_004190.1| Colorado tick fever virus segment 12, complete sequence
+gi|22960720|ref|NC_004191.1| Colorado tick fever virus segment 11, complete sequence
+gi|23217032|ref|NC_004194.1| Equinus papillomavirus, complete genome
+gi|23217014|ref|NC_004195.1| Bovine papillomavirus type 5, complete genome
+gi|23216976|ref|NC_004197.1| Bovine papillomavirus 3, complete genome
+gi|23238115|ref|NC_004198.1| Banna virus segment 12, complete sequence
+gi|23238139|ref|NC_004199.1| Kadipiro virus chromosome segment 12, complete genome
+gi|23238117|ref|NC_004200.1| Banna virus segment 11, complete sequence
+gi|23238119|ref|NC_004201.1| Banna virus segment 10, complete sequence
+gi|23238121|ref|NC_004202.1| Banna virus segment 9, complete sequence
+gi|23238123|ref|NC_004203.1| Banna virus segment 8, complete sequence
+gi|23238125|ref|NC_004204.1| Banna virus segment 7, complete sequence
+gi|23238141|ref|NC_004205.1| Kadipiro virus segment 11, complete sequence
+gi|23238143|ref|NC_004206.1| Kadipiro virus chromosome segment 10, complete genome
+gi|23238145|ref|NC_004207.1| Kadipiro virus chromosome segment 9, complete genome
+gi|23238147|ref|NC_004208.1| Kadipiro virus chromosome segment 8, complete genome
+gi|23238149|ref|NC_004209.1| Kadipiro virus segment 7, complete genome
+gi|23238151|ref|NC_004210.1| Kadipiro virus chromosome segment 1, complete genome
+gi|23238127|ref|NC_004211.1| Banna virus segment 1, complete sequence
+gi|23238153|ref|NC_004212.1| Kadipiro virus chromosome segment 2, complete genome
+gi|23238155|ref|NC_004213.1| Kadipiro virus chromosome segment 3, complete genome
+gi|23238157|ref|NC_004214.1| Kadipiro virus chromosome segment 4, complete genome
+gi|23238159|ref|NC_004215.1| Kadipiro virus chromosome segment 5, complete genome
+gi|23238161|ref|NC_004216.1| Kadipiro virus chromosome segment 6, complete genome
+gi|23238129|ref|NC_004217.1| Banna virus segment 2, complete sequence
+gi|23238131|ref|NC_004218.1| Banna virus segment 3, complete sequence
+gi|23238133|ref|NC_004219.1| Banna virus segment 4, complete sequence
+gi|23238135|ref|NC_004220.1| Banna virus segment 5, complete sequence
+gi|23238137|ref|NC_004221.1| Banna virus segment 6, complete sequence
+gi|23309022|ref|NC_004274.1| Mammalian orthoreovirus 3 segment L3, complete sequence
+gi|23309024|ref|NC_004275.1| Mammalian orthoreovirus 3 segment L2, complete sequence
+gi|23309026|ref|NC_004276.1| Mammalian orthoreovirus 3 segment S4, complete sequence
+gi|23309028|ref|NC_004277.1| Mammalian orthoreovirus 3 segment S1, complete sequence
+gi|23309030|ref|NC_004278.1| Mammalian orthoreovirus 3 segment M2, complete sequence
+gi|23309032|ref|NC_004279.1| Mammalian orthoreovirus 3 segment S2, complete sequence
+gi|23309034|ref|NC_004280.1| Mammalian orthoreovirus 3 segment M1, complete sequence
+gi|23309036|ref|NC_004281.1| Mammalian orthoreovirus 3 segment M3, complete sequence
+gi|294854040|ref|NC_004282.4| Mammalian orthoreovirus 3 segment L1, complete sequence
+gi|23309040|ref|NC_004283.1| Mammalian orthoreovirus 3 segment S3, complete sequence
+gi|23334585|ref|NC_004291.1| Lymphocytic choriomeningitis virus segment L, complete sequence
+gi|23334591|ref|NC_004292.1| Tacaribe virus segment L, complete sequence
+gi|23334594|ref|NC_004293.1| Tacaribe virus segment S, complete sequence
+gi|23334588|ref|NC_004294.1| Lymphocytic choriomeningitis virus segment S, complete sequence
+gi|23343515|ref|NC_004295.1| Human erythrovirus V9, complete genome
+gi|23343509|ref|NC_004296.1| Lassa virus segment S, complete sequence
+gi|23343512|ref|NC_004297.1| Lassa virus segment L, complete sequence
+gi|24432113|ref|NC_004355.1| Alkhurma virus, complete genome
+gi|24943089|ref|NC_004367.1| Callitrichine herpesvirus 3, complete genome
+gi|25057978|ref|NC_004421.1| Bovine kobuvirus, complete genome
+gi|27057675|ref|NC_004441.1| Porcine enterovirus B, complete genome
+gi|27151463|ref|NC_004442.1| Canine minute virus, complete genome
+gi|27228716|ref|NC_004451.1| Simian sapelovirus 1, complete genome
+gi|27228471|ref|NC_004453.1| Tree shrew adenovirus, complete genome
+gi|27311166|ref|NC_004455.1| Simian immunodeficiency virus SIV-mnd 2, complete genome
+gi|27531786|ref|NC_004500.1| Human papillomavirus type 92, complete genome
+gi|27881469|ref|NC_004541.1| Walrus calicivirus, complete genome
+gi|27881465|ref|NC_004542.1| Canine calicivirus, complete genome
+gi|28867239|ref|NC_004579.1| Mink astrovirus, complete genome
+gi|29742044|ref|NC_004713.1| LuIII virus, complete genome
+gi|30271926|ref|NC_004718.3| SARS coronavirus, complete genome
+gi|30315610|ref|NC_004763.1| African green monkey polyomavirus, complete genome
+gi|313843958|ref|NC_004764.2| Budgerigar fledgling disease virus - 1, complete genome
+gi|30315794|ref|NC_004765.1| Felis domesticus papillomavirus type 1, complete genome
+gi|30518360|ref|NC_004800.1| Goose hemorrhagic polyomavirus, complete genome
+gi|30984428|ref|NC_004812.1| Macacine herpesvirus 1, complete genome
+gi|31543992|ref|NC_004828.1| Avian adeno-associated virus ATCC VR-865, complete genome
+gi|93163150|ref|NC_004905.2| Influenza A virus (A/Hong Kong/1073/99(H9N2)), complete genome
+gi|32140160|ref|NC_004906.1| Influenza A virus (A/Hong Kong/1073/99(H9N2)) segment 8, complete sequence
+gi|32141421|ref|NC_004907.1| Influenza A virus (A/Hong Kong/1073/99(H9N2)) segment 7, complete sequence
+gi|32140163|ref|NC_004908.1| Influenza A virus (A/Hong Kong/1073/99(H9N2)) segment 4, complete sequence
+gi|32140165|ref|NC_004909.1| Influenza A virus (A/Hong Kong/1073/99(H9N2)) segment 6, complete sequence
+gi|32140167|ref|NC_004910.1| Influenza A virus (A/Hong Kong/1073/99(H9N2)) segment 1, complete sequence
+gi|32140169|ref|NC_004911.1| Influenza A virus (A/Hong Kong/1073/99(H9N2)) segment 2, complete sequence
+gi|32140171|ref|NC_004912.1| Influenza A virus (A/Hong Kong/1073/99(H9N2)) segment 3, complete sequence
+gi|32188257|ref|NC_004915.1| Foot-and-mouth disease virus - type Asia 1, complete genome
+gi|33354433|ref|NC_004994.2| Enzootic nasal tumour virus of goats, complete genome
+gi|32563515|ref|NC_005036.1| Goose paramyxovirus SF02, complete genome
+gi|33112010|ref|NC_005039.1| Yokose virus, complete genome
+gi|33438708|ref|NC_005053.1| Mulard duck circovirus, complete genome
+gi|33589253|ref|NC_005062.1| Omsk hemorrhagic fever virus, complete genome
+gi|33620713|ref|NC_005064.1| Kamiti River virus, complete genome
+gi|34365538|ref|NC_005077.1| Guanarito virus segment S, complete genome
+gi|34365532|ref|NC_005078.1| Machupo virus segment S, complete genome
+gi|34365535|ref|NC_005079.1| Machupo virus segment L, complete genome
+gi|34365526|ref|NC_005080.1| Junin virus segment L, complete genome
+gi|34365529|ref|NC_005081.1| Junin virus segment S, complete genome
+gi|34365541|ref|NC_005082.1| Guanarito virus segment L, complete genome
+gi|41387225|ref|NC_005084.2| Fer-de-lance virus, complete genome
+gi|34610114|ref|NC_005093.1| Hirame rhabdovirus, complete genome
+gi|50253426|ref|NC_005134.2| Human papillomavirus type 96, complete genome
+gi|38018022|ref|NC_005147.1| Human coronavirus OC43, complete genome
+gi|38018060|ref|NC_005148.1| Porcine circovirus 2, complete genome
+gi|38147300|ref|NC_005166.1| Golden shiner reovirus segment 1, complete sequence
+gi|38147302|ref|NC_005167.1| Golden shiner reovirus segment 2, complete sequence
+gi|38147304|ref|NC_005168.1| Golden shiner reovirus segment 3, complete sequence
+gi|38147306|ref|NC_005169.1| Golden shiner reovirus segment 4, complete sequence
+gi|38147308|ref|NC_005170.1| Golden shiner reovirus segment 5, complete sequence
+gi|38147310|ref|NC_005171.1| Golden shiner reovirus segment 6, complete sequence
+gi|38147312|ref|NC_005172.1| Golden shiner reovirus segment 7, complete sequence
+gi|38147315|ref|NC_005173.1| Golden shiner reovirus segment 8, complete sequence
+gi|38147317|ref|NC_005174.1| Golden shiner reovirus segment 9, complete sequence
+gi|38147319|ref|NC_005175.1| Golden shiner reovirus segment 10, complete sequence
+gi|38147321|ref|NC_005176.1| Golden shiner reovirus segment 11, complete sequence
+gi|38229169|ref|NC_005179.1| Yaba monkey tumor virus, complete genome
+gi|38371701|ref|NC_005214.1| Uukuniemi virus segment L, complete sequence
+gi|38371723|ref|NC_005215.1| Sin Nombre virus chromosome M segment, complete genome
+gi|38371725|ref|NC_005216.1| Sin Nombre virus segment S, complete sequence
+gi|38371727|ref|NC_005217.1| Sin Nombre virus, complete genome
+gi|38371710|ref|NC_005218.1| Hantaan virus, complete genome
+gi|38371712|ref|NC_005219.1| Hantaan virus, complete genome
+gi|38371703|ref|NC_005220.1| Uukuniemi virus chromosome segment M, complete genome
+gi|38371707|ref|NC_005221.1| Uukuniemi virus, complete genome
+gi|38371716|ref|NC_005222.1| Hantaan virus segment L, complete genome
+gi|38371718|ref|NC_005223.1| Puumala virus segment M, complete sequence
+gi|38371720|ref|NC_005224.1| Puumala virus segment S, complete sequence
+gi|38371722|ref|NC_005225.1| Puumala virus segment L, complete genome
+gi|38488686|ref|NC_005226.1| Tula virus segment L, complete sequence
+gi|356457881|ref|NC_005227.2| Tula virus segment S, complete genome
+gi|38488690|ref|NC_005228.1| Tula virus segment M, complete sequence
+gi|38505523|ref|NC_005233.1| Dobrava virus segment S, complete sequence
+gi|38505525|ref|NC_005234.1| Dobrava virus segment M, complete sequence
+gi|38505527|ref|NC_005235.1| Dobrava-Belgrade virus strain DOBV/Ano-Poroia/Afl9/1999
+gi|38505529|ref|NC_005236.1| Seoul virus strain 80-39 segment S, complete sequence
+gi|38505531|ref|NC_005237.1| Seoul virus segment M, complete sequence
+gi|38505533|ref|NC_005238.1| Seoul virus strain Seoul 80-39 clone 1
+gi|123318702|ref|NC_005261.2| Bovine herpesvirus 5, complete genome
+gi|38638196|ref|NC_005264.1| Psittacid herpesvirus 1, complete genome
+gi|38707562|ref|NC_005283.1| Dolphin morbillivirus, complete genome
+gi|75905471|ref|NC_005300.2| Crimean-Congo hemorrhagic fever virus segment M, complete sequence
+gi|76364065|ref|NC_005301.3| Crimean-Congo hemorrhagic fever virus segment L, complete sequence
+gi|39840949|ref|NC_005302.1| Crimean-Congo hemorrhagic fever virus segment S, complete sequence
+gi|40555938|ref|NC_005309.1| Canarypox virus, complete genome
+gi|41057066|ref|NC_005336.1| Orf virus, complete genome
+gi|41057437|ref|NC_005337.1| Bovine papular stomatitis virus, complete genome
+gi|41057593|ref|NC_005339.1| Mossman virus, complete genome
+gi|44965086|ref|NC_005775.1| Oropouche virus segment M, complete sequence
+gi|44965093|ref|NC_005776.1| Oropouche virus segment L, complete genome
+gi|44965100|ref|NC_005777.1| Oropouche virus segment S, complete genome
+gi|45239034|ref|NC_005790.1| Turkey astrovirus 2, complete genome
+gi|49169782|ref|NC_005831.2| Human coronavirus NL63, complete genome
+gi|45686008|ref|NC_005832.1| Ambystoma tigrinum virus, complete genome
+gi|46852402|ref|NC_005869.1| Porcine adenovirus A, complete genome
+gi|48696604|ref|NC_005888.1| Ross's goose hepatitis B virus, complete genome
+gi|48696557|ref|NC_005889.1| Bovine adeno-associated virus, complete genome
+gi|48696569|ref|NC_005890.1| Sheldgoose hepatitis B virus, complete genome
+gi|48696000|ref|NC_005894.1| Pirital virus segment S, complete sequence
+gi|48696024|ref|NC_005897.1| Pirital virus segment L, complete genome
+gi|48843719|ref|NC_005902.1| Lymphocystis disease virus - isolate China, complete genome
+gi|49237297|ref|NC_005946.1| Frog virus 3, complete genome
+gi|49248517|ref|NC_005947.1| Avian endogenous retrovirus EAV-HP, complete genome
+gi|49246207|ref|NC_005950.1| Snow goose hepatitis B virus, complete genome
+gi|50198872|ref|NC_005982.1| Blotched snakehead virus, complete genome
+gi|50234096|ref|NC_005983.1| Blotched snakehead virus, complete genome
+gi|50253397|ref|NC_005986.1| Chuzan virus segment 2, complete sequence
+gi|50253399|ref|NC_005987.1| Chuzan virus segment 6, complete sequence
+gi|50253401|ref|NC_005988.1| Chuzan virus segment 7, complete sequence
+gi|50253403|ref|NC_005989.1| Chuzan virus segment 3, complete sequence
+gi|50261332|ref|NC_005990.1| Chuzan virus segment 1, complete sequence
+gi|50261334|ref|NC_005991.1| Chuzan virus segment 4, complete sequence
+gi|50261336|ref|NC_005992.1| Chuzan virus segment 9, complete sequence
+gi|50261338|ref|NC_005993.1| Chuzan virus segment 5, complete sequence
+gi|50261340|ref|NC_005994.1| Chuzan virus segment 8, complete sequence
+gi|50261342|ref|NC_005995.1| Chuzan virus segment 10, complete sequence
+gi|50261322|ref|NC_005996.1| African horsesickness virus segment 2, complete genome
+gi|50253405|ref|NC_005997.1| St Croix River virus segment 1, complete genome
+gi|50253407|ref|NC_005998.1| St Croix River virus chromosome segment 2, complete genome
+gi|50253409|ref|NC_005999.1| St Croix River virus chromosome segment 3, complete genome
+gi|50253411|ref|NC_006000.1| St Croix River virus chromosome segment 4, complete genome
+gi|50253413|ref|NC_006001.1| St Croix River virus chromosome segment 5, complete genome
+gi|50253415|ref|NC_006002.1| St Croix River virus chromosome segment 6, complete genome
+gi|50253417|ref|NC_006003.1| St Croix River virus chromosome segment 7, complete genome
+gi|50253419|ref|NC_006004.1| St Croix River virus chromosome segment 8, complete genome
+gi|50253421|ref|NC_006005.1| St Croix River virus chromosome segment 9, complete genome
+gi|50253423|ref|NC_006006.1| St Croix River virus chromosome segment 10, complete genome
+gi|50253377|ref|NC_006007.1| Bluetongue virus segment 8, complete sequence
+gi|50253379|ref|NC_006008.1| Bluetongue virus segment 9, complete sequence
+gi|50261344|ref|NC_006009.1| African horsesickness virus segment 10, complete sequence
+gi|50253381|ref|NC_006010.1| Bluetongue virus segment 6, complete sequence
+gi|50253371|ref|NC_006011.1| African horsesickness virus segment 7, complete sequence
+gi|50261320|ref|NC_006012.1| African horsesickness virus segment 4, complete sequence
+gi|50253383|ref|NC_006013.1| Bluetongue virus segment 2, complete sequence
+gi|50253385|ref|NC_006014.1| Bluetongue virus segment 3, complete sequence
+gi|50253387|ref|NC_006015.1| Bluetongue virus segment 10, complete sequence
+gi|50261324|ref|NC_006016.1| African horsesickness virus segment 8, complete sequence
+gi|50261326|ref|NC_006017.1| African horsesickness virus segment 3, complete sequence
+gi|50261328|ref|NC_006018.1| African horsesickness virus segment 6, complete sequence
+gi|50261330|ref|NC_006019.1| African horsesickness virus chromosome segment 9, complete genome
+gi|50253373|ref|NC_006020.1| African horsesickness virus
+gi|50253375|ref|NC_006021.1| African horsesickness virus segment 1, complete genome
+gi|50253389|ref|NC_006022.1| Bluetongue virus segment 7, complete sequence
+gi|50253391|ref|NC_006023.1| Bluetongue virus segment 1, complete sequence
+gi|85857779|ref|NC_006024.2| Bluetongue virus segment 4, complete sequence
+gi|50253395|ref|NC_006025.1| Bluetongue virus segment 5, complete sequence
+gi|51518815|ref|NC_006144.1| Simian adenovirus 3, complete genome
+gi|51518014|ref|NC_006146.1| Macacine herpesvirus 4, complete genome
+gi|51593841|ref|NC_006147.2| Muscovy duck parvovirus, complete genome
+gi|51555744|ref|NC_006148.1| Snake parvovirus 1, complete genome
+gi|51556461|ref|NC_006150.1| Macacine herpesvirus 3, complete genome
+gi|51557483|ref|NC_006151.1| Suid herpesvirus 1, complete genome
+gi|51593836|ref|NC_006152.1| Adeno-associated virus 5, complete genome
+gi|51949957|ref|NC_006259.1| Bovine parvovirus 2, complete genome
+gi|51949960|ref|NC_006260.1| Adeno-associated virus - 7, complete genome
+gi|51949963|ref|NC_006261.1| Adeno-associated virus - 8, complete genome
+gi|51949968|ref|NC_006263.1| Avian adeno-associated virus strain DA-1, complete genome
+gi|51950963|ref|NC_006269.1| Sapovirus Hu/Dresden/pJG-Sap01/DE, complete genome
+gi|155573622|ref|NC_006273.2| Human herpesvirus 5, complete genome
+gi|56410431|ref|NC_006296.2| Rinderpest virus (strain Kabete O), complete genome
+gi|211910015|ref|NC_006306.2| Influenza C virus (C/Ann Arbor/1/50) segment 7, complete genome
+gi|52630349|ref|NC_006307.1| Influenza C virus (C/Ann Arbor/1/50) segment 1, partial sequence
+gi|52630351|ref|NC_006308.1| Influenza C virus (C/Ann Arbor/1/50) segment 2, complete sequence
+gi|52630353|ref|NC_006309.1| Influenza C virus (C/Ann Arbor/1/50) segment 3, complete sequence
+gi|52630355|ref|NC_006310.1| Influenza C virus (C/Ann Arbor/1/50) segment 4, complete sequence
+gi|52630357|ref|NC_006311.1| Influenza C virus (C/Ann Arbor/1/50) segment 5, complete sequence
+gi|52673229|ref|NC_006312.1| Influenza C virus (C/Ann Arbor/1/50) segment 6, complete sequence
+gi|52627076|ref|NC_006313.1| Sabia virus segment L, complete genome
+gi|52627079|ref|NC_006317.1| Sabia virus, complete genome
+gi|52627072|ref|NC_006318.1| Toscana virus segment S, complete sequence
+gi|52673227|ref|NC_006319.1| Toscana virus segment L, complete sequence
+gi|52627075|ref|NC_006320.1| Toscana virus segment M, complete sequence
+gi|52801677|ref|NC_006324.1| Bovine adenovirus A, complete genome
+gi|71037362|ref|NC_006383.2| Peste-des-petits-ruminants virus, complete genome
+gi|55770820|ref|NC_006428.1| Simian virus 41, complete genome
+gi|55770806|ref|NC_006429.1| Mokola virus, complete genome
+gi|55775697|ref|NC_006430.1| Parainfluenza virus 5, complete genome
+gi|55770807|ref|NC_006432.1| Sudan ebolavirus, complete genome
+gi|55733701|ref|NC_006433.1| Hantavirus Z10 chromosome S segment, complete genome
+gi|55733703|ref|NC_006435.1| Hantavirus Z10 chromosome L, complete genome
+gi|55733705|ref|NC_006437.1| Hantavirus Z10 segment M, complete genome
+gi|55775706|ref|NC_006439.1| Pichinde virus L RNA, complete genome
+gi|55733698|ref|NC_006447.1| Pichinde virus, complete genome
+gi|56403977|ref|NC_006495.1| Thogoto virus
+gi|56403979|ref|NC_006496.1| Thogoto virus
+gi|56403990|ref|NC_006497.1| Infectious salmon anemia virus segment 8, complete genome
+gi|56403993|ref|NC_006498.1| Infectious salmon anemia virus segment 7, complete genome
+gi|56407666|ref|NC_006499.1| Infectious salmon anemia virus segment 6, complete genome
+gi|56407668|ref|NC_006500.1| Infectious salmon anemia virus
+gi|56418533|ref|NC_006501.1| Infectious salmon anemia virus
+gi|56407670|ref|NC_006502.1| Infectious salmon anemia virus
+gi|56407672|ref|NC_006503.1| Infectious salmon anemia virus
+gi|56403981|ref|NC_006504.1| Thogoto virus segment 6, complete genome
+gi|56407674|ref|NC_006505.1| Infectious salmon anemia virus segment 1, complete sequence
+gi|56403984|ref|NC_006506.1| Thogoto virus, complete genome
+gi|56403986|ref|NC_006507.1| Thogoto virus segment 5, complete genome
+gi|56403988|ref|NC_006508.1| Thogoto virus segment 1, complete genome
+gi|56692637|ref|NC_006549.1| Singapore grouper iridovirus, complete genome
+gi|56692441|ref|NC_006551.1| Usutu virus, complete genome
+gi|56692979|ref|NC_006553.1| Avian sapelovirus, complete genome
+gi|56692993|ref|NC_006554.1| Sapovirus C12 strain C12
+gi|56692396|ref|NC_006558.1| Getah virus, complete genome
+gi|56694721|ref|NC_006560.1| Cercopithecine herpesvirus 2, complete genome
+gi|56698743|ref|NC_006561.1| Muscovy duck circovirus, complete genome
+gi|56698748|ref|NC_006563.1| Trichechus manatus latirostris papillomavirus 1, complete genome
+gi|56693036|ref|NC_006564.1| Canine papillomavirus 2, complete genome
+gi|56699504|ref|NC_006574.1| Mopeia virus AN20410 segment L, complete genome
+gi|56699507|ref|NC_006575.1| Mopeia virus AN20410 segment S, complete genome
+gi|85667876|ref|NC_006577.2| Human coronavirus HKU1, complete genome
+gi|56900714|ref|NC_006579.1| Pneumonia virus of mice J3666, complete genome
+gi|57790931|ref|NC_006623.1| Gallid herpesvirus 1, complete genome
+gi|60115391|ref|NC_006852.1| Murine hepatitis virus strain JHM, complete genome
+gi|60677687|ref|NC_006875.1| Calicivirus isolate TCG, complete genome
+gi|61602086|ref|NC_006879.1| Simian adenovirus 1, complete genome
+gi|62326506|ref|NC_006934.1| Reticuloendotheliosis virus, complete genome
+gi|62326809|ref|NC_006947.1| Karshi virus, complete genome
+gi|62362146|ref|NC_006951.1| Erethizon dorsatum papillomavirus type 1, complete genome
+gi|62422552|ref|NC_006966.1| Deerpox virus W-848-83, complete genome
+gi|62443971|ref|NC_006967.1| Deerpox virus W-1170-84, complete genome
+gi|66275797|ref|NC_006998.1| Vaccinia virus, complete genome
+gi|66391749|ref|NC_007013.1| Small anellovirus 1, complete genome
+gi|66391753|ref|NC_007014.1| Small anellovirus 2, complete genome
+gi|66576233|ref|NC_007015.1| Ovine enzootic nasal tumour virus, complete genome
+gi|66476546|ref|NC_007018.1| Human parvovirus 4, complete genome
+gi|68304288|ref|NC_007150.1| Procyon lotor papillomavirus 1, complete genome
+gi|71658851|ref|NC_007220.1| Duck circovirus, complete genome
+gi|73852946|ref|NC_007357.1| Influenza A virus (A/Goose/Guangdong/1/96(H5N1)), complete genome
+gi|73852948|ref|NC_007358.1| Influenza A virus (A/Goose/Guangdong/1/96(H5N1)) segment 2, complete sequence
+gi|73852950|ref|NC_007359.1| Influenza A virus (A/Goose/Guangdong/1/96(H5N1)), complete genome
+gi|73852952|ref|NC_007360.1| Influenza A virus (A/Goose/Guangdong/1/96(H5N1)), complete genome
+gi|73921265|ref|NC_007361.1| Influenza A virus (A/Goose/Guangdong/1/96(H5N1)) strain A/Goose/Guangdong/1/96(H5N1)
+gi|73852954|ref|NC_007362.1| Influenza A virus (A/Goose/Guangdong/1/96(H5N1)) segment 4, complete sequence
+gi|73852956|ref|NC_007363.1| Influenza A virus (A/Goose/Guangdong/1/96(H5N1)) strain A/Goose/Guangdong/1/96(H5N1)
+gi|73852943|ref|NC_007364.1| Influenza A virus (A/Goose/Guangdong/1/96(H5N1)), complete genome
+gi|73919206|ref|NC_007366.1| Influenza A virus (A/New York/392/2004(H3N2)) segment 4, complete sequence
+gi|73919151|ref|NC_007367.1| Influenza A virus (A/New York/392/2004(H3N2)) segment 7, complete sequence
+gi|73919135|ref|NC_007368.1| Influenza A virus (A/New York/392/2004(H3N2)) segment 6, complete sequence
+gi|73919146|ref|NC_007369.1| Influenza A virus (A/New York/392/2004(H3N2)) segment 5, complete sequence
+gi|73919211|ref|NC_007370.1| Influenza A virus (A/New York/392/2004(H3N2)) segment 8, complete sequence
+gi|73919133|ref|NC_007371.1| Influenza A virus (A/New York/392/2004(H3N2)) strain A/New York/392/2004
+gi|73919148|ref|NC_007372.1| Influenza A virus (A/New York/392/2004(H3N2)) segment 2, complete sequence
+gi|73919059|ref|NC_007373.1| Influenza A virus (A/New York/392/2004(H3N2)) segment 1, complete sequence
+gi|73919144|ref|NC_007374.1| Influenza A virus (A/Korea/426/68(H2N2)) segment 4, complete sequence
+gi|73912682|ref|NC_007375.1| Influenza A virus (A/Korea/426/68(H2N2)) segment 2, complete sequence
+gi|73912684|ref|NC_007376.1| Influenza A virus (A/Korea/426/68(H2N2)) segment 3, complete sequence
+gi|73912686|ref|NC_007377.1| Influenza A virus (A/Korea/426/68(H2N2)) segment 7, complete sequence
+gi|73918825|ref|NC_007378.1| Influenza A virus (A/Korea/426/1968(H2N2)), complete genome
+gi|73921565|ref|NC_007380.1| Influenza A virus (A/Korea/426/68(H2N2)) segment 8, complete sequence
+gi|73921306|ref|NC_007381.1| Influenza A virus (A/Korea/426/68(H2N2)) segment 5, complete sequence
+gi|73921303|ref|NC_007382.1| Influenza A virus (A/Korea/426/68(H2N2)) segment 6, complete sequence
+gi|77118348|ref|NC_007447.1| Breda virus, complete genome
+gi|77124337|ref|NC_007454.1| J-virus, complete genome
+gi|77125236|ref|NC_007455.1| Human bocavirus, complete genome
+gi|81022919|ref|NC_007543.1| Rotavirus C segment 6, complete sequence
+gi|81021557|ref|NC_007544.1| Rotavirus C segment 7, complete sequence
+gi|81002246|ref|NC_007545.1| Rotavirus C segment 9, complete sequence
+gi|80984706|ref|NC_007546.1| Rotavirus C segment 2, complete sequence
+gi|81097459|ref|NC_007547.1| Rotavirus C segment 1, complete sequence
+gi|78765373|ref|NC_007548.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78766369|ref|NC_007549.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78766647|ref|NC_007550.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78766821|ref|NC_007551.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78767039|ref|NC_007552.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78767273|ref|NC_007553.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78767504|ref|NC_007554.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78767691|ref|NC_007555.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78767825|ref|NC_007556.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78767973|ref|NC_007557.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|78768152|ref|NC_007558.1| Adult diarrheal rotavirus strain J19, complete genome
+gi|81097465|ref|NC_007569.1| Rotavirus C segment 10, complete sequence
+gi|81042249|ref|NC_007570.1| Rotavirus C segment 5, complete sequence
+gi|81054207|ref|NC_007571.1| Rotavirus C segment 8, complete sequence
+gi|81097461|ref|NC_007572.1| Rotavirus C segment 3, complete sequence
+gi|78761397|ref|NC_007573.1| Rotavirus C segment 11, complete sequence
+gi|81097463|ref|NC_007574.1| Rotavirus C segment 4, complete sequence
+gi|123205971|ref|NC_007580.2| St. Louis encephalitis virus, complete genome
+gi|81079705|ref|NC_007582.1| Aquareovirus A segment 1, complete sequence
+gi|81083820|ref|NC_007583.1| Aquareovirus A segment 2, complete sequence
+gi|81096040|ref|NC_007584.1| Aquareovirus A segment 3, complete sequence
+gi|80160542|ref|NC_007585.1| Aquareovirus A segment 4, complete genome
+gi|80160664|ref|NC_007586.1| Chum salmon reovirus CS segment 5, complete genome
+gi|80160784|ref|NC_007587.1| Chum salmon reovirus CS segment 7, complete genome
+gi|80160891|ref|NC_007588.1| Aquareovirus A segment 8, complete genome
+gi|80161069|ref|NC_007589.1| Aquareovirus A segment 9, complete genome
+gi|80161225|ref|NC_007590.1| Aquareovirus A segment 10, complete genome
+gi|80161401|ref|NC_007591.1| Aquareovirus A segment 11, complete genome
+gi|80161607|ref|NC_007592.1| Aquareovirus A segment 6, complete genome
+gi|82503188|ref|NC_007605.1| Human herpesvirus 4 type 1, complete genome
+gi|82524372|ref|NC_007611.1| Simian agent 12, complete genome
+gi|82547780|ref|NC_007612.1| Bovine papillomavirus 7, complete genome
+gi|82712717|ref|NC_007620.1| Menangle virus, complete genome
+gi|83642839|ref|NC_007646.1| Ovine herpesvirus 2, complete genome
+gi|83716025|ref|NC_007652.1| Avian metapneumovirus
+gi|83722567|ref|NC_007653.1| Papiine herpesvirus 2, complete genome
+gi|83722643|ref|NC_007654.1| Atlantic salmon swim bladder sarcoma virus, complete genome
+gi|83721671|ref|NC_007656.1| Yunnan orbivirus segment 1, complete sequence
+gi|83721673|ref|NC_007657.1| Yunnan orbivirus segment 2, complete sequence
+gi|83721675|ref|NC_007658.1| Yunnan orbivirus segment 3, complete sequence
+gi|83721677|ref|NC_007659.1| Yunnan orbivirus segment 4, complete sequence
+gi|83721679|ref|NC_007660.1| Yunnan orbivirus segment 5, complete sequence
+gi|83721681|ref|NC_007661.1| Yunnan orbivirus segment 6, complete sequence
+gi|83721683|ref|NC_007662.1| Yunnan orbivirus segment 7, complete sequence
+gi|83721685|ref|NC_007663.1| Yunnan orbivirus segment 8, complete sequence
+gi|83721687|ref|NC_007664.1| Yunnan orbivirus segment 9, complete sequence
+gi|83721689|ref|NC_007665.1| Yunnan orbivirus segment 10, complete sequence
+gi|85718614|ref|NC_007732.1| Porcine hemagglutinating encephalomyelitis virus, complete genome
+gi|85813347|ref|NC_007736.1| Liao ning virus segment 1, complete genome
+gi|85813349|ref|NC_007737.1| Liao ning virus segment 2, complete genome
+gi|85813351|ref|NC_007738.1| Liao ning virus segment 3, complete genome
+gi|85813353|ref|NC_007739.1| Liao ning virus segment 4, complete genome
+gi|85813355|ref|NC_007740.1| Liao ning virus segment 5, complete genome
+gi|85813357|ref|NC_007741.1| Liao ning virus segment 6, complete genome
+gi|85719259|ref|NC_007742.1| Liao ning virus segment 7, complete genome
+gi|85719261|ref|NC_007743.1| Liao ning virus segment 8, complete genome
+gi|85719263|ref|NC_007744.1| Liao ning virus segment 9, complete genome
+gi|85719265|ref|NC_007745.1| Liao ning virus segment 10, complete genome
+gi|85719267|ref|NC_007746.1| Liao ning virus segment 11, complete genome
+gi|85719269|ref|NC_007747.1| Liao ning virus segment 12, complete genome
+gi|85719271|ref|NC_007748.1| Peruvian horse sickness virus segment 1, complete genome
+gi|85719273|ref|NC_007749.1| Peruvian horse sickness virus segment 2, complete genome
+gi|85719275|ref|NC_007750.1| Peruvian horse sickness virus segment 3, complete genome
+gi|85719277|ref|NC_007751.1| Peruvian horse sickness virus segment 4, complete genome
+gi|85719279|ref|NC_007752.1| Peruvian horse sickness virus segment 6, complete genome
+gi|85719281|ref|NC_007753.1| Peruvian horse sickness virus segment 9, complete genome
+gi|85719283|ref|NC_007754.1| Peruvian horse sickness virus segment 8, complete genome
+gi|85719285|ref|NC_007755.1| Peruvian horse sickness virus segment 5, complete genome
+gi|85719287|ref|NC_007756.1| Peruvian horse sickness virus segment 7, complete genome
+gi|85719289|ref|NC_007757.1| Peruvian horse sickness virus segment 10, complete genome
+gi|89888070|ref|NC_007803.1| Beilong virus, complete genome
+gi|339276104|ref|NC_007815.2| PreXMRV-1 provirus, complete genome
+gi|89885729|ref|NC_007903.1| Mobala virus segment S, complete sequence
+gi|89903001|ref|NC_007904.1| Mobala virus segment L, complete sequence
+gi|89902998|ref|NC_007905.1| Ippy virus segment S, complete sequence
+gi|89902995|ref|NC_007906.1| Ippy virus segment L, complete sequence
+gi|90403548|ref|NC_007916.1| Newbury agent 1 virus, complete genome
+gi|90403553|ref|NC_007922.1| Crow polyomavirus, complete genome
+gi|90403560|ref|NC_007923.1| Finch polyomavirus, complete genome
+gi|95116639|ref|NC_008019.2| Marine birnavirus segment A, complete genome
+gi|95116884|ref|NC_008026.1| Marine birnavirus segment B, complete sequence
+gi|96980809|ref|NC_008030.1| Crocodilepox virus, complete genome
+gi|97331426|ref|NC_008032.1| Capra hircus papillomavirus type 1, complete genome
+gi|96980764|ref|NC_008033.1| Starling circovirus, complete genome
+gi|98960851|ref|NC_008040.1| Redspotted grouper nervous necrosis virus RNA 1, complete sequence
+gi|98960854|ref|NC_008041.1| Redspotted grouper nervous necrosis virus RNA 2, complete sequence
+gi|108737103|ref|NC_008094.1| Y73 sarcoma virus, complete genome
+gi|109390374|ref|NC_008184.1| Tursiops truncatus papillomavirus 2, complete genome
+gi|109390396|ref|NC_008185.1| Mouse parvovirus 3, complete genome
+gi|109390403|ref|NC_008186.1| Mouse parvovirus 2, complete genome
+gi|109390382|ref|NC_008188.1| Human papillomavirus type 103, complete genome
+gi|109390389|ref|NC_008189.1| Human papillomavirus type 101, complete genome
+gi|110611894|ref|NC_008250.1| Duck hepatitis A virus 1, complete genome
+gi|113195177|ref|NC_008291.1| Taterapox virus, complete genome
+gi|113200740|ref|NC_008297.1| Canine papillomavirus 3, complete genome
+gi|113200763|ref|NC_008298.1| Rousettus aegyptiacus papillomavirus type 1, complete genome
+gi|113478394|ref|NC_008311.1| Murine norovirus 1, complete genome
+gi|113882957|ref|NC_008315.1| Bat coronavirus (BtCoV/133/2005), complete genome
+gi|115334607|ref|NC_008375.1| Raven circovirus, complete genome
+gi|116536735|ref|NC_008516.1| White bream virus, complete genome
+gi|116536728|ref|NC_008519.1| Mastomys coucha papillomavirus 2, complete genome
+gi|116630439|ref|NC_008521.1| Gull circovirus, complete genome
+gi|116630443|ref|NC_008522.1| Finch circovirus, complete genome
+gi|118430707|ref|NC_008580.1| Rabbit vesivirus, complete genome
+gi|118129780|ref|NC_008582.1| Old World harvest mouse papillomavirus, complete genome
+gi|166159177|ref|NC_008604.2| Culex flavivirus, complete genome
+gi|119952256|ref|NC_008714.1| Possum enterovirus W1, complete genome
+gi|119952257|ref|NC_008715.1| Possum enterovirus W6, complete genome
+gi|119952254|ref|NC_008718.1| Entebbe bat virus, complete genome
+gi|119952252|ref|NC_008719.1| Sepik virus, complete genome
+gi|126030112|ref|NC_009019.1| Bat coronavirus HKU4-1, complete genome
+gi|126030122|ref|NC_009020.1| Bat coronavirus HKU5-1, complete genome
+gi|126030132|ref|NC_009021.1| Bat coronavirus HKU9-1, complete genome
+gi|255614072|ref|NC_009026.2| Bussuquara virus, complete genome
+gi|294768540|ref|NC_009028.2| Ilheus virus, complete genome
+gi|294719514|ref|NC_009029.2| Kokobera virus, complete genome
+gi|134133206|ref|NC_009225.1| Torque teno midi virus 1, complete genome
+gi|134288556|ref|NC_009238.1| KI polyomavirus Stockholm 60, complete genome
+gi|139472801|ref|NC_009333.1| Human herpesvirus 8, complete genome
+gi|139424470|ref|NC_009334.1| Human herpesvirus 4, complete genome
+gi|302585372|ref|NC_009424.4| Woolly monkey sarcoma virus, complete genome
+gi|182406744|ref|NC_009448.2| Saffold virus, complete genome
+gi|148283122|ref|NC_009489.1| Mapuera virus, complete genome
+gi|148724425|ref|NC_009527.1| European bat lyssavirus 1, complete genome
+gi|148724431|ref|NC_009528.1| European bat lyssavirus 2, complete genome
+gi|148724565|ref|NC_009539.1| WU Polyomavirus, complete genome
+gi|151266277|ref|NC_009640.1| Porcine rubulavirus, complete genome
+gi|152994036|ref|NC_009657.1| Scotophilus bat coronavirus 512, complete genome
+gi|156519332|ref|NC_009750.1| Duck hepatitis A virus 3, complete genome
+gi|156522770|ref|NC_009752.1| Bovine papillomavirus 8, complete genome
+gi|157781212|ref|NC_009823.1| Hepatitis C virus genotype 2, complete genome
+gi|157781216|ref|NC_009824.1| Hepatitis C virus genotype 3, genome
+gi|157781208|ref|NC_009825.1| Hepatitis C virus genotype 4, genome
+gi|157781210|ref|NC_009826.1| Hepatitis C virus genotype 5, genome
+gi|157781214|ref|NC_009827.1| Hepatitis C virus genotype 6, complete genome
+gi|157939570|ref|NC_009887.1| Human enterovirus 100, complete genome
+gi|157939619|ref|NC_009888.1| Tanapox virus, complete genome
+gi|157939612|ref|NC_009889.1| RD114 retrovirus, complete genome
+gi|157939778|ref|NC_009891.1| Seal picornavirus type 1, complete genome
+gi|157939615|ref|NC_009894.1| Akabane virus segment L, complete sequence
+gi|157939617|ref|NC_009895.1| Akabane virus segment M, complete sequence
+gi|157939567|ref|NC_009896.1| Akabane virus segment S, complete sequence
+gi|158324544|ref|NC_009923.1| Paralichthys olivaceus birnavirus segment A, complete sequence
+gi|158324547|ref|NC_009924.1| Paralichthys olivaceus birnavirus segment B, complete sequence
+gi|158516887|ref|NC_009942.1| West Nile virus, complete genome
+gi|159035665|ref|NC_009951.1| Squirrel monkey polyomavirus, complete genome
+gi|160707867|ref|NC_009988.1| Bat coronavirus HKU2, complete genome
+gi|160700581|ref|NC_009996.1| Human rhinovirus C, complete genome
+gi|161622648|ref|NC_010107.1| Bandicoot papillomatosis carcinomatosis virus type 1, complete genome
+gi|164429763|ref|NC_010226.1| Canine papillomavirus 4, complete genome
+gi|164682561|ref|NC_010247.1| Amapari virus segment S, complete sequence
+gi|164607193|ref|NC_010248.1| Oliveros virus segment S, complete sequence
+gi|164607202|ref|NC_010249.1| Allpahuayo virus segment L, complete sequence
+gi|164607196|ref|NC_010250.1| Oliveros virus segment L, complete sequence
+gi|164607199|ref|NC_010251.1| Amapari virus segment L, complete sequence
+gi|164607211|ref|NC_010252.1| Cupixi virus segment L, complete sequence
+gi|164682564|ref|NC_010253.1| Allpahuayo virus segment S, complete sequence
+gi|164607214|ref|NC_010254.1| Cupixi virus segment S, complete sequence
+gi|164607205|ref|NC_010255.1| Bear Canyon virus segment L, complete sequence
+gi|164607208|ref|NC_010256.1| Bear Canyon virus segment S, complete sequence
+gi|165973999|ref|NC_010277.1| Merkel cell polyomavirus, complete genome
+gi|167600353|ref|NC_010327.1| Equine coronavirus, complete genome
+gi|167600365|ref|NC_010329.1| Human papillomavirus type 88, complete genome
+gi|168480155|ref|NC_010354.1| Bovine rhinitis B virus, complete genome
+gi|169247424|ref|NC_010384.1| Simian picornavirus strain N125, complete genome
+gi|169259704|ref|NC_010411.1| Simian picornavirus 17, complete genome
+gi|169259706|ref|NC_010412.1| Simian enterovirus SV19, complete genome
+gi|169259708|ref|NC_010413.1| Simian enterovirus SV43, complete genome
+gi|169259712|ref|NC_010415.1| Simian enterovirus SV6, complete genome
+gi|169822542|ref|NC_010436.1| Bat coronavirus 1B, complete genome
+gi|169822550|ref|NC_010437.1| Bat coronavirus 1A, complete genome
+gi|169822558|ref|NC_010438.1| Bat coronavirus HKU8, complete genome
+gi|172088171|ref|NC_010562.1| Chapare virus segment S, complete sequence
+gi|172088174|ref|NC_010563.1| Chapare virus segment L, complete sequence
+gi|182682776|ref|NC_010584.1| American grass carp reovirus segment 1, complete sequence
+gi|182682778|ref|NC_010585.1| American grass carp reovirus segment 2, complete sequence
+gi|182682780|ref|NC_010586.1| American grass carp reovirus segment 3, complete sequence
+gi|182682782|ref|NC_010587.1| American grass carp reovirus segment 4, complete sequence
+gi|182682784|ref|NC_010588.1| American grass carp reovirus segment 5, complete sequence
+gi|182682786|ref|NC_010589.1| American grass carp reovirus segment 6, complete sequence
+gi|182682788|ref|NC_010590.1| American grass carp reovirus segment 7, complete sequence
+gi|182682791|ref|NC_010591.1| American grass carp reovirus segment 8, complete sequence
+gi|182682793|ref|NC_010592.1| American grass carp reovirus segment 9, complete sequence
+gi|182682795|ref|NC_010593.1| American grass carp reovirus segment 10, complete sequence
+gi|182682797|ref|NC_010594.1| American grass carp reovirus segment 11, complete sequence
+gi|48305606|ref|NC_010624.1| Sapovirus Mc10, complete genome
+gi|187251953|ref|NC_010646.1| Beluga Whale coronavirus SW1, complete genome
+gi|188531117|ref|NC_010700.1| Whitewater Arroyo virus segment S, complete sequence
+gi|188572141|ref|NC_010701.1| Tamiami virus segment S (small), complete genome
+gi|188531114|ref|NC_010702.1| Tamiami virus segment L, complete sequence
+gi|188531120|ref|NC_010703.1| Whitewater Arroyo virus segment L, complete sequence
+gi|188543036|ref|NC_010704.1| Thottapalayam virus segment S, complete sequence
+gi|188543069|ref|NC_010707.1| Thottapalayam virus segment L, complete sequence
+gi|188543102|ref|NC_010708.1| Thottapalayam virus segment M, complete sequence
+gi|189043078|ref|NC_010739.1| Ursus maritimus papillomavirus 1, complete genome
+gi|189043026|ref|NC_010756.1| Parana virus segment S (small), complete genome
+gi|189026268|ref|NC_010757.1| Flexal virus segment S, complete sequence
+gi|189026274|ref|NC_010758.1| Latino virus segment S, complete sequence
+gi|189026271|ref|NC_010759.1| Flexal virus segment L, complete sequence
+gi|189026277|ref|NC_010760.1| Latino virus segment L, complete sequence
+gi|189026280|ref|NC_010761.1| Parana virus segment L, complete sequence
+gi|189313868|ref|NC_010800.1| Turkey coronavirus, complete genome
+gi|189418893|ref|NC_010810.1| Human TMEV-like cardiovirus, complete genome
+gi|189475225|ref|NC_010817.1| Bandicoot papillomatosis carcinomatosis virus type 2, complete genome
+gi|189909151|ref|NC_010819.1| Macaque simian foamy virus, complete genome
+gi|189490154|ref|NC_010820.1| Simian foamy virus 3, complete genome
+gi|190336491|ref|NC_010955.1| Xenopus laevis endogenous retrovirus Xen1, complete genome
+gi|190340974|ref|NC_010956.1| Human adenovirus D, complete genome
+gi|194268060|ref|NC_011050.1| Steller sea lion vesivirus, complete genome
+gi|194268064|ref|NC_011051.1| Capreolus capreolus papillomavirus 1, complete genome
+gi|194351529|ref|NC_011063.1| Barfin flounder virus BF93Hok RNA1, complete sequence
+gi|194351532|ref|NC_011064.1| Barfin flounder virus BF93Hok RNA2, complete sequence
+gi|195661184|ref|NC_011109.1| Tursiops truncatus papillomavirus type 1, complete genome
+gi|197944766|ref|NC_011202.1| Human adenovirus B2, complete genome
+gi|197944726|ref|NC_011203.1| Human adenovirus B1, complete genome
+gi|206599537|ref|NC_011280.1| Sus scrofa papillomavirus type 1, complete genome
+gi|207271573|ref|NC_011310.1| Myotis polyomavirus VM-2008, complete genome
+gi|209363550|ref|NC_011349.1| Seneca valley virus, complete genome
+gi|209902360|ref|NC_011400.1| Astrovirus MLB1, complete genome
+gi|48429536|ref|NC_011450.1| Foot-and-mouth disease virus - type A, complete genome
+gi|48429537|ref|NC_011451.1| Foot-and-mouth disease virus - type SAT 1, complete genome
+gi|48429538|ref|NC_011452.1| Foot-and-mouth disease virus - type SAT 3, complete genome
+gi|352950877|ref|NC_011500.2| Rotavirus A segment 5, complete genome
+gi|352950878|ref|NC_011501.2| Rotavirus A segment 7, complete genome
+gi|352950879|ref|NC_011502.2| Rotavirus A segment 8, complete genome
+gi|352950880|ref|NC_011503.2| Rotavirus A segment 9, complete genome
+gi|353072697|ref|NC_011504.2| Rotavirus A segment 10, complete genome
+gi|353072704|ref|NC_011505.2| Rotavirus A segment 11, complete genome
+gi|352950881|ref|NC_011506.2| Rotavirus A segment 2, complete genome
+gi|352950882|ref|NC_011507.2| Rotavirus A segment 1, complete genome
+gi|352950883|ref|NC_011508.2| Rotavirus A segment 3, complete genome
+gi|352950884|ref|NC_011509.2| Rotavirus A segment 6, complete genome
+gi|351694292|ref|NC_011510.2| Rotavirus A segment 4, complete genome
+gi|212286048|ref|NC_011530.1| Caretta caretta papillomavirus 1, complete genome
+gi|212286056|ref|NC_011531.1| Chelonia mydas papillomavirus 1, complete genome
+gi|268537545|ref|NC_011545.2| Penaeus monodon hepatopancreatic parvovirus, complete genome
+gi|212499466|ref|NC_011546.1| Simian T-cell lymphotropic virus 6, complete genome
+gi|212681378|ref|NC_011549.1| Thrush coronavirus HKU12-600, complete genome
+gi|212681388|ref|NC_011550.1| Munia coronavirus HKU13-3514, complete genome
+gi|213159161|ref|NC_011587.1| Caviid herpesvirus 2, complete genome
+gi|215480028|ref|NC_011618.1| Mouse parvovirus 5, complete genome
+gi|215480035|ref|NC_011619.1| Mouse parvovirus 4, complete genome
+gi|216905852|ref|NC_011644.1| Equid herpesvirus 9, complete genome
+gi|218148631|ref|NC_011704.1| Rabbit calicivirus Australia 1 MIC-07, complete genome
+gi|218685637|ref|NC_011765.1| Erinaceus europaeus papillomavirus, complete genome
+gi|219552908|ref|NC_011800.1| Human T-lymphotropic virus 4, complete genome
+gi|219547604|ref|NC_011829.1| Porcine kobuvirus swine/S-1-HUN/2007/Hungary, complete genome
+gi|222824550|ref|NC_012042.1| Human bocavirus 2, complete genome
+gi|224460770|ref|NC_012122.1| Simian virus 12, complete genome
+gi|224460777|ref|NC_012123.1| Equine papillomavirus 2, complete genome
+gi|224504298|ref|NC_012126.1| California sea lion anellovirus, complete genome
+gi|224983322|ref|NC_012213.1| Human papillomavirus type 108, complete genome
+gi|225676452|ref|NC_012437.1| Duck astrovirus C-NGB, complete genome
+gi|225927560|ref|NC_012485.1| Human papillomavirus type 109, complete genome
+gi|225927568|ref|NC_012486.1| Human papillomavirus type 112, complete genome
+gi|226377833|ref|NC_012532.1| Zika virus, complete genome
+gi|226377835|ref|NC_012533.1| Kedougou virus, complete genome
+gi|226377837|ref|NC_012534.1| Bagaza virus, complete genome
+gi|226823166|ref|NC_012561.1| Highlands J virus, complete genome
+gi|226938554|ref|NC_012564.1| Human bocavirus 3, complete genome
+gi|227122414|ref|NC_012584.1| Murine adenovirus 3, complete genome
+gi|229904919|ref|NC_012671.1| Quang Binh virus, complete genome
+gi|237781146|ref|NC_012699.1| Calicivirus pig/AB90/CAN, complete genome
+gi|237781155|ref|NC_012702.1| Midway virus, complete genome
+gi|237781162|ref|NC_012703.1| Nyamanini virus, complete genome
+gi|289183404|ref|NC_012729.2| Human bocavirus 4, complete genome
+gi|238801614|ref|NC_012735.1| Wesselsbron virus, complete genome
+gi|238801929|ref|NC_012754.1| Stretch Lagoon orbivirus segment 1, complete genome
+gi|238801931|ref|NC_012755.1| Stretch Lagoon orbivirus segment 2, complete genome
+gi|238890537|ref|NC_012776.1| Lujo virus segment S, complete genome
+gi|238890540|ref|NC_012777.1| Lujo virus segment L, complete genome
+gi|359946431|ref|NC_012783.2| Cercopithecine herpesvirus 5, complete genome
+gi|239828756|ref|NC_012798.1| Human cosavirus E1, complete genome
+gi|239828780|ref|NC_012800.1| Human cosavirus A1, complete genome
+gi|239830818|ref|NC_012801.1| Human cosavirus B1, complete genome
+gi|239830831|ref|NC_012802.1| Human cosavirus D1, complete genome
+gi|240114604|ref|NC_012812.1| Bovine viral diarrhea virus 3 Th/04_KhonKaen, complete genome
+gi|254688376|ref|NC_012932.1| Aedes flavivirus, complete genome
+gi|253750530|ref|NC_012936.1| Rat coronavirus Parker, complete genome
+gi|253756580|ref|NC_012948.1| Bovine respiratory coronavirus AH187, complete genome
+gi|253756593|ref|NC_012949.1| Bovine respiratory coronavirus bovine/US/OH-440-TC/1996, complete genome
+gi|253756605|ref|NC_012950.1| Human enteric coronavirus strain 4408, complete genome
+gi|253761958|ref|NC_012957.1| Salivirus NG-J1, complete genome
+gi|253761974|ref|NC_012959.1| Human adenovirus 54, complete genome
+gi|254305431|ref|NC_012986.1| Human klassevirus 1, complete genome
+gi|254810663|ref|NC_013035.1| Human papillomavirus 116, complete genome
+gi|255683134|ref|NC_013036.1| Anatid herpesvirus 1, complete genome
+gi|255237668|ref|NC_013057.1| Morogoro virus segment S, complete genome
+gi|255237729|ref|NC_013058.1| Morogoro virus segment L, complete genome
+gi|255357299|ref|NC_013060.1| Astrovirus VA1, complete genome
+gi|256574726|ref|NC_013114.1| Human enterovirus 98, complete genome
+gi|260665857|ref|NC_013115.1| Human enterovirus 107, complete genome
+gi|256352174|ref|NC_013117.1| Francolinus leucoscepus papillomavirus 1, complete genome
+gi|257136426|ref|NC_013196.1| Rattus norvegicus papillomavirus 1 EES-2009, complete genome
+gi|258549709|ref|NC_013225.1| Mammalian orthoreovirus 3 segment L1, complete genome
+gi|258549711|ref|NC_013226.1| Mammalian orthoreovirus 3 segment L2, complete genome
+gi|258549713|ref|NC_013227.1| Mammalian orthoreovirus 3 segment M1, complete genome
+gi|258549715|ref|NC_013228.1| Mammalian orthoreovirus 3 segment M2, complete genome
+gi|258549717|ref|NC_013229.1| Mammalian orthoreovirus 3 segment L3, complete genome
+gi|258549719|ref|NC_013230.1| Mammalian orthoreovirus 3 segment M3, complete genome
+gi|258549721|ref|NC_013231.1| Mammalian orthoreovirus 3 segment S1, complete genome
+gi|258549723|ref|NC_013232.1| Mammalian orthoreovirus 3 segment S2, complete genome
+gi|258549725|ref|NC_013233.1| Mammalian orthoreovirus 3 segment S3, complete genome
+gi|258549727|ref|NC_013234.1| Mammalian orthoreovirus 3 segment S4, complete genome
+gi|258611051|ref|NC_013236.1| Canine papillomavirus 5, complete genome
+gi|258611059|ref|NC_013237.1| Canine papillomavirus 6, complete genome
+gi|261181253|ref|NC_013396.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 1, complete genome
+gi|261181412|ref|NC_013397.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 2, complete genome
+gi|261181528|ref|NC_013398.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 3, complete genome
+gi|261181650|ref|NC_013399.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 4, complete genome
+gi|261181767|ref|NC_013400.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 5, complete genome
+gi|261181857|ref|NC_013401.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 6, complete genome
+gi|261181982|ref|NC_013402.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 7, complete genome
+gi|261182061|ref|NC_013403.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 8, complete genome
+gi|261182158|ref|NC_013404.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 9, complete genome
+gi|261597712|ref|NC_013405.1| Epizootic hemorrhagic disease virus (serotype 1 / strain New Jersey) segment 10, complete genome
+gi|262340522|ref|NC_013439.1| Orangutan polyomavirus, complete genome
+gi|262166845|ref|NC_013443.1| HMO Astrovirus A, complete genome
+gi|262396903|ref|NC_013458.1| Barfin flounder nervous necrosis virus RNA 1, complete genome
+gi|262396906|ref|NC_013459.1| Barfin flounder nervous necrosis virus RNA 2, complete genome
+gi|262396908|ref|NC_013460.1| Tiger puffer nervous necrosis virus RNA 1, complete genome
+gi|262396911|ref|NC_013461.1| Tiger puffer nervous necrosis virus RNA2, complete genome
+gi|269954645|ref|NC_013528.1| Fort Morgan virus, complete genome
+gi|281190771|ref|NC_013590.2| Felid herpesvirus 1, complete genome
+gi|282598693|ref|NC_013695.1| Simian picornavirus strain N203, complete genome
+gi|289163350|ref|NC_013774.1| Porcine circovirus type 1/2a, complete genome
+gi|288804632|ref|NC_013796.1| California sea lion polyomavirus 1, complete genome
+gi|288887367|ref|NC_013804.1| Pseudocowpox virus, complete genome
+gi|295413915|ref|NC_014068.1| Torque teno mini virus 8, complete genome
+gi|295413933|ref|NC_014069.1| Torque teno virus 4, complete genome
+gi|295413936|ref|NC_014070.1| Torque teno sus virus 1, complete genome
+gi|295413940|ref|NC_014071.1| Torque teno canis virus, complete genome
+gi|295413830|ref|NC_014072.1| Torque teno felis virus, complete genome
+gi|295413834|ref|NC_014073.1| Torque teno virus 28, complete genome
+gi|295413918|ref|NC_014074.1| Torque teno virus 27, complete genome
+gi|295413923|ref|NC_014075.1| Torque teno virus 12, complete genome
+gi|295413928|ref|NC_014076.1| Torque teno virus 10, complete genome
+gi|295413944|ref|NC_014077.1| Torque teno virus 14, complete genome
+gi|295413947|ref|NC_014078.1| Torque teno virus 19, complete genome
+gi|295413950|ref|NC_014079.1| Torque teno virus 26, complete genome
+gi|295413954|ref|NC_014080.1| Torque teno virus 7, complete genome
+gi|295413958|ref|NC_014081.1| Torque teno virus 3, complete genome
+gi|295413965|ref|NC_014082.1| Torque teno mini virus 7, complete genome
+gi|295413968|ref|NC_014083.1| Torque teno virus 25, complete genome
+gi|295413972|ref|NC_014084.1| Torque teno virus 8, complete genome
+gi|295413977|ref|NC_014085.1| Torque teno tamarin virus, complete genome
+gi|295413982|ref|NC_014086.1| Torque teno mini virus 2, complete genome
+gi|295413991|ref|NC_014087.1| Torque teno douroucouli virus, complete genome
+gi|295441873|ref|NC_014088.1| Torque teno mini virus 3, complete genome
+gi|295441877|ref|NC_014089.1| Torque teno mini virus 5, complete genome
+gi|295441881|ref|NC_014090.1| Torque teno mini virus 4, complete genome
+gi|295441884|ref|NC_014091.1| Torque teno virus 16, complete genome
+gi|312234429|ref|NC_014092.2| Torque teno sus virus 2, complete genome
+gi|295441891|ref|NC_014093.1| Torque teno midi virus 2, complete genome
+gi|295441896|ref|NC_014094.1| Torque teno virus 6, complete genome
+gi|295441901|ref|NC_014095.1| Torque teno mini virus 6, complete genome
+gi|295441905|ref|NC_014096.1| Torque teno virus 15, complete genome
+gi|295441908|ref|NC_014097.1| Torque teno mini virus 1, complete genome
+gi|296040251|ref|NC_014143.1| Bettongia penicillata papillomavirus 1, complete genome
+gi|297342356|ref|NC_014185.1| Human papillomavirus 121, complete genome
+gi|298201185|ref|NC_014236.1| Broome virus segment L1, complete genome
+gi|298201183|ref|NC_014237.1| Broome virus segment L2, complete genome
+gi|298201181|ref|NC_014238.1| Broome virus segment L3, complete genome
+gi|298201179|ref|NC_014239.1| Broome virus segment M1, complete genome
+gi|298201177|ref|NC_014240.1| Broome virus segment M2, complete genome
+gi|298200990|ref|NC_014241.1| Broome virus segment M3, complete genome
+gi|298200960|ref|NC_014242.1| Broome virus segment S1, complete genome
+gi|298200958|ref|NC_014243.1| Broome virus segment S2, complete genome
+gi|298200953|ref|NC_014244.1| Broome virus segment S3, complete genome
+gi|298200955|ref|NC_014245.1| Broome virus segment S4, complete genome
+gi|301173443|ref|NC_014326.1| Mus musculus papillomavirus type 1, complete genome
+gi|301349453|ref|NC_014336.1| Human enterovirus 109, complete genome
+gi|302317866|ref|NC_014358.1| Bocavirus gorilla/GBoV1/2009, complete genome
+gi|302317577|ref|NC_014361.1| Trichodysplasia spinulosa-associated polyomavirus, complete genome
+gi|302315369|ref|NC_014372.1| Cote d'Ivoire ebolavirus
+gi|302371213|ref|NC_014373.1| Bundibugyo ebolavirus, complete genome
+gi|302596924|ref|NC_014395.1| Rift Valley fever virus segment S, complete genome
+gi|302596922|ref|NC_014396.1| Rift Valley fever virus segment M, complete genome
+gi|302596920|ref|NC_014397.1| Rift Valley fever virus segment L, complete genome
+gi|303291528|ref|NC_014406.1| Polyomavirus HPyV6, complete genome
+gi|303291522|ref|NC_014407.1| Polyomavirus HPyV7, complete genome
+gi|304282485|ref|NC_014411.1| Turdivirus 1, complete genome
+gi|304282472|ref|NC_014412.1| Turdivirus 2, complete genome
+gi|304282459|ref|NC_014413.1| Turdivirus 3, complete genome
+gi|304422916|ref|NC_014468.1| Bat adeno-associated virus YNM, complete genome
+gi|304522114|ref|NC_014469.1| Gammapapillomavirus HPV127, complete genome
+gi|304633675|ref|NC_014470.1| Bat coronavirus BM48-31/BGR/2008, complete genome
+gi|306478704|ref|NC_014474.1| Simian retrovirus 4, complete genome
+gi|312192953|ref|NC_014480.2| Torque teno virus 2, complete genome
+gi|307347003|ref|NC_014511.1| Rotavirus D chicken/05V0049/DEU/2005 segment 1, complete genome
+gi|307347001|ref|NC_014512.1| Rotavirus D chicken/05V0049/DEU/2005 segment 2, complete genome
+gi|307346999|ref|NC_014513.1| Rotavirus D chicken/05V0049/DEU/2005 segment 3, complete genome
+gi|307346997|ref|NC_014514.1| Rotavirus D chicken/05V0049/DEU/2005 segment 4, complete genome
+gi|307346995|ref|NC_014515.1| Rotavirus D chicken/05V0049/DEU/2005 segment 5, complete genome
+gi|307346993|ref|NC_014516.1| Rotavirus D chicken/05V0049/DEU/2005 segment 6, complete genome
+gi|307346991|ref|NC_014517.1| Rotavirus D chicken/05V0049/DEU/2005 segment 7, complete genome
+gi|307346989|ref|NC_014518.1| Rotavirus D chicken/05V0049/DEU/2005 segment 8, complete genome
+gi|307346987|ref|NC_014519.1| Rotavirus D chicken/05V0049/DEU/2005 segment 9, complete genome
+gi|307346984|ref|NC_014520.1| Rotavirus D chicken/05V0049/DEU/2005 segment 10, complete genome
+gi|307346982|ref|NC_014521.1| Rotavirus D chicken/05V0049/DEU/2005 segment 11, complete genome
+gi|312164872|ref|NC_014522.1| Great Island virus segment 1, complete genome
+gi|312164870|ref|NC_014523.1| Great Island virus segment 2, complete genome
+gi|312166200|ref|NC_014524.1| Great Island virus segment 3, complete genome
+gi|312164874|ref|NC_014525.1| Great Island virus segment 4, complete genome
+gi|312164876|ref|NC_014526.1| Great Island virus segment 5, complete genome
+gi|312164878|ref|NC_014527.1| Great Island virus segment 6, complete genome
+gi|312164880|ref|NC_014528.1| Great Island virus segment 7, complete genome
+gi|312164887|ref|NC_014529.1| Great Island virus segment 8, complete genome
+gi|312164884|ref|NC_014530.1| Great Island virus segment 9, complete genome
+gi|312164882|ref|NC_014531.1| Great Island virus segment 10, complete genome
+gi|365824246|ref|NC_014564.2| Turkey adenovirus 1, complete genome
+gi|312162798|ref|NC_014567.1| Saimiriine herpesvirus 1, complete genome
+gi|312126258|ref|NC_014665.1| Porcine parvovirus 4, complete genome
+gi|313493538|ref|NC_014743.1| Chimpanzee polyomavirus, complete genome
+gi|318065965|ref|NC_014899.1| Murine adenovirus 2, complete genome
+gi|318069473|ref|NC_014927.1| Cyclovirus PKgoat21/PAK/2009, complete genome
+gi|318069476|ref|NC_014928.1| Cyclovirus PKgoat11/PAK/2009, complete genome
+gi|318069479|ref|NC_014929.1| Cyclovirus bat/USA/2009, complete genome
+gi|318082874|ref|NC_014930.1| Cyclovirus NGchicken15/NGA/2009, complete genome
+gi|319976684|ref|NC_014952.1| Human papillomavirus type 128, complete genome
+gi|319976676|ref|NC_014953.1| Human papillomavirus type 129, complete genome
+gi|319976668|ref|NC_014954.1| Human papillomavirus type 131, complete genome
+gi|319962668|ref|NC_014955.1| Human papillomavirus type 132, complete genome
+gi|319962660|ref|NC_014956.1| Human papillomavirus type 134, complete genome
+gi|320202734|ref|NC_014969.1| Fowl adenovirus E, complete genome
+gi|321496547|ref|NC_015049.1| Rodent herpesvirus Peru, complete genome
+gi|323363050|ref|NC_015116.1| Avian leukemia virus, complete genome
+gi|323409485|ref|NC_015126.1| Avian orthoreovirus segment L1, complete genome
+gi|323409487|ref|NC_015127.1| Avian orthoreovirus segment L2, complete genome
+gi|323409489|ref|NC_015128.1| Avian orthoreovirus segment L3, complete genome
+gi|323409491|ref|NC_015129.1| Avian orthoreovirus segment M1, complete genome
+gi|323409493|ref|NC_015130.1| Avian orthoreovirus segment M2, complete genome
+gi|323714223|ref|NC_015131.1| Avian orthoreovirus segment M3, complete genome
+gi|323714225|ref|NC_015132.1| Avian orthoreovirus segment S1, complete genome
+gi|323714227|ref|NC_015133.1| Avian orthoreovirus segment S2, complete genome
+gi|323714229|ref|NC_015134.1| Avian orthoreovirus segment S3, complete genome
+gi|323714231|ref|NC_015135.1| Avian orthoreovirus segment S4, complete genome
+gi|326910936|ref|NC_015150.1| Human polyomavirus 9, complete genome
+gi|325961446|ref|NC_015212.1| Seal anellovirus TFFN/USA/2006, complete genome
+gi|327415370|ref|NC_015225.1| Simian adenovirus 49, complete genome
+gi|326631676|ref|NC_015267.1| Camelus dromedarius papillomavirus type 1, complete genome
+gi|326631684|ref|NC_015268.1| Camelus dromedarius papillomavirus type 2, complete genome
+gi|327409465|ref|NC_015323.1| Fowl adenovirus C, complete genome
+gi|332288077|ref|NC_015325.1| Zalophus californianus papillomavirus 1, complete genome
+gi|328550464|ref|NC_015373.1| Candiru virus segment M, complete genome
+gi|328550466|ref|NC_015374.1| Candiru virus segment L, complete genome
+gi|328545954|ref|NC_015375.1| Candiru virus segment S, complete genome
+gi|330370657|ref|NC_015396.1| Avian gyrovirus 2, complete genome
+gi|330339438|ref|NC_015399.1| Barbel circovirus, complete genome
+gi|330444744|ref|NC_015411.1| Sandfly Sicilian Turkey virus segment M, complete genome
+gi|330444746|ref|NC_015412.1| Sandfly Sicilian Turkey virus segment L, complete genome
+gi|330464826|ref|NC_015413.1| Sandfly Sicilian Turkey virus segment S, complete genome
+gi|330850808|ref|NC_015450.1| Aguacate virus segment M, complete genome
+gi|330850810|ref|NC_015451.1| Aguacate virus segment L, complete genome
+gi|330850812|ref|NC_015452.1| Aguacate virus segment S, complete genome
+gi|331271175|ref|NC_015455.1| Raptor adenovirus A, complete genome
+gi|335352415|ref|NC_015521.1| Cutthroat trout virus, complete genome
+gi|334847621|ref|NC_015626.1| Pigeon picornavirus B, complete genome
+gi|338209357|ref|NC_015691.1| Macaca fascicularis papillomavirus type 2, complete genome
+gi|338209365|ref|NC_015692.1| Colobus guereza papillomavirus type 2, complete genome
+gi|339832375|ref|NC_015783.1| Torque teno virus, complete genome
+gi|381333920|ref|NC_015843.2| Tembusu virus, complete genome
+gi|343098545|ref|NC_015877.1| Baboon orthoreovirus segment L1, complete genome
+gi|343098547|ref|NC_015878.1| Baboon orthoreovirus segment L2, complete genome
+gi|343098549|ref|NC_015879.1| Baboon orthoreovirus segment L3, complete genome
+gi|343098551|ref|NC_015880.1| Baboon orthoreovirus segment M1, complete genome
+gi|343098553|ref|NC_015881.1| Baboon orthoreovirus segment M2, complete genome
+gi|343098555|ref|NC_015882.1| Baboon orthoreovirus segment M3, complete genome
+gi|343098557|ref|NC_015883.1| Baboon orthoreovirus segment S1, complete genome
+gi|343098559|ref|NC_015884.1| Baboon orthoreovirus segment S2, complete genome
+gi|343098561|ref|NC_015885.1| Baboon orthoreovirus segment S4, complete genome
+gi|343098564|ref|NC_015886.1| Baboon orthoreovirus segment S3, complete genome
+gi|345462093|ref|NC_015932.1| Bat adenovirus 2, complete genome
+gi|345461093|ref|NC_015934.1| Bat picornavirus 3, complete genome
+gi|345462124|ref|NC_015935.1| Mouse astrovirus M-52/USA/2008, complete genome
+gi|393707874|ref|NC_015936.1| Mouse kobuvirus M-5/USA/2010, complete genome
+gi|345461259|ref|NC_015940.1| Bat picornavirus 1, complete genome
+gi|345461275|ref|NC_015941.1| Bat picornavirus 2, complete genome
+gi|345107188|ref|NC_015960.1| Yoka poxvirus, complete genome
+gi|347750413|ref|NC_016013.1| Morelia spilota papillomavirus 1, complete genome
+gi|347750421|ref|NC_016014.1| Canine papillomavirus 8, complete genome
+gi|347762073|ref|NC_016031.1| Porcine bocavirus 3, complete genome
+gi|347762078|ref|NC_016032.1| Porcine bocavirus 4-1, complete genome
+gi|363540888|ref|NC_016074.1| Canine papillomavirus 9, complete genome
+gi|363540896|ref|NC_016075.1| Canine papillomavirus 10, complete genome
+gi|363540904|ref|NC_016076.1| Canine papillomavirus 11, complete genome
+gi|355469071|ref|NC_016144.1| Lloviu virus, complete genome
+gi|356491217|ref|NC_016152.1| Luna virus segment S, complete genome
+gi|356491220|ref|NC_016153.1| Luna virus segment L, complete genome
+gi|356640291|ref|NC_016154.1| Cynomolgus macaque cytomegalovirus strain Ottawa, complete genome
+gi|380035083|ref|NC_016155.1| Astrovirus MLB2, complete genome
+gi|358356446|ref|NC_016156.1| Feline picornavirus, complete genome
+gi|358356460|ref|NC_016157.1| Human papillomavirus type 126, complete genome
+gi|358025590|ref|NC_016403.1| Quail picornavirus QPV1/HUN/2010, complete genome
+gi|363540913|ref|NC_016437.1| South polar skua adenovirus-1, complete genome
+gi|360040900|ref|NC_016447.1| Aotine herpesvirus 1, complete genome
+gi|360086494|ref|NC_016448.1| Saimiriine Herpesvirus 3, complete genome
+gi|366091740|ref|NC_016517.1| Espirito Santo virus segment B, complete genome
+gi|366091742|ref|NC_016518.1| Espirito Santo virus segment A, complete genome
+gi|372220275|ref|NC_016561.1| Parrot hepatitis B virus, complete genome
+gi|372204037|ref|NC_016647.1| Porcine bocavirus 5/JS677, complete genome
+gi|378554407|ref|NC_016744.1| Eidolon helvum parvovirus 1, complete genome
+gi|374674409|ref|NC_016752.1| Artibeus jamaicensis parvovirus 1, complete genome
+gi|375267283|ref|NC_016769.1| Porcine kobuvirus SH-W-CHN/2010/China, complete genome
+gi|375294199|ref|NC_016874.1| Spissistilus festinus reovirus segment 2, complete genome
+gi|375298197|ref|NC_016875.1| Spissistilus festinus reovirus segment 4, complete genome
+gi|375298199|ref|NC_016876.1| Spissistilus festinus reovirus segment 6, complete genome
+gi|375298260|ref|NC_016877.1| Spissistilus festinus reovirus segment 8, complete genome
+gi|375298262|ref|NC_016878.1| Spissistilus festinus reovirus segment 10, complete genome
+gi|375298264|ref|NC_016879.1| Spissistilus festinus reovirus segment 1, complete genome
+gi|375298266|ref|NC_016880.1| Spissistilus festinus reovirus segment 3, complete genome
+gi|375298268|ref|NC_016881.1| Spissistilus festinus reovirus segment 5, complete genome
+gi|375298270|ref|NC_016882.1| Spissistilus festinus reovirus segment 7, complete genome
+gi|375298272|ref|NC_016883.1| Spissistilus festinus reovirus segment 9, complete genome
+gi|378554412|ref|NC_016895.1| Bat adenovirus TJM, complete genome
+gi|378554472|ref|NC_016896.1| Astrovirus wild boar/WBAstV-1/2011/HUN, complete genome
+gi|379059601|ref|NC_016898.1| Trichechus manatus latirostris papillomavirus 2, complete genome
+gi|379764913|ref|NC_016958.1| Duck flavivirus TA, complete genome
+gi|379765013|ref|NC_016959.1| Ndumu virus, complete genome
+gi|380034914|ref|NC_016960.1| Southern elephant seal virus, complete genome
+gi|379765038|ref|NC_016961.1| Whataroa virus, complete genome
+gi|379765069|ref|NC_016962.1| Bebaru virus, complete genome
+gi|383081726|ref|NC_016990.1| Porcine coronavirus HKU15, complete genome
+gi|383081734|ref|NC_016991.1| White-eye coronavirus HKU16, complete genome
+gi|383081743|ref|NC_016992.1| Sparrow coronavirus HKU17, complete genome
+gi|383080765|ref|NC_016993.1| Magpie-robin coronavirus HKU18, complete genome
+gi|383080775|ref|NC_016994.1| Night-heron coronavirus HKU19, complete genome
+gi|383080784|ref|NC_016995.1| Wigeon coronavirus HKU20, complete genome
+gi|383080795|ref|NC_016996.1| Common-moorhen coronavirus HKU21, complete genome
+gi|380877198|ref|NC_016997.1| Donggang virus, complete genome
+gi|394935448|ref|NC_017083.1| Rabbit coronavirus HKU14, complete genome
+gi|394935469|ref|NC_017085.1| Canary polyomavirus, complete genome
+gi|394922808|ref|NC_017086.1| Chaoyang virus, complete genome
+gi|394922884|ref|NC_017091.1| Gyrovirus GyV3, complete genome
+gi|384366194|ref|NC_017676.1| Bovine enterovirus type 2, complete genome
+gi|393707849|ref|NC_017714.1| Kotonkan virus, complete genome
+gi|386576350|ref|NC_017716.1| Papio hamadryas papillomavirus type 1, complete genome
+gi|386576359|ref|NC_017823.1| Feline bocavirus, complete genome
+gi|386522683|ref|NC_017825.1| Chimpanzee adenovirus Y25, complete genome
+gi|386522723|ref|NC_017826.1| Equid herpesvirus 8, complete genome
+gi|386645020|ref|NC_017862.1| Equine papillomavirus 3, complete genome
+gi|387935512|ref|NC_017936.1| Bat sapovirus TLC58/HK, complete genome
+gi|387935515|ref|NC_017937.1| Nariva virus, complete genome
+gi|388260063|ref|NC_017940.1| European sheatfish virus, complete genome
+gi|388570674|ref|NC_017979.1| Goose adenovirus 4, complete genome
+gi|389060482|ref|NC_017982.1| Equine polyomavirus, complete genome
+gi|389656400|ref|NC_017993.1| Human papillomavirus type 135, complete genome
+gi|389656408|ref|NC_017994.1| Human papillomavirus type 136, complete genome
+gi|389656416|ref|NC_017995.1| Human papillomavirus type 137, complete genome
+gi|389656424|ref|NC_017996.1| Human papillomavirus type 140, complete genome
+gi|389656432|ref|NC_017997.1| Human papillomavirus type 144, complete genome
+gi|392283758|ref|NC_018074.1| Phocoena phocoena papillomavirus 1, complete genome
+gi|392283730|ref|NC_018075.1| Phocoena phocoena papillomavirus 2, complete genome
+gi|392283737|ref|NC_018076.1| Phocoena phocoena papillomavirus 4, complete genome
+gi|393738580|ref|NC_018102.1| MW polyomavirus, complete genome
+gi|395406760|ref|NC_018136.1| SFTS virus HB29 segment L, complete genome
+gi|395406762|ref|NC_018137.1| SFTS virus HB29 segment S, complete genome
+gi|395406765|ref|NC_018138.1| SFTS virus HB29 segment M, complete genome
+gi|397776125|ref|NC_018226.1| Swine pasivirus 1, complete genome
+gi|400354812|ref|NC_018382.1| Bat hepevirus, complete genome
+gi|400354944|ref|NC_018400.1| Turkey gallivirus, complete genome
+gi|400354950|ref|NC_018401.1| Gyrovirus 4, complete genome
+gi|401829604|ref|NC_018459.1| Aino virus segment M, complete genome
+gi|401829606|ref|NC_018460.1| Aino virus segment S, complete genome
+gi|401829609|ref|NC_018461.1| Sathuperi virus segment L, complete genome
+gi|401829611|ref|NC_018462.1| Sathuperi virus segment S, complete genome
+gi|401829614|ref|NC_018463.1| Shamonda virus segment L, complete genome
+gi|401829616|ref|NC_018464.1| Shamonda virus segment S, complete genome
+gi|401829619|ref|NC_018465.1| Aino virus segment L, complete genome
+gi|401829621|ref|NC_018466.1| Sathuperi virus segment M, complete genome
+gi|401829623|ref|NC_018467.1| Shamonda virus segment M, complete genome
+gi|401829625|ref|NC_018476.1| Simbu virus segment L, complete genome
+gi|401829627|ref|NC_018477.1| Simbu virus segment S, complete genome
+gi|401829630|ref|NC_018478.1| Simbu virus segment M, complete genome
+gi|401829632|ref|NC_018481.1| CAS virus segment S, complete genome
+gi|401829635|ref|NC_018482.1| Golden Gate virus segment L, complete genome
+gi|401829638|ref|NC_018483.1| Golden Gate virus segment S, complete genome
+gi|401829641|ref|NC_018484.1| CAS virus segment L, complete genome

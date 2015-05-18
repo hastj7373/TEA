@@ -1,0 +1,3232 @@
+#   *  adding rid.disc and generate clusters for each strand and merge them 
+#   *  revising the cluster breaks
+#   *  adding jittering in count.clipped 
+#      calculate ratio of aligned clipped count to all clipped count
+#              considering clipped pos w/ and w/o quality filtering
+#              get maximum aligned cnt considerig base quality and jittering
+#   *  more precise gene annotation (exon/intro/utr etc)
+#               annot.genes, 
+#   *  rid.disc : adding chr parameter
+#                        : repeat family/class annotatino was added
+#                        : gene annotation needs to be incorporated
+#                        : currently they're done in the post processing 
+#   *  get.somatic.rff.chr: germline filtering
+#   *  get.somatic.crf.chr: germlne filtering based on clipped reads
+#                : gene annotation for cluster.te 
+#   *  get.somatic2 : extracting somatic insertions based on the crf(clipped read filtering)      
+#   *  summarize.somatic   
+#   *  filter.stat.sample, filter.stat.chr: recording detail filtering info for further investigation 
+#   *  cat : categorizing the candidates according to ram and cr
+#   *  summarize.germline : analyze rids in normal genomes 
+#   *  call.somatic : get somatic insertions by rff and crf filtering 
+#   *  region.p : calculate the proportin of human genomic regions 
+#                           gene, utr, 5utr, 3utr, intron, cds,	intron, gene_proximal, 5gene_proximal, 3gene_proximal	  
+#   *  make.cds.table
+#   *  filter.rip(.batch)
+#   *  call.somatic (revision) use different cram and ccr cutoff for matched and non-matched controls
+#   *  call.germline
+#   *  ref.filtering 
+#               apply this reference filtering for the predicted insertion sites 
+#               this filtering does not need to be applied for the new runs
+#               because a bug in the discordant reads filtering near the known instances was fixed  
+#   *  rid.disc revised for short reads (no clipped reads)
+#   *  call.normal.specific
+#  check the number of normal-specific insertions after filtering insertions from the matched tumor and a panel of normal genomes (for revision)
+
+library(Rsamtools)
+library(IRanges)
+library(spp)
+
+# User must change this line
+#tea.base = "/data/home/jluquette/alice/Tea"
+tea.base = "/bitools/TEA/Tea-0.6.2"
+
+sample.desc.file = sprintf("%s/lib/sample.desc", tea.base)
+rannot.file = sprintf("%s/lib/hg18.repeats.txt", tea.base)
+hg18.genes = sprintf("%s/lib/hg18.RData", tea.base)
+hg18.cds = sprintf("%s/lib/hg18.cds.RData", tea.base)
+hchrl = paste("chr", c(1:22, "X", "Y"), sep=""); names(hchrl) = hchrl
+rilf= sprintf("%s/lib/hg18.allri.merged.repeat.clusters.txt.RData", tea.base)
+log.dir = sprintf("%s/log", tea.base)
+
+region.p <- function()
+{
+	load(hg18.cds) # load genes.detail
+	type = list("5utr", "3utr", "cds", "intron", "prox_up", "prox_down"); names(type) = type
+	g = 3080419480
+	x = data.frame(do.call(rbind, lapply(type, function(t) {
+		idx = grep(t, genes.detail$type)		
+		l = sum(genes.detail$e[idx] - genes.detail$s[idx] + 1)
+		p = round(l / g * 100, 2)
+		return(c(len=l, pct=p))
+	})))
+	write.table(x, "/groups/park/alee/ra/data/hg18.content", sep="\t", quote=F, row.names=F)
+}
+
+# read *.cluster for each sample 
+# and generate a matrix whose columns are samples and rows are insertions 
+summarize.data <- function(dir="/files/CBMI/parklab/alee/ra/", tumor.type=c("gbm", "ov"), phenotype="normal")
+{
+  if ("all" %in% tumor.type) samples = list.files(dir, paste(".*_", phenotype, sep="")) else
+    samples = unlist(sapply(tumor.type,
+      function(s) list.files(dir, paste(s, ".*_", phenotype, sep=""))))
+      names(samples) = samples
+
+	cancer.genes = read.delim("/files/CBMI/parklab/alee/ra/data/cancer_gene_only.txt", sep="\t", header=T,as.is=T)
+
+	cll = lapply(samples, function(s) return(read.cluster(dir, s, verbose=T))) 
+
+	#x = lapply(samples, function(s) write.table(cll[[s]], paste(dir, s, "/cluster/", s, ".bothram.bothacr.cluster", sep=""), quote=F, row.names=F, sep="\t"))
+
+	#genes = lapply(samples[1:3], function(s) {
+	genes = lapply(samples, function(s) {
+		print(paste("processing", s))
+		cl = cll[[s]]
+		cl = cl[cl$score >=1,]
+		exons1 = unique(unlist(lapply(cl$genes1, function(s) get.genes(s, exon.only=T))))
+		genes1 = unique(unlist(lapply(cl$genes1, function(s) get.genes(s, genebody.only=T))))
+		egenes1 = unique(unlist(lapply(cl$genes1, function(s) get.genes(s))))
+
+		exons2 = unique(unlist(lapply(cl$genes2, function(s) get.genes(s, exon.only=T))))
+		genes2 = unique(unlist(lapply(cl$genes2, function(s) get.genes(s, genebody.only=T))))
+		egenes2 = unique(unlist(lapply(cl$genes2, function(s) get.genes(s))))
+
+		exons = union(exons1, exons2)
+		genes = union(genes1, genes2)
+		egenes = union(egenes1, egenes2)
+		
+		return(list(exons=exons, genes=genes, egenes=egenes))
+	})
+
+	#intersect(exons, cancer.genes$Symbol)
+	all.exons = unique(unlist(lapply(genes, function(g) g$exons)))
+	all.genes = unique(unlist(lapply(genes, function(g) g$genes)))
+	all.egenes = unique(unlist(lapply(genes, function(g) g$egenes)))
+
+	exon.m = data.frame(do.call(cbind, lapply(samples, function(s) {
+		get.genesore(cll[[s]], all.exons, exon.only=T)
+	})))
+
+	gene.m = data.frame(do.call(cbind, lapply(samples, function(s) {
+		get.genescore(cll[[s]], all.genes, genebody.only=T)
+	})))
+
+	egene.m = data.frame(do.call(cbind, lapply(samples, function(s) {
+		get.genescore(cll[[s]], all.egenes)
+	})))
+}
+# to test X >= 121 
+#phyper(120, 4387, 20000-4387, 464, lower.tail=F)
+#[1] 0.01818452
+
+get.genescore <- function(cl, genes, exon.only=F, genebody.only=F, verbose=F)
+{
+	if (exon.only) {
+		s1 = cl$score[match(paste(genes, "_exon", collapse="") , cl$genes1)]
+		s2 = cl$score[match(paste(genes, "_exon", collapse="") , cl$genes2)]
+	}
+
+		#i1 = grepl(paste(genes, "_exon", sep=""), cl$genes1)  
+		#i2 = grepl(paste(genes, "_exon",  sep=""), cl$genes2)
+#	} else if (genebody.only) {
+#		i1 = grepl(paste(genes, "_exon", sep=""), cl$genes1)  
+#		i2 = grepl(paste(genes, "_exon",  sep=""), cl$genes2)
+#	} else {
+#		i1 = grepl(paste(genes, "_", sep=""), cl$genes1)  
+#		i2 = grepl(paste(genes, "_",  sep=""), cl$genes2)
+#	}
+#	cl$score[union(i1, i2)]
+
+}
+
+#  all.region$chr = as.character(all.region$chr)
+
+  # generate reduced/normalized regions per chr
+#  chrl = unique(all.region$chr);
+#  nregion = lapply(chrl, function(ch) {
+#    return(nregion.ch = reduce(IRanges(all.region$s[all.region$chr == ch], all.region$e[all.region$chr =
+#= ch])))
+#  })
+#  names(nregion) = chrl
+
+get.genes <- function(s, exon.only=F, genebody.only=F, verbose=F) 
+{
+	tokens = strsplit(s, ",")[[1]] 
+	i=1:length(tokens)
+	if (exon.only) i = grep("exon", tokens)
+	if (genebody.only) {
+		type = c("exon", "intron", "utr")
+		i = unique(unlist(lapply(type, function(t) return(grep(t, tokens)))))
+	}
+	genes = sub("_(exon|intron|5utr|3utr|prox_down|prox_up)", "", tokens[i])
+	if (verbose) print(paste(s, "==>", genes))
+	return(genes)
+}
+
+read.cluster <- function(dir, s, save=F, reload=F, verbose=F)
+{
+	if (verbose) print(paste("loading clusters for", s))
+	out.file = paste(dir, s, "/cluster/", s, ".cluster.RData", sep="")	
+	if (!reload & file.exists(out.file)) {
+		load(out.file)
+		return(cl)
+	}
+
+	if (verbose) print(paste("reading clusters for", s))
+	file = paste(dir, s, "/cluster/", s, ".cluster", sep="")
+	cl = read.delim(file, sep="\t", as.is=T)
+	#cl = cl[cl$ram1 > 0 & cl$ram2 > 0 & cl$acr1 > 0 & cl$acr2 >0,] 
+	cl$score = get.score(cl)
+	cl = cl[cl$score >= 1, ]
+ 	cl = annot.genes.detail(cl, margin=5, verbose)
+	cl = cl[order(-cl$score),]
+	if (save) {
+		save(cl, file=paste(dir, s, "/cluster/", s, ".cluster.s1.RData", sep=""))
+		write.table(cl, file=paste(dir, s, "/cluster/", s, ".s1.cluster", sep=""), sep="\t", quote=F, row.names=F)
+	}
+	if (verbose) print(paste("done reading clusters for", s))
+
+	return(cl)
+}
+
+cat.batch <- function(dir="/files/CBMI/parklab/alee/ra/somatic/ram2.acr2.arr0.4/", tumor.type=c("gbm", "ov"))
+{
+    cancer.files = unlist(sapply(tumor.type, 
+			function(s) list.files(dir, paste(s, ".*_cancer.ram2.acr2.arr0.4.txt", sep=""))))
+		
+		cancers = gsub(".ram2.acr2.arr0.4.txt", "", cancer.files)
+		x = lapply(cancers, function(c) cat(dir, c)) 
+}
+
+cat <- function(dir="/files/CBMI/parklab/alee/ra/somatic/ram2.acr2.arr0.4/", s="gbm0145_cancer", ph="cancer") 
+{
+	if (ph == "cancer") file = paste(dir, s, ".ram2.acr2.arr0.4.txt", sep="")  	
+	# not yet else file = paste(dir, s, "/cluster/*.", sep="")
+
+	cl = read.delim(file, sep="\t", header=T) 
+	typel = c("r1c1", "r1c2", "r2c1", "r2c2", "r2c2tsd")
+	x = lapply(typel, function(type) {
+		if (type %in% c("r2c2", "r2c2tsd")) {
+			new.cl = cl[cl$ram1 >0 & cl$ram2 >0 & cl$acr1 > 0 & cl$acr2 > 0,]
+			if (type == "r2c2tsd") new.cl = new.cl[new.cl$td > -50 & new.cl$td < 50, ] 
+		} else if (type == "r2c1") {
+			new.cl = cl[cl$ram1 >0 & cl$ram2 >0 & (cl$acr1 == 0 | cl$acr2 == 0),]
+		} else if (type == "r1c2") {
+			new.cl = cl[(cl$ram1 == 0 | cl$ram2 == 0) & (cl$acr1 > 0 & cl$acr2 > 0),]
+		} else if (type == "r1c1") {
+			new.cl = cl[(cl$ram1 == 0 | cl$ram2  == 0) & (cl$acr1 == 0 | cl$acr2 == 0),]
+		}
+		out.file = paste(dir, s, ".", type, ".txt", sep="") 		
+		if (dim(new.cl)[1] > 0) write.table(new.cl, out.file, sep="\t", quote=F, row.names=F)
+	})
+}
+
+summarize.somatic <- function(dir="/files/CBMI/parklab/alee/ra/somatic/", tumor.type=c("gbm", "ov"))
+{
+	if ("all" %in% tumor.type) cancers = list.files(dir, ".*_cancer") else
+    cancers = unlist(sapply(tumor.type, 
+			function(s) list.files(dir, paste(s, ".*_cancer", sep=""))))
+			names(cancers) = cancers
+
+	# summarize candidates whose td: 0 < td < 50	
+	can.cat3 = data.frame(do.call(rbind, lapply(cancers, function(c) {
+		#e.g. gbm0786_cancer/gbm0786_cancer.minram2.mincr1.maxcram1.somatic.cat3.arr0.4.crf.tot5
+		file = paste(dir, c, "/", c, ".minram2.mincr1.maxcram1.somatic.cat3.arr0.4.crf.tot5", sep="") 
+		cl = read.table(file, header=T, as.is=T)
+		cl = cbind(c, cl)
+		return(cl)
+	})))
+	colnames(can.cat3)[1] = "sample"
+
+	write.table(can.cat3[order(-can.cat3$score, -can.cat3$ram, -can.cat3$acr),], file=paste(dir, "somatic.cat3.arr0.4.crf.tot5.txt", sep=""), sep="\t", row.names=F, quote=F)
+
+	# save for exons
+	can = data.frame(do.call(rbind, lapply(cancers, function(c) {
+		#e.g. gbm0786_cancer/gbm0786_cancer.minram2.mincr1.maxcram1.somatic
+		file = paste(dir, c, "/", c, ".minram2.mincr1.maxcram1.somatic", sep="") 
+		cl = read.table(file, header=T, as.is=T)
+		cl = cl[cl$arr >= 0.4 & cl$crf.tot <=5,]
+		cl = cbind(c, cl)
+		return(cl)
+	})))
+	colnames(can)[1] = "sample"
+	can.exon = can[grepl("exon", can$genes1) | grepl("exon", can$genes2),]
+	write.table(can.exon[order(-can.exon$score, -can.exon$ram, -can.exon$acr),], file=paste(dir, "somatic.exon.arr0.4.crf.tot5.txt", sep=""), sep="\t", row.names=F, quote=F)
+	
+	can.nonintergenic = can[!grepl("-", can$genes1) | !grepl("-", can$genes2),] 
+	write.table(can.nonintergenic[order(-can.nonintergenic$score, -can.nonintergenic$ram),], file=paste(dir, "somatic.nonintergenic.arr0.4.crf.tot5.txt", sep=""), sep="\t", row.names=F, quote=F)
+	# save for non-integernic regions (exons / introns / utrs)
+}
+
+get.score.somatic <- function(dir="/files/CBMI/parklab/alee/ra/somatic/", tumor.type=c("gbm", "ov"), min.ram=2, min.cr=1, max.control.ram=1, verbose=F) 
+{
+	if ("all" %in% tumor.type) cancers = list.files(dir, ".*_cancer") else
+    cancers = unlist(sapply(tumor.type, 
+			function(s) list.files(dir, paste(s, ".*_cancer", sep=""))))
+			names(cancers) = cancers
+ 
+	x = lapply(cancers, function(c) {
+	#x = lapply(cancers[14:length(cancers)], function(c) {
+	print(paste("processing", c))
+	file = paste(dir, c, "/", c, ".minram", min.ram, ".mincr", min.cr, ".maxcram", max.control.ram, ".somatic", sep="")
+	can3.file = paste(dir, c, "/", c, ".minram", min.ram, ".mincr", min.cr, ".maxcram", max.control.ram, ".somatic.cat3", sep="")
+	can2.file = paste(dir, c, "/", c, ".minram", min.ram, ".mincr", min.cr, ".maxcram", max.control.ram, ".somatic.cat2", sep="")
+	can = read.table(file, header=T, as.is=T)
+	can$score = get.score(can)
+	can3 = can[can$cat==3,]
+	can2 = can[can$cat==2,]
+	write.table(can3[order(-as.numeric(can3$score), -as.numeric(can3$arr)),], can3.file, sep="\t", quote=F, row.names=F)
+	write.table(can2[order(-as.numeric(can2$score), -as.numeric(can2$arr)),], can2.file, sep="\t", quote=F, row.names=F)
+	})
+}
+
+filter.rip.batch <- function(dir="/files/CBMI/parklab/alee/ra2", verbose=T)
+{
+ 	#samples = list.files(dir, "(gbm|ov|pr|cr).*_(cancer|normal)|na1850?")
+  #samples = samples[-grep("cra00r_normal|pr0508_normal", samples)]
+ 	samples = list.files(dir, "mm.*_(cancer|normal)")
+
+  x = lapply(samples, function(s) {
+    if (verbose) print(paste("processing", s))
+    filter.rip(dir, s, verbose=verbose)
+  })
+}
+
+# extract sample specific rips compared to control(s)
+# controls = c("gbm", "ov", "cr", "pr")
+filter.control.rip <- function(dir="/files/CBMI/parklab/alee/ra2", sample="ov0890_cancer", control="ov0890_normal", min.ram1=1, min.ram2=1, min.ram=2, min.acr1=1, min.acr2=1, verbose=F, crf=T)
+{
+  cl.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cl.te.new.RData", sep="")
+  cram.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cram.new.RData", sep="")
+	if (crf) ccr.rfile = paste(dir, "/", sample, "/cluster/", sample, ".ccr.new.RData", sep="")
+
+  if (grepl("cancer", sample)) {
+    # make the cram mtrx for all normals for a cancer sample
+    controls =  list.files(dir, ".*_normal|na1850?")
+    controls = controls[-grep("cra00r_normal|pr0508_normal", controls)]
+  } else if (grepl("normal", sample)) {
+    # make the cram mtrx for all normals except the sample itself and its matched normal
+    controls = c(list.files(dir, ".*_normal|na1850?"), sub("normal", "cancer", sample))
+    controls = controls[-grep("cra00r_normal|pr0508_normal", controls)]
+    controls = controls[-grep(sample, controls)]
+  }
+  names(controls) = controls
+	
+	if (file.exists(cl.rfile)) load(cl.rfile) # cll
+	else cll = make.cl.rfile(dir, sample, cl.rfile, verbose)
+
+  if (file.exists(cram.rfile)) load(cram.rfile) # cram
+  else cram = make.cram.rfile(dir, sample, cll, controls, cram.rfile, verbose)
+
+	if (crf) {
+  	if (file.exists(ccr.rfile)) load(ccr.rfile) #ccr
+  	else ccr = make.ccr.rfile(dir, sample, cll, controls, ccr.rfile, verbose=F)
+	}
+}
+
+cram.batch <- function(dir="/files/CBMI/parklab/alee/ra2", verbose=T)
+{
+  samples = list.files(dir, "*_cancer")
+	samples = samples[-grep("cra00r|pr0508", samples)]
+  x = lapply(samples, function(sample) {
+    print(paste("processing", sample))
+    cl.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cl.te.new.RData", sep="")
+  cram.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cram.new.RData", sep="")
+      if (grepl("cancer", sample)) {
+    # make the cram mtrx for all normals for a cancer sample
+    controls =  list.files(dir, ".*_normal|na1850?")
+    controls = controls[-grep("cra00r_normal|pr0508_normal", controls)]
+  } else if (grepl("normal", sample)) {
+    # make the cram mtrx for all normals except the sample itself and its matched normal
+    controls = c(list.files(dir, ".*_normal|na1850?"), sub("normal", "cancer", sample))
+    controls = controls[-grep("cra00r_normal|pr0508_normal", controls)]
+    controls = controls[-grep(sample, controls)]
+  }
+  names(controls) = controls
+
+  if (file.exists(cl.rfile)) load(cl.rfile) # cll
+  else cl = make.cl.rfile(dir, sample, cl.rfile, verbose)
+  write.msg(paste("done loading cll from", cl.rfile))
+
+  if (file.exists(cram.rfile)) load(cram.rfile) # cram
+  else cram = make.cram.rfile(dir, sample, cll, controls, cram.rfile, verbose)
+	})
+}
+
+make.cram.rfile2 <- function(dir="/files/CBMI/parklab/alee/ra2", sample, verbose=T)
+{
+	print(paste("processing", sample))
+	cl.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cl.te.new.RData", sep="")
+	cram.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cram.new.RData", sep="")
+
+  if (grepl("cancer", sample)) {
+    # make the cram mtrx for all normals for a cancer sample
+    controls = list.files(dir, ".*_normal|na1850?")
+    controls = controls[-grep("cra00r_normal|pr0508_normal", controls)]
+  } else if (grepl("normal", sample)) {
+    # make the cram mtrx for all normals except the sample itself and its matched normal
+    controls = c(list.files(dir, ".*_normal|na1850?"), sub("normal", "cancer", sample))
+    controls = controls[-grep("cra00r_normal|pr0508_normal", controls)]
+    controls = controls[-grep(sample, controls)]
+  }
+  names(controls) = controls
+
+  if (file.exists(cl.rfile)) load(cl.rfile) # cl
+	else cl = make.cl.rfile(dir, sample, cl.rfile, verbose)
+  write.msg(paste("done loading cl from", cl.rfile))
+
+  #if (file.exists(cram.rfile)) cram =load(cram.rfile) # cram
+  #else cram = make.cram.rfile(dir, sample, cl, controls, cram.rfile, verbose)
+  cram = make.cram.rfile(dir, sample, cl, controls, cram.rfile, verbose)
+}
+
+make.ccr.rfile2 <- function(dir="/files/CBMI/parklab/alee/ra2", sample, verbose=T)
+{
+	print(paste("processing", sample))
+	cl.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cl.te.new.RData", sep="")
+	ccr.rfile = paste(dir, "/", sample, "/cluster/", sample, ".ccr.new.RData", sep="")
+
+  if (grepl("cancer", sample)) {
+    # make the cram mtrx for all normals for a cancer sample
+    controls =  list.files(dir, ".*_normal|na1850?")
+    controls = controls[-grep("cra00r_normal|pr0508_normal", controls)]
+  } else if (grepl("normal", sample)) {
+    # make the cram mtrx for all normals except the sample itself and its matched normal
+    controls = c(list.files(dir, ".*_normal|na1850?"), sub("normal", "cancer", sample))
+    controls = controls[-grep("cra00r_normal|pr0508_normal", controls)]
+    controls = controls[-grep(sample, controls)]
+  }
+  names(controls) = controls
+
+  if (file.exists(cl.rfile)) load(cl.rfile) # cl
+  else cl = make.cl.rfile(dir, sample, cl.rfile, verbose)
+	write.msg(paste("done loading cl from", cl.rfile))
+
+	#if (file.exists(ccr.rfile)) load(ccr.rfile) #ccr
+  #else ccr = make.ccr.rfile(dir, sample, cl, controls, ccr.rfile, verbose)
+  ccr = make.ccr.rfile(dir, sample, cl, controls, ccr.rfile, verbose)
+}
+
+make.ccr.rfile <- function(dir, sample, cl, controls, fn, chrl=hchrl, verbose=F)
+{
+	ccr.t = lapply(controls, function(c) {
+		get.ccr(dir, sample, c, margin=2, chrl=chrl, verbose=T, cl)
+	})
+	ccr = lapply(chrl, function(chr) {
+		data.frame(do.call(cbind, lapply(controls, function(c) {
+   	return(ccr.t[[c]][[chr]])
+    })))
+	})
+	save(ccr, file=fn)
+	write.msg(paste("done writing the control clipped reads file for sample", sample, ":", fn))
+	return(ccr)
+}
+
+make.cram.rfile <- function(dir, sample, cl, controls, fn, chrl=hchrl, verbose=F)
+{
+	cram = lapply(chrl, function(chr) {
+		if (verbose) print(paste("processing", chr))
+		return(data.frame(do.call(cbind, lapply(controls, function(c) {
+			if (verbose) print(paste("processing", c))
+				get.cram(dir, c, cl[[chr]], chr, 100, chrl=chrl, verbose)
+		}))))
+	})
+	save(cram, file=fn)
+	write.msg(paste("done writing the control ram file for sample", sample, ":", fn))
+	return(cram)
+}
+
+get.cram <- function(dir, control, cl.ch, chr, margin=100, chrl=hchrl, verbose)
+{
+	ram.raw.rfile = paste(dir, "/", control, "/cluster/", control, ".cluster.raw.RData", sep="")
+	if (file.exists(ram.raw.rfile)) load(ram.raw.rfile)
+	else raw = make.ram.raw.rfile(dir, control, ram.raw.rfile, chrl=chrl, verbose)
+
+  cram.chr = filter.rf.chr2(cl.ch, raw[[chr]], margin=margin, verbose=verbose)
+  return(cram.chr)
+}
+
+make.ram.raw.rfile <- function(dir, sample, fn, chrl=hchrl, verbose)
+{
+	raw = lapply(chrl, function(chr) {
+		if (verbose) print(paste("processing", chr))
+ 	 if (chr == "chr1") {
+			cl = read.delim(paste(dir, "/", sample, "/cluster/", sample, ".", chr, ".cluster.raw", sep=""), sep="\t", header=T, as.is=T)
+		} else {
+ 		 	chr1 = read.delim(paste(dir, "/", sample, "/cluster/", sample, ".chr1.cluster.raw", sep=""), sep="\t", nrows=1, as.is=T)
+ 		 	cl = read.delim(paste(dir, "/", sample, "/cluster/", sample, ".", chr, ".cluster.raw", sep=""), sep="\t", header=F, as.is=T)
+ 	  	colnames(cl) = colnames(chr1)
+ 	  }
+ 	  cl = cl[, c("chr", "s", "e", "rep.repeat", "family", "class", "ram", "ram1", "ram2")]
+ 	  familyl = unique(cl$family); names(familyl) = familyl
+ 	  cl.raw = lapply(familyl, function(f) {
+   	return(cl[cl$family==f,])
+   	})
+		return(cl.raw)
+	})
+	save(raw, file=fn)	
+	write.msg(paste("done writing rawl for", sample, ":", fn))
+	return(raw)
+}
+
+filter.rip <- function(dir="/files/CBMI/parklab/alee/ra2", sample="ov0890_cancer", min.ram1=1, min.ram2=1, min.ram=2, min.acr1=1, min.acr2=1, min.arr=0.4, mtd=-10, ptd=30, verbose=F)
+{
+	cl.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cl.te.new.RData", sep="")
+
+	if (file.exists(cl.rfile)) load(cl.rfile)
+	else cl = make.cl.rfile(dir, sample, cl.rfile, verbose)
+
+	df = data.frame(do.call(rbind, lapply(cl, function(x) return(x))))
+	
+	df1 = df[df$ram1 >= min.ram1 & df$ram2 >= min.ram2 & df$ram >= min.ram & df$acr1 >= min.acr1 &
+            df$acr2 >= min.acr2,]
+	df1 = df1[order(-df1$score, -df1$ram, -df1$acr, -df1$arr),]
+
+	# arr filter
+	df2 = df1[df1$arr >= min.arr,]
+
+	# td filter
+	df3 = df2[df2$td >= mtd & df2$td <= ptd,]
+
+	# write the filtered results	
+	prfx = paste(dir, "/", sample, "/cluster/", sample, ".", sep="")
+	write.table(df1, paste(prfx, min.ram, "ram.", min.ram1, "ram1.", min.ram2, "ram2.", min.acr1, "acr1.", min.acr2, "acr2", sep=""), sep="\t", quote=F, row.names=F)
+	write.table(df2, paste(prfx, min.ram, "ram.", min.ram1, "ram1.", min.ram2, "ram2.", min.acr1, "acr1.", min.acr2, "acr2.", min.arr, "arr", sep=""), sep="\t", quote=F, row.names=F)
+	write.table(df3, paste(prfx, min.ram, "ram.", min.ram1, "ram1.", min.ram2, "ram2.", min.acr1, "acr1.", min.acr2, "acr2.", min.arr, "arr.", mtd, "mtd.", ptd, "ptd", sep=""), sep="\t", quote=F, row.names=F)
+}
+
+make.cl.rfile <- function(dir, sample, fn, chrl = hchrl, verbose=F)
+{
+	cl = lapply(chrl, function(chr) {
+		if (verbose) print(paste("processing", chr))
+		if (chr == "chr1")
+			x = read.delim(paste(dir, "/", sample, "/cluster/", sample, ".", chr, ".cluster.te", sep=""), header=T, as.is=T)
+		else {
+			x = read.delim(paste(dir, "/", sample, "/cluster/", sample, ".", chr, ".cluster.te", sep=""), header=F, as.is=T)
+		}
+		# some *.te has genes1/2 columns already, so drop them off 
+		colnames = c("chr","s","e","size","td", "cp1", "cp2", "rep.repeat","family","class","ram","ram1","ram2","cr", "cr1", "cr2", "acr", "acr1", "acr2", "arr", "s1","e1","s2","e2", "score")
+		x = x[, 1:length(colnames)] 
+		colnames(x) = colnames 
+		if (verbose) print(paste("reading", dir, "/", sample, "/cluster/", sample, ".", chr, ".cluster.te", sep=""))
+		# new scoring and gene annotation
+		if (nrow(x) > 0) {
+			x$score = get.score(x, 20, 10)
+			x = annot.genes.cds(x)
+		}
+		return(x)
+	})
+	names(cl) <- chrl
+	save(cl, file=fn)
+	write.msg(paste("done generating", fn))
+	return(cl)
+}
+
+call.germline.batch <- function(dir="/files/CBMI/parklab/alee/ra2", verbose=T, chrl=hchrl)
+{
+	samples = dir(dir, "*_normal|na1850*")
+	samples = samples[grep("cra00r_normal", samples, invert=TRUE)]
+	print(sprintf("Samples contained in [%s]:", dir))
+	print(samples)
+
+	x = lapply(samples, function(s) {
+		if (verbose) print(paste("processing", s)) 
+		call.germline(dir, s, verbose=T, chrl=chrl)
+	})
+}
+
+call.germline <- function(dir="/files/CBMI/parklab/alee/ra2", sample, min.ram1=1, min.ram2=1, min.ram=3, min.acr1=1, min.acr2=1, min.arr=0.4, min.tsd=-20, max.tsd=50, min.score=0.5, contig=F, verbose=F, ref.filter.margin=500, chrl=hchrl)
+{
+	# load the cluster rfile
+  cl.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cl.te.new.RData", sep="")
+  if (file.exists(cl.rfile)) {
+    load(cl.rfile) # cl
+    write.msg(paste("done loading", cl.rfile))
+  } else {
+    write.msg(paste("generating", cl.rfile))
+    cl = make.cl.rfile(dir, sample, cl.rfile, chrl=chrl, verbose)
+    write.msg(paste("done generating", cl.rfile))
+  }
+
+  out.dir = paste(dir, "/", sample, "/call3/", sep="")
+  if (!file.exists(out.dir))  dir.create(out.dir, recursive=T, mode="0755")
+  fprefix = paste(out.dir, sample, ".germline", sep="")
+
+	df = data.frame(do.call(rbind, lapply(chrl, function(chr) {
+		return(cl[[chr]])
+	})))
+	rownames(df) = NULL
+	# min.ram filtering
+	df = df[df$ram>=min.ram &df$ram1 >= min.ram1 & df$ram2>=min.ram2,] 
+  df = col.format(df, sub("_(cancer|normal)", "", sample), "germline")
+
+	# additional ref. filtering using max(is, or 500)
+  if (!exists("ril")) load(rilf)
+	is = get.is.margin(dir, sample)
+	if (is > ref.filter.margin) {
+		print("using insert size instaed of ref.filter.margin")
+		ref.filter.margin = is 
+	}
+
+#1	ram>=3
+#2	ram>=6
+#3	ram>=6 & acr1>=1 & acr2>=1
+#4	arr >=0.4
+#5	td [-20,50]
+	df2 = df[ref.filtering2(df, ril, ref.filter.margin),]	
+	df2$conf = 1
+	df2$conf[df2$ram>=6] = 2 # score 0.3
+	df2$conf[df2$conf==2 & df2$pcr>=min.acr1 & df2$ncr>=min.acr2] = 3 # score 0.5
+	df2$conf[df2$conf==3 & df2$tsd >=min.tsd & df2$tsd <= max.tsd] = 4
+	df2$conf[df2$conf==4 & df2$acrr >= min.arr] = 5
+
+ 	fname = paste(fprefix, ".", min.ram, "ram.", min.ram1, "ram1.", min.ram2, "ram2.", ref.filter.margin, "ref_filter.", min.acr1, "acr1.", min.acr2, "acr2.", min.arr, "arr.", min.tsd, "mtd.", max.tsd, "ptd", sep="")
+  write.table(df2, file=fname, sep="\t", quote=F, row.names=F)
+  write.msg(paste("done.writing", fname, nrow(df2), "rows"))
+
+	return(df2)
+}
+
+get.is.margin <- function(dir, sample)
+{
+   rl.file = paste(dir, "/", sample, "/bam/", sample, ".rl", sep="")
+   isize.file = paste(dir, "/", sample, "/bam/", sample, ".isize", sep="")
+   rl = load.rl(rl.file)
+   is = load.isize(isize.file, rl)
+		return(is$ins.margin)
+}
+
+ref.filtering.sample <- function(dir="/files/CBMI/parklab/alee/ra2", sample, verbose=T)
+{
+	#samples = dir(dir, "*_normal|na1850*")
+	#samples = samples[-grep("pr0508_normal|cra00r_normal", samples)]
+
+	load(rilf)
+	#x = lapply(samples, function(sample) {
+		if (verbose) print(paste("processing", sample)) 
+		rl.file = paste(dir, "/", sample, "/bam/", sample, ".rl", sep="")
+		isize.file = paste(dir, "/", sample, "/bam/", sample, ".isize", sep="")
+  	rl = load.rl(rl.file)
+  	is = load.isize(isize.file, rl)
+		fname = paste(dir, "/", sample, "/call/", sample, ".germline.3ram.1ram1.1ram2.1acr1.1acr2.0.4arr.0.6score", sep="") 
+		df = read.table(fname, sep="\t", header=T, as.is=T) 
+		nonref.idx = ref.filtering2(df, ril, is$ins.margin, verbose=T)
+		df = df[nonref.idx, ]
+		fname = paste(fname, ".nonref", sep="")
+  	write.table(df, fname, sep="\t", quote=F, row.names=F)
+  
+  	ltr.dna = df[df$class == "LTR" | df$class == "DNA",]
+  	fname = paste(fname, ".ltrdna", sep="")
+  	write.table(ltr.dna, fname, sep="\t", quote=F, row.names=F)
+	#})
+}
+
+ref.filtering <- function(df, ril, margin, verbose=F)
+{
+	nonref.idx = unlist(lapply(1:nrow(df), function(i) {
+		if (verbose & i%%100 ==0) print(paste("processing", i))
+    	repeats = strsplit(df$rep.repeat[i], ",")[[1]]
+    	oi = min(unlist(lapply(repeats, function(r) {
+   			return(ifelse(countOverlaps(IRanges(df$s[i], df$e[i]), IRanges(ril[[r]][[df$chr[i]]]$s, ril[[r]][[df$chr[i]]]$e) + margin)==0, 1, 0))
+     })))
+			if (oi==0) return(NULL) else return(i) 
+    }))
+	return(nonref.idx)
+}
+
+ref.filtering2 <- function(df, ril, margin, verbose=F)
+{
+	nonref.idx = unlist(lapply(1:nrow(df), function(i) {
+		if (verbose & i%%100 ==0) print(paste("processing", i))
+    	repeats = strsplit(df$rep.repeat[i], ",")[[1]]
+    	oi = min(unlist(lapply(repeats, function(r) {
+   			return(ifelse(countOverlaps(IRanges(df$pram_start[i], df$nram_end[i]), IRanges(ril[[r]][[df$chr[i]]]$s, ril[[r]][[df$chr[i]]]$e) + margin)==0, 1, 0))
+     })))
+			if (oi==0) return(NULL) else return(i) 
+    }))
+	return(nonref.idx)
+}
+
+call.normal.specific.batch <- function(dir="/files/CBMI/parklab/alee/ra2", verbose=T)
+{
+	samples = dir(dir, "*_normal") 
+	samples = samples[!samples %in% c("cra00r_normal", "ov0982_normal")] 
+
+	x = lapply(samples, function(s) {
+		if (verbose) print(paste("processing", s)) 
+    controls = sub("normal", "cancer", s)
+    controls = c(controls, dir(dir, "(gbm|ov).*_normal|na18508)"))
+		names(controls) = controls
+#> controls
+# [1] "cr2689_cancer"  "gbm0145_normal" "gbm0152_normal" "gbm0155_normal"
+# [5] "gbm0185_normal" "gbm0188_normal" "gbm0208_normal" "gbm0214_normal"
+# [9] "gbm0648_normal" "gbm0786_normal" "gbm0877_normal" "gbm0881_normal"
+#[13] "gbm1086_normal" "gbm1401_normal" "gbm1438_normal" "gbm1454_normal"
+#[17] "gbm1459_normal" "ov0723_normal"  "ov0725_normal"  "ov0751_normal" 
+#[21] "ov0890_normal"  "ov0980_normal"  "ov0982_normal"  "ov1103_normal" 
+#[25] "ov1319_normal"  "ov1411_normal" 
+
+		print(paste(s, paste(controls, collapse="|")))
+		call.normal.specific(dir, s, controls=controls)
+	})
+}
+
+call.normal.specific <- function(dir="/files/CBMI/parklab/alee/ra2", sample, controls=NULL, min.ram1=1, min.ram2=1, min.ram=3, min.acr1=1, min.acr2=1, min.arr=0.4, min.tsd=-15, max.tsd=30, min.score=0.6, contig=F, verbose=F)
+{
+	 controls = sub("normal", "cancer", sample)
+   controls = c(controls, dir(dir, "(gbm|ov).*_normal|na18508)"))
+   names(controls) = controls
+
+	# load cluster and files
+	cl.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cl.te.new.RData", sep="")
+  cram.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cram.new.RData", sep="")
+  ccr.rfile = paste(dir, "/", sample, "/cluster/", sample, ".ccr.new.RData", sep="")
+
+	 if (file.exists(cl.rfile)) {
+    load(cl.rfile) # cl
+    write.msg(paste("done loading", cl.rfile))
+  } else {
+    write.msg(paste("generating", cl.rfile))
+    cl = make.cl.rfile(dir, sample, cl.rfile, verbose)
+    write.msg(paste("done generating", cl.rfile))
+  }
+
+  if (file.exists(cram.rfile)) {
+    load(cram.rfile)
+    write.msg(paste("done loading", cram.rfile))
+  } else {
+    write.msg(paste("generating", cram.rfile))
+    cram = make.cram.rfile(dir, sample, cl, controls, cram.rfile, verbose)
+    write.msg(paste("done generating", cram.rfile))
+  }
+   
+  if (file.exists(ccr.rfile)) {
+    load(ccr.rfile)
+    write.msg(paste("done loading", ccr.rfile))
+  } else {
+    write.msg(paste("generating", ccr.rfile))
+    ccr = make.ccr.rfile(dir, sample, cl, controls, ccr.rfile, verbose)
+    write.msg(paste("done generating", ccr.rfile))
+  }
+
+  df = data.frame(do.call(rbind, lapply(hchrl, function(chr) return(cl[[chr]])))); rownames(df) = NULL
+  cram.df = data.frame(do.call(rbind, lapply(hchrl, function(chr) return(cram[[chr]])))); rownames(cram.df) = NULL
+  ccr.df = data.frame(do.call(rbind, lapply(hchrl, function(chr) return(ccr[[chr]])))); rownames(ccr.df) = NULL
+
+  # extract the candidates with rams on both ends
+  df$conf=0
+  df$conf[df$ram1>=1 & df$ram2>=1 & df$ram>=3] = 1 # score 0.3
+  df$conf[df$conf==1 & df$ram>=6] = 2 # score 0.3
+  df$conf[df$conf==2 & df$acr1>=min.acr1 & df$acr2>=min.acr2] = 3 # score 0.5
+  df$conf[df$conf==3 & df$td >=min.tsd & df$td <= max.tsd] = 4
+  df$conf[df$conf==4 & df$arr >= min.arr] = 5
+
+  cl.df = df[df$conf>=1,]
+  cram.df = cram.df[df$conf>=1,]
+  ccr.df = ccr.df[df$conf>=1,]
+
+  # apply the matched control filtering 
+  out.dir = paste(dir, "/", sample, "/call/", sep="")
+  if (!file.exists(out.dir))  dir.create(out.dir, recursive=T, mode="0755")
+  fprefix = paste(out.dir, sample, ".normal.specific.", min.ram, "ram.", min.ram1, "ram1.", min.ram2, "ram2.", sep="")
+
+  x = write.somatic.matchc.df2(cl.df, cram.df, ccr.df, controls, sample, max.cram=1, max.ccr=1, fprefix)
+  # apply the non-matched control filtering
+  x.nmc = write.somatic.nonmatchc.df(x$df, controls, max.cram=2, max.ccr=2, x$fname)
+	# annotate conf
+  x.nmc.conf = write.conf(x.nmc$df, min.ram=6, min.acr1=1, min.acr2=1, min.tsd=-15, max.tsd=30, min.arr=0.5, x.nmc$fname)
+}
+
+write.conf <- function(df, min.ram=6, min.acr1=1, min.acr2=1, min.tsd=-15, max.tsd=30, min.arr=0.5, fprefix)
+{
+  min.ram=6; min.acr1=1; min.acr2=1; min.tsd=-15; max.tsd=30; min.arr=0.5
+  conf = 1:6; names(conf) = conf
+
+  fname = paste(fprefix, ".conf", sep="")
+	if (nrow(df)>0) {
+    df$conf = 1
+    df$conf[df$ram>= min.ram] = 2 # score 0.3
+    df$conf[df$conf==2 & df$pcr>=min.acr1 & df$ncr>=min.acr2] = 3 # score 0.5
+    df$conf[df$conf==3 & df$tsd>=min.tsd & df$tsd<=max.tsd] = 4
+    df$conf[df$conf==4 & df$acrr>=min.arr] = 5
+    df$conf[df$conf==5 & df$score>=0.6] = 6
+	} 
+  write.table(df,fname, quote=F, row.names=F)
+	return(list(df=df, fname=fname))
+}
+
+
+call.somatic.batch <- function(dir="/files/CBMI/parklab/alee/ra2", chrl=hchrl, verbose=T, ...)
+{
+	samples = dir(dir, "*_cancer") 
+
+	x = lapply(samples, function(s) {
+		if (verbose) print(paste("processing", s)) 
+		call.somatic(dir, s, chrl=chrl, verbose=verbose, ...)
+	})
+}
+
+# dir="/files/CBMI/parklab/alee/ra2"; controls=NULL; min.ram1=1; min.ram2=1; min.ram=3; min.acr1=1; min.acr2=1; min.arr=0.4; min.tsd=-15; max.tsd=30; min.score=0.5; contig=F; verbose=T
+call.somatic <- function(dir="/files/CBMI/parklab/alee/ra2", sample, controls=NULL, min.ram1=1, min.ram2=1, min.ram=3, min.acr1=1, min.acr2=1, min.arr=0.4, min.tsd=-15, max.tsd=30, min.score=0.6, chrl=hcrl, contig=F, verbose=F)
+{
+	names(chrl) <- chrl
+
+	for (i in ls())
+		print(paste(i, get(i), sep="="))	
+
+	# controls: e.g. controls=c("pr", "ov")
+	# using 26 genomes (16 gbm, 8 ov and 2 hapmap) for the non-matched control filtering
+	if (is.null(controls)) {
+		#XXX: change me back, uncomment line below
+		#controls = sub("cancer", "normal", sample) # put the matched control in the first 
+		controls = c(controls, dir(dir, "(cr|gbm|ov).*_normal|na18508)"))
+		controls = c(controls, dir(dir, "na1850(6|8)"))
+		# Joe: if there's no occurrence of ov1103_normal in
+		# 'controls', then the grep() returns an empty vector.  Then
+		# the assignment chooses _none_ of the controls.
+		if (sample != "ov1103_cancer") {
+			controls <- controls[grep("ov1103_normal", controls, invert=TRUE)]
+
+		}
+		#controls = controls[-grep("cra00r_normal|ov0982_normal|pr0508_normal", controls)]
+	} else {
+		controls = unlist(sapply(controls, function(t) dir(dir, paste(t, ".*_normal", sep=""))))
+		controls = c(controls, dir(dir, "na1850(7|8)"))
+		# exclude problamatic normal samples
+		controls = controls[grep("cra00r_normal|ov0982_normal|pr0508_normal", controls, invert=TRUE)] 
+	}
+	write.msg("found controls:")
+	print(controls)
+	names(controls) = controls
+
+	cl.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cl.te.new.RData", sep="")
+	cram.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cram.new.RData", sep="")
+	ccr.rfile = paste(dir, "/", sample, "/cluster/", sample, ".ccr.new.RData", sep="")
+
+	if (file.exists(cl.rfile)) {
+		load(cl.rfile) # cl
+		write.msg(paste("done loading", cl.rfile))
+	} else {
+		write.msg(paste("generating", cl.rfile))
+		cl = make.cl.rfile(dir, sample, cl.rfile, chrl=chrl, verbose)
+		write.msg(paste("done generating", cl.rfile))
+	}
+
+	if (file.exists(cram.rfile)) {
+		load(cram.rfile) 
+		write.msg(paste("done loading", cram.rfile))
+	} else {
+		write.msg(paste("generating", cram.rfile))
+  		cram = make.cram.rfile(dir, sample, cl, controls, cram.rfile, chrl=chrl, verbose)
+		write.msg(paste("done generating", cram.rfile))
+	}
+		
+	if (file.exists(ccr.rfile)) {
+		load(ccr.rfile)
+		write.msg(paste("done loading", ccr.rfile))
+	} else {
+		write.msg(paste("generating", ccr.rfile))
+  		ccr = make.ccr.rfile(dir, sample, cl, controls, ccr.rfile, chrl=chrl, verbose=verbose)
+		write.msg(paste("done generating", ccr.rfile))
+	}
+	
+  df = data.frame(do.call(rbind, lapply(chrl, function(chr) {
+    return(cl[[chr]])
+  })))
+	rownames(df) = NULL
+
+	df$conf=0
+  df$conf[df$ram1>=1 & df$ram2>=1 & df$ram>=3] = 1 # score 0.3
+  df$conf[df$conf==1 & df$ram>=6] = 2 # score 0.3
+  df$conf[df$conf==2 & df$acr1>=min.acr1 & df$acr2>=min.acr2] = 3 # score 0.5
+  df$conf[df$conf==3 & df$td >=min.tsd & df$td <= max.tsd] = 4
+  df$conf[df$conf==4 & df$arr >= min.arr] = 5
+
+  cram.df = data.frame(do.call(rbind, lapply(chrl, function(chr) {
+    return(cram[[chr]])
+  })))
+	rownames(cram.df) = NULL
+  ccr.df = data.frame(do.call(rbind, lapply(chrl, function(chr) {
+    return(ccr[[chr]])
+  })))
+	rownames(ccr.df) = NULL
+
+	# Joe: drop=FALSE keeps data.frames with only a single column from
+	# being coerced to a vector and thus losing the column names.
+	cl.df = df[df$conf>=1, , drop=FALSE]
+	cram.df = cram.df[df$conf>=1, , drop=FALSE]
+	ccr.df = ccr.df[df$conf>=1, , drop=FALSE]
+
+	# apply the matched control filtering 
+	out.dir = paste(dir, "/", sample, "/call/", sep="")
+	if (!file.exists(out.dir))  dir.create(out.dir, recursive=T, mode="0755") 
+	fprefix = paste(out.dir, sample, ".somatic.", min.ram, "ram.", min.ram1, "ram1.", min.ram2, "ram2.", sep="")
+
+	x = write.somatic.matchc.df2(cl.df, cram.df, ccr.df, controls, sample, max.cram=1, max.ccr=1, fprefix)
+	# apply the non-matched control filtering
+	x.nmc = write.somatic.nonmatchc.df(x$df, controls, max.cram=2, max.ccr=2, x$fname)
+	# annotate conf 
+ 	x.nmc.conf = write.conf(x.nmc$df, min.ram=6, min.acr1=1, min.acr2=1, min.tsd=-15, max.tsd=30, min.arr=0.5, x.nmc$fname)
+}
+
+write.somatic.matchc.df2 <- function(cl.df, cram.df, ccr.df, controls, sample, max.cram, max.ccr, fprefix, verbose=T)
+{
+  cram.idx = match(controls, colnames(cram.df))
+  cram.cnames = colnames(cram.df)[cram.idx]
+
+  ccr.idx = match(controls, colnames(ccr.df))
+  ccr.cnames = colnames(ccr.df)[ccr.idx]
+
+	if (grepl("cancer", sample))  {
+		cram.cidx = match(sub("cancer", "normal", sample), colnames(cram.df))
+  	ccr.cidx = match(sub("cancer", "normal", sample), colnames(ccr.df))
+	} else if (grepl("normal", sample))  { # for extracting normal-specific insertions
+		cram.cidx = match(sub("normal", "cancer", sample), colnames(cram.df))
+  	ccr.cidx = match(sub("normal", "cancer", sample), colnames(ccr.df))
+	}
+
+  idx = which(cram.df[,cram.cidx] <= max.cram & ccr.df[,ccr.cidx] <= max.ccr)
+  cram.cnt = apply(cram.df[idx,cram.idx,drop=FALSE], 1, function(x)
+    paste(paste(cram.cnames[x!=0], x[x!=0], sep=":"), collapse=","))
+  ccr.cnt = apply(ccr.df[idx,ccr.idx,drop=FALSE], 1, function(x)
+    paste(paste(ccr.cnames[x!=0], x[x!=0], sep=":"), collapse=","))
+
+	df = cbind(cl.df[idx,,drop=FALSE], cram.cnt, ccr.cnt)
+ 	#df = col.format(df, sub("_(cancer|normal)", "", sample), type)
+ 	df = col.format(df, sub("_(cancer|normal)", "", sample))
+	
+  fname = paste(fprefix, max.cram, "cram.", max.ccr, "ccr", sep="")
+  write.table(df, file=fname, sep="\t", quote=F, row.names=F)
+  write.msg(paste("done.writing", fname))
+
+  return(list(df=df, fname=fname))
+}
+
+write.somatic.matchc.df <- function(cl, cram, ccr, controls, sample, max.cram, max.ccr, fprefix, verbose=T)
+{
+  cram.idx = match(controls, colnames(cram[[1]]))
+  cram.cnames = colnames(cram[[1]])[cram.idx]
+
+  ccr.idx = match(controls, colnames(ccr[[1]]))
+  ccr.cnames = colnames(ccr[[1]])[ccr.idx]
+ 
+  cram.cidx = match(sub("cancer", "normal", sample), colnames(cram[[1]]))
+  ccr.cidx = match(sub("cancer", "normal", sample), colnames(ccr[[1]]))
+
+  df = data.frame(do.call(rbind, lapply(hchrl, function(chr) {
+		print(paste("processing", chr))
+		idx = which(cram[[chr]][,cram.cidx] <= max.cram & ccr[[chr]][,ccr.cidx] <= max.ccr)
+		cram.cnt = apply(cram[[chr]][idx,cram.idx], 1, function(x)
+			paste(paste(cram.cnames[x!=0], x[x!=0], sep=":"), collapse=","))
+		ccr.cnt = apply(ccr[[chr]][idx,ccr.idx], 1, function(x)
+			paste(paste(ccr.cnames[x!=0], x[x!=0], sep=":"), collapse=","))
+    return(cbind(cl[[chr]][idx,], cram.cnt, ccr.cnt))
+  })))
+  df = df[order(-df$score, -df$ram, -df$arr),]
+  fname = paste(fprefix, max.cram, "cram.", max.ccr, "ccr", sep="")
+  write.table(df, file=fname, sep="\t", quote=F, row.names=F)
+	write.msg(paste("done.writing", fname))
+
+	return(list(df=df, fname=fname))
+}
+
+write.somatic.nonmatchc.df <- function (df, controls, max.cram, max.ccr, fprefix, verbose=F) 
+{
+  fname = paste(fprefix, ".", max.cram, "nmcram.", max.ccr, "nmccr", sep="")
+	idx = unlist(lapply(1:nrow(df), function(i) {
+	#idx = unlist(lapply(1:100, function(i) {
+		if (verbose & i%%100 ==0) print(i)
+		# filter based on cram
+		cram = strsplit(as.character(df$cram[i]), ",")[[1]]							
+		snames = unlist(lapply(1:length(cram), function(i) sub("(.*):.*", "\\1", cram[i])))
+		cram.cnts = as.numeric(lapply(1:length(cram), function(i) sub(".*:([0-9]*)", "\\1", cram[i])))
+		if (sum(snames[cram.cnts > max.cram] %in% controls) > 0) return(NULL)
+
+		# filter based on ccr
+		ccr = strsplit(as.character(df$ccr[i]), ",")[[1]]							
+		snames = unlist(lapply(1:length(ccr), function(i) sub("(.*):.*", "\\1", ccr[i])))
+		ccr.cnts = as.numeric(lapply(1:length(ccr), function(i) sub(".*:([0-9]*)", "\\1", ccr[i])))
+		if (sum(snames[ccr.cnts > max.ccr] %in% controls) > 0) return(NULL)
+
+		return(i)
+	}))
+	df.1 = df[idx, ]
+  write.table(df.1, file=fname, sep="\t", quote=F, row.names=F)
+	write.msg(paste("done.writing", fname))
+
+	return(list(df=df.1, fname=fname))
+}
+
+write.df.b <- function(dir, df, sample, min.ram, min.ram1, min.ram2, min.acr1, min.acr2, fprefix, type="somatic", ref.filtering=T)
+{
+  df = df[df$ram >= min.ram & df$ram1 >= min.ram1 & df$ram2 >= min.ram2,]
+ 	df = col.format(df, sub("_(cancer|normal)", "", sample), type)
+
+  fname = paste(fprefix, ".", min.ram, "ram.", min.ram1, "ram1.", min.ram2, "ram2.non.ref.filter", sep="")
+  write.table(df, file=fname, sep="\t", quote=F, row.names=F)
+	write.msg(paste("done.writing", fname))
+
+	if (ref.filtering) {
+		if (!exists("ril")) load(rilf)
+		#rl.file = paste(dir, "/", sample, "/bam/", sample, ".rl", sep="")
+		#isize.file = paste(dir, "/", sample, "/bam/", sample, ".isize", sep="")
+		#rl = load.rl(rl.file)
+		#is = load.isize(isize.file, rl)
+		#df = df[ref.filtering2(df, ril, is$ins.margin),]
+		df = df[ref.filtering2(df, ril, 1e3),]
+		fname = paste(fprefix, ".", min.ram, "ram.", min.ram1, "ram1.", min.ram2, "ram2", sep="")
+		write.table(df, file=fname, sep="\t", quote=F, row.names=F)
+		write.msg(paste("done.writing", fname))
+	}
+
+	df = df[df$ram >= min.ram & df$pram >= min.ram1 & df$nram >= min.ram2 & df$pcr >= min.acr1 & df$ncr >= min.acr2,]
+ 	fname = paste(fprefix, ".", min.ram, "ram.", min.ram1, "ram1.", min.ram2, "ram2.", min.acr1, "acr1.", min.acr2, "acr2", sep="")
+ 	write.table(df, file=fname, sep="\t", quote=F, row.names=F)
+	write.msg(paste("done.writing", fname))
+
+  return(list(df=df, fname=fname))
+}
+
+write.df.arr <- function(df, min.arr, fprefix) {
+  df = df[df$acrr >=0.4,]
+  fname = paste(fprefix, ".", min.arr, "arr", sep="")
+  write.table(df, file=fname, sep="\t", quote=F, row.names=F)
+	write.msg(paste("done.writing", fname))
+
+  return(list(df=df, fname=fname))
+}
+
+write.df.tsd <- function(df, min.tsd, max.tsd, fprefix)
+{
+  df = df[df$tsd >=min.tsd & df$tsd <= max.tsd,]
+  fname = paste(fprefix, ".", min.tsd, "mtd.", max.tsd, "ptd", sep="")
+  write.table(df, file=fname, sep="\t", quote=F, row.names=F)
+	write.msg(paste("done.writing", fname))
+
+  return(list(df=df, fname=fname))
+}
+
+write.df.score <- function(df, min.score, fprefix)
+{
+  df = df[df$score >= min.score,]
+  fname = paste(fprefix, ".", min.score, "score", sep="")
+  write.table(df, file=fname, sep="\t", quote=F, row.names=F)
+	write.msg(paste("done.writing", fname))
+
+  return(list(df=df, fname=fname))
+}
+
+col.format <- function(df, id, type="somatic")
+{
+	#new.cols = c("id", "chr", "pram_start", "pram_end", "nram_start", "nram_end", "cluster_size", "pbp", "nbp", "tsd", "rep.repeat", "family", "class", "ram", "pram", "nram", "pcr", "ncr", "acrr", "score", "pgene", "ngene")
+	if (type == "somatic") {
+		new.df = data.frame(id=id, chr=df$chr, pram_start=df$s, pram_end=df$e1+(df$e[1]-df$e2[1]), nram_start=df$s2, nram_end=df$e, cluster_size=df$size, pbp=df$cp1, nbp=df$cp2, tsd=df$td, rep.repeat=df$rep.repeat, family=df$family, class=df$class, ram=df$ram, pram=df$ram1, nram=df$ram2, pcr=df$acr1, ncr=df$acr2, acrr=df$arr, score=df$score, pgene=df$genes1, ngene=df$genes2, cram=df$cram.cnt, ccr=df$ccr.cnt, stringsAsFactors=F)
+	} else if (type == "germline") {
+		new.df = data.frame(id=id, chr=df$chr, pram_start=df$s, pram_end=df$e1+(df$e[1]-df$e2[1]), nram_start=df$s2, nram_end=df$e, cluster_size=df$size, pbp=df$cp1, nbp=df$cp2, tsd=df$td, rep.repeat=df$rep.repeat, family=df$family, class=df$class, ram=df$ram, pram=df$ram1, nram=df$ram2, pcr=df$acr1, ncr=df$acr2, acrr=df$arr, score=df$score, pgene=df$genes1, ngene=df$genes2, stringsAsFactors=F)
+	}
+	return(new.df)
+}
+
+col.format2 <- function(df, id)
+{
+	#new.cols = c("id", "chr", "pram_start", "pram_end", "nram_start", "nram_end", "cluster_size", "pbp", "nbp", "tsd", "polyA", "pclip", "nclip", "rep.repeat", "family", "class", "ram", "pram", "nram", "pcr", "ncr", "acrr", "score", "pgene", "ngene")
+	new.df = data.frame(id=id, chr=df$chr, pram_start=df$s, pram_end=df$e1+(df$e[1]-df$e2[1]), nram_start=df$s2, nram_end=df$e, cluster_size=df$size, pbp=df$cp1, nbp=df$cp2, tsd=df$td, polyA="", pclip="", nclip="", rep.repeat=df$rep.repeat, family=df$family, class=df$class, ram=df$ram, pram=df$ram1, nram=df$ram2, pcr=df$acr1, ncr=df$acr2, acrr=df$arr, score=df$score, pgene=df$genes1, ngene=df$genes2, cram=df$cram.cnt, ccr=df$ccr.cnt)
+	return(new.df)
+}
+
+get.ccr <- function(dir, sample, n, margin, chrl=hchrl, verbose=F, cl=NULL)
+{
+	if (is.null(cl)) { 
+		# for compatitibyt for get.somatic with filter.control.rip using cl.te.new.RData
+		cl.rfile = paste(dir, "/", sample, "/cluster/", sample, ".cl.te.RData", sep="")
+		if (file.exists(cl.rfile)) {
+			load(cl.rfile)
+			write.msg(paste("done loading", cl.rfile))
+		} else {
+			write.msg(paste("no", cl.rfile))
+			return(NULL)
+		} 
+	}
+
+	cpos.file = paste(dir, "/", n, "/bam/", n, ".sorted.softclips.consd.cpos.bz2", sep="")
+	cpos.rfile = paste(dir, "/", n, "/bam/", n, ".sorted.softclips.consd.cpos.RData", sep="")
+	if (file.exists(cpos.rfile)) {
+		write.msg(paste("loading", cpos.rfile))
+		load(cpos.rfile)
+	} else {
+		write.msg(paste("reading", cpos.file))
+    		x = scan(cpos.file, what=list(chr='a', pos=1))
+    		chrl = intersect(chrl, unique(as.character(x$chr)));
+		names(chrl) = chrl
+    		cpos = lapply(chrl, function(c) {
+      			if (verbose) print(paste("reading", c))
+      			df = data.frame(chr=x$chr[x$chr==c], pos=x$pos[x$chr==c], stringsAsFactors=F)
+      			p = sort(df$pos[df$pos > 0])
+      			m = sort(-df$pos[df$pos < 0])
+      			return(list(p=p, m=m))
+    		})
+    		save(cpos, file=cpos.rfile)
+    		write.msg(paste("done generating", cpos.rfile))
+	}
+
+	ccrl = lapply(hchrl, function(chr) { 	
+		cl.ch = cl[[chr]]
+    		cl.ch$cp1[cl.ch$cp1==-1] = -1 - margin
+    		cl.ch$cp2[cl.ch$cp2==-1] = -1 - margin
+    		ccr = points.within(cpos[[chr]]$p, cl.ch$cp1-margin-1, cl.ch$cp1+margin, return.point.counts=T)+
+		points.within(cpos[[chr]]$m, cl.ch$cp2-margin-1, cl.ch$cp2+margin, return.point.counts=T)
+    		return(ccr)
+  	})
+	return(ccrl)
+}
+
+get.somatic2 <- function(dir="/files/CBMI/parklab/alee/ra/somatic/", tumor.type=c("gbm", "ov"), min.ram=2, min.cr=1, max.control.ram=1, max.control.cr.ratio=0.5, max.control.cr.cnt=2, verbose=F)
+{
+	if ("all" %in% tumor.type) cancers = list.files(dir, ".*_cancer") else
+    cancers = unlist(sapply(tumor.type, 
+			function(s) list.files(dir, paste(s, ".*_cancer", sep=""))))
+
+	names(cancers) = cancers
+
+  x = lapply(cancers, function(c) {
+		write.msg(paste("starting somatic filtering for", c))
+		get.somatic2.sample(dir, c, min.ram, min.cr, max.control.ram, max.control.cr.ratio, max.control.cr.cnt, verbose)
+		write.msg(paste("done somatic filtering for", c))
+	})
+}
+
+get.somatic2.sample <- function(dir, c, min.ram=2, min.cr=1, max.control.ram=1, max.control.cr.ratio=0.5, max.control.cr.cnt=2, verbose=F) {
+	chrl = paste("chr", c(1:22, "X", "Y"), sep=""); names(chrl) = chrl
+	id = 0
+	crf.idx = seq(26, 100, 3)
+	crf1.idx = seq(27, 100, 3)
+	crf2.idx = seq(28, 100, 3)
+	
+	x = data.frame(do.call(rbind, lapply(chrl, function(ch) {
+	#x = data.frame(do.call(rbind, lapply(chrl[1:2], function(ch) {
+		print(paste("processing", ch))
+    cl.file = paste(dir, c, "/", c, ".maxcram", max.control.ram, ".", ch, ".crf.cluster", sep="")
+		if (file.exists(cl.file)) {
+    	cl = read.delim(cl.file, header=T, as.is=T)
+			somatic.idx = which(apply(cl[,crf.idx], 1, max) <= max.control.cr.cnt)
+			somatic = cl[somatic.idx,]
+			somatic$crf.tot = apply(somatic[,crf.idx], 1, sum) 
+			if (dim(somatic)[1] != 0) return(somatic) else
+				return(NULL)
+		} else {
+			write.msg(paste("no crf.cluster file for", c, ch))
+			return(NULL)
+		}
+	})))
+	x$cat=2
+	x$cat[x$td == -999 | x$td == -9999] = 1
+	x$cat[x$td >0 & x$td < 50] = 3
+
+	# annotate gene
+	x$score = get.score(x)
+
+	if (!"gene" %in% colnames(x)) 
+		x = annot.genes.detail(x, margin=10, verbose)
+	
+	x.detail = x
+	x = x[x$ram >= min.ram & x$cr >= min.cr, c(-crf.idx, -crf1.idx, -crf2.idx)]
+
+	cat3 = x[x$cat==3,]
+	cat12 = x[x$cat!=3,]
+
+	cat3.1 = cat3[cat3$arr >= 0.4 & cat3$crf.tot <=5,] 
+	cat12.1 = cat12[cat12$arr >= 0.4 & cat12$crf.tot <= 5,]
+
+	out.file = paste(dir, c, "/", c, ".minram", min.ram, ".mincr", min.cr, ".maxcram", max.control.ram, ".somatic", sep="")
+	out.detail.file = paste(dir, c, "/", c, ".minram", min.ram, ".mincr", min.cr, ".maxcram", max.control.ram, ".somatic.detail", sep="")
+	cat3.file = paste(out.file, ".cat3", sep="")
+	cat12.file = paste(out.file, ".cat12", sep="")
+	cat3.1.file = paste(out.file, ".cat3.arr0.4.crf.tot5", sep="")
+	cat12.1.file = paste(out.file, ".cat12.arr0.4.crf.tot5", sep="")
+
+	write.table(x.detail[order(-x.detail$ram, x.detail$crf.tot, -x.detail$score, -x.detail$arr),], out.detail.file, quote=F, sep="\t", row.names=F)
+	write.table(x[order(-x$ram, x$crf.tot, -x$score, -x$arr),], out.file, quote=F, sep="\t", row.names=F)
+	write.table(cat3[order(-cat3$ram, cat3$crf.tot, -cat3$score, -cat3$arr),], cat3.file, quote=F, sep="\t", row.names=F)
+	write.table(cat3[order(-cat3$ram, cat3$crf.tot, -cat3$score, -cat3$arr),], cat3.file, quote=F, sep="\t", row.names=F)
+	write.table(cat12[order(-cat12$ram, cat12$crf.tot, -cat12$score, -cat12$arr),], cat12.file, quote=F, sep="\t", row.names=F)
+	write.table(cat3.1[order(-cat3.1$ram, cat3.1$crf.tot, -cat3.1$score, -cat3.1$arr),], cat3.1.file, quote=F, sep="\t", row.names=F)
+	write.table(cat12.1[order(-cat12.1$ram, cat12.1$crf.tot, -cat12.1$score, -cat12.1$arr),], cat12.1.file, quote=F, sep="\t", row.names=F)
+	write.msg(paste("done writing somatic events for", c))
+}
+	
+get.somatic.crf <- function(dir = "/files/CBMI/parklab/alee/ra", margin=2, verbose=F, tumor.type=c("gbm", "ov"), control.type=c("gbm", "ov"), save.temp=F, max.control.ram=1)
+{
+	if ("all" %in% tumor.type) cancers = list.files(paste(dir, "/somatic/", sep=""), ".*_cancer") else
+    cancers = unlist(sapply(tumor.type, 
+			function(s) list.files(paste(dir, "/somatic/", sep=""), paste(s, ".*_cancer", sep=""))))
+
+	x = lapply(cancers, function(c) {
+		return(get.somatic.crf.sample(c, dir, margin, verbose, control.type, save.temp, max.control.ram))
+	})
+	return(x)
+}
+
+get.somatic.crf.sample <- function(c, dir="/files/CBMI/parklab/alee/ra", margin=2, verbose=F, control.type=c("gbm", "ov"), save.temp=F, max.control.ram=1)
+{
+	chrl = paste("chr", c(1:22, "X", "Y"), sep="")
+	x = lapply(chrl, function(ch) {
+		# read clusters after ram filtering under "somatic"
+		new.cl = get.somatic.crf.chr(c, ch, dir, margin, verbose, control.type, max.control.ram)
+		out.file1 = paste(dir, "/somatic/", c, "/", c, ".maxcram", max.control.ram, ".", ch, ".crf.RData", sep="")
+		out.file2 = paste(dir, "/somatic/", c, "/", c, ".maxcram", max.control.ram, ".", ch, ".crf.RData", sep="")
+		write.table(new.cl, out.file1, quote=F, sep="\t")
+		save(new.cl, out.file2)
+		rm(cl, new.cl); gc()
+		return(ch)
+	})
+	return(x)
+}
+
+get.somatic.crf.chr <- function(c, ch, dir="/files/CBMI/parklab/alee/ra", margin=2, verbose=F, control.type=c("gbm", "ov"), max.control.ram=1)
+{
+	cl = read.delim(paste(dir, "/somatic/", c, "/", c, ".maxcram", max.control.ram, ".", ch, ".cluster", sep=""), header=T, as.is=T)
+
+	if ("all" %in% control.type) normals = list.files(dir, ".*_normal") else
+    normals = unlist(sapply(control.type, function(s) list.files(dir, paste(s, ".*_normal", sep=""))))
+	names(normals) = normals
+	# for test
+	#normals = normals[1:2]
+	#cl = cl[1:10,]
+
+	cnt.df = data.frame(do.call(cbind, lapply(normals, function(n) { 
+		if (verbose) print(paste("processing", n))
+		write.msg(paste("generating clipped read counts for", c, ch, n))
+ 		bam.file = paste(dir, "/", n, "/bam/", n, ".sorted.softclips.consd.sorted.bam", sep="")
+		cnt = count.clipped.simple(cl, ch, bam.file, margin, verbose)
+		write.msg(paste("done generating clipped read counts for", c, ch, n))
+		return(cnt)
+	})))
+	colnames(cnt.df) = unlist(lapply(normals, function(n) {
+		paste(sub("_normal", "n", n), c("cr", "cr1", "cr2"), sep="_")
+	}))
+	new.cl = cbind(cl, cnt.df)
+
+	out.file1 = paste(dir, "/somatic/", c, "/", c, ".maxcram", max.control.ram, ".", ch, ".crf.cluster", sep="")
+	out.file2 = paste(dir, "/somatic/", c, "/", c, ".maxcram", max.control.ram, ".", ch, ".crf.RData", sep="")
+	write.table(new.cl, out.file1, quote=F, sep="\t", row.names=F, col.names=F)
+	save(new.cl, file=out.file2)
+	write.msg(paste("dong writing clipped read counts for", c, ch))
+
+	rm(cl, cnt.df, new.cl); gc()
+	return(paste(c,ch))
+}
+
+count.clipped.simple.r <- function(r, ch, bam.file, strand) 
+{
+  what <- c("qname", "pos", "strand", "cigar", "seq", "qual")
+	which<- GRanges(seqnames = ch, ranges =  r)
+  param <- ScanBamParam(which=which, what=what)
+  map <- scanBam(bam.file, param=param)
+
+	cnt1=0; cnt2=0 
+  cdf= NULL
+  if (length(map[[1]]$seq)>0 & length(map[[1]]$seq)<1000) {
+      lst <- lapply(names(map[[1]]), function(elt) {
+        do.call("c", unname(lapply(map, "[[", elt)))
+      })
+      names(lst) <- names(map[[1]])
+      map.df <- do.call("DataFrame", lst)
+
+      clipped.df1 = get.clipped.pos(map.df, qual.trim=T)
+      if (dim(clipped.df1)[1] > 0) {
+				pos1 = as.integer(as.character(clipped.df1$cpos))
+				if (strand==1) cnt1 = length(which(pos1>0)) else
+					cnt1 = length(which(pos1<0))
+			}
+
+      clipped.df2 = get.clipped.pos(map.df, qual.trim=F)
+      if (dim(clipped.df2)[1] > 0) {
+				pos2 = as.integer(as.character(clipped.df2$cpos))
+				if (strand==1) cnt2 = length(which(pos2>0)) else
+					cnt2 = length(which(pos2<0))
+			}
+		}
+		if (cnt1 >= cnt2) return(cnt1) else return(cnt2) 
+}
+
+count.clipped.simple <- function(cl, ch,  bam.file, margin=2, verbose=F)
+{
+  cnt.df = data.frame(do.call(rbind, lapply(1:dim(cl)[1], function(i) {
+  #cnt.df = data.frame(do.call(rbind, lapply(1:20, function(i) {
+    if (verbose) print(paste("processing", i))
+		cnt1 = cnt2 = 0
+		if (cl$cp1[i] != -1) {
+			r = IRanges(as.numeric(cl$cp1[i]) - margin, as.numeric(cl$cp1[i]) + margin)
+			print(paste(i, cl$cp1[i]))
+			cnt1 = count.clipped.simple.r(r, ch, bam.file, strand=1)
+		}
+		if (cl$cp2[i] != -1) {
+			r = IRanges(as.numeric(cl$cp2[i]) - margin, as.numeric(cl$cp2[i]) + margin)
+			print(paste(i, cl$cp2[i]))
+			cnt2 = count.clipped.simple.r(r, ch, bam.file, strand=-1)
+		}
+		return(c(cnt=cnt1+cnt2, cnt1=cnt1, cnt2=cnt2))
+	})))
+	return(cnt.df)
+}
+
+get.cram.chr <- function(dir, sample, n, max.control.ram, margin, chr=chr, verbose)
+{
+	out.dir = paste(dir, "/somatic/", sample, "/", sep="")
+	if (!file.exists(out.dir)) { dir.create(out.dir, recursive=T, mode="0755") }
+    out.file = paste(out.dir, sample, ".", chr, ".cram", sep="")
+    if (chr == "chr1")
+      cl = read.delim(paste(dir, "/", sample, "/cluster/", sample, ".", chr, ".cluster.te", sep=""), header=T, as.is=T) else {
+      cl = read.delim(paste(dir, "/", sample, "/cluster/", sample, ".", chr, ".cluster.te", sep=""), header=F, as.is=T)
+      colnames(cl) = c("chr","s","e","size","td", "cp1", "cp2", "rep.repeat","family","class","ram","ram1","ram2","cr", "cr1", "cr2", "acr", "acr1", "acr2", "arr", "s1","e1","s2","e2", "score")
+    }
+		write.msg(paste("starting ram counts in control genomes for ", sample,  chr, ":", dim(cl)[1], "rows..."))
+
+			#if (grepl("gbm|ov", n)) dir = "/files/CBMI/parklab/alee/ra"  
+      if (file.exists(paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw.RData", sep="")))  {
+        load(paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw.RData", sep="")) # load cl.rawl
+      } else {
+        if (chr == "chr1") {
+          cl2 = read.delim(paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw", sep=""), sep="\t", header=T, as.is=T)
+        } else {
+          cl2 = read.delim(paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw", sep=""), sep="\t", header=F, as.is=T)
+          colnames(cl2) = c("chr","s","e","size","rep.repeat","family","class","ram","ram1","ram2","s1","e1","s2","e2","pos1","pos2","rep.repeat1","rep.repeat2","repeat.name1","repeat.name2","rname1","rname2","oi")
+        }
+        cl2 = cl2[, c("chr", "s", "e", "rep.repeat", "family", "class", "ram", "ram1", "ram2")]
+        familyl = unique(cl2$family); names(familyl) = familyl
+        cl.rawl = lapply(familyl, function(f) {
+          return(cl2[cl2$family==f,])
+        })
+        save(cl.rawl, file=paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw.RData", sep=""))
+        rm(cl2); gc()
+        write.msg(paste("done writing cl.rawl for", n, chr))
+      }
+			cram = filter.rf.chr2(cl, cl.rawl, max.control.ram, margin, verbose)
+      write.msg(paste("done ram counting for", sample, chr, "using", n, ":", length(which(cram <= 1)), "rows"))
+      rm(cl.rawl); gc()
+      return(cram)
+}
+
+# filter based on the repeat family not just based on the ram location
+# control.type = "all" or a list of tumor types e.g. c("gbm", "ov", "pr")
+get.somatic.rff.chr.old <- function(dir = "/files/CBMI/parklab/alee/ra", max.control.ram=1, margin=100, verbose=F, tumor.type=c("gbm", "ov"), control.type=c("gbm", "ov"), chr=NULL, save.temp=F)
+{
+	if ("all" %in% tumor.type) cancers = list.files(dir, ".*_cancer") else
+		cancers = unlist(sapply(tumor.type, function(s) list.files(dir, paste(s, ".*_cancer", sep=""))))
+
+	if ("all" %in% control.type) normals = list.files(dir, ".*_normal") else
+		normals = unlist(sapply(control.type, function(s) list.files(dir, paste(s, ".*_normal", sep=""))))
+
+  x = lapply(cancers, function(c) {
+		out.dir = paste(dir, "/somatic/", c, "/", sep="")
+  	if (!file.exists(out.dir)) { dir.create(out.dir, recursive=T, mode="0755")}
+    out.file = paste(out.dir, c, ".maxcram",  max.control.ram, ".", chr, ".cluster", sep="")
+		if (chr == "chr1")
+    	cl = read.delim(paste(dir, "/", c, "/cluster/", c, ".", chr, ".cluster.te", sep=""), header=T, as.is=T) else {
+    	cl = read.delim(paste(dir, "/", c, "/cluster/", c, ".", chr, ".cluster.te", sep=""), header=F, as.is=T)
+			colnames(cl) = c("chr","s","e","size","td", "cp1", "cp2", "rep.repeat","family","class","ram","ram1","ram2","cr", "cr1", "cr2", "acr", "acr1", "acr2", "arr", "s1","e1","s2","e2", "score")
+		}
+
+    filtered.cl = cl
+    write.msg(paste("starting germline filtering for", c, chr, ":", dim(cl)[1], "rows..."))
+    for (i in 1:length(normals)) {
+      n = normals[[i]]
+      if (file.exists(paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw.RData", sep="")))  {
+        load(paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw.RData", sep="")) # load cl.rawl
+      } else {
+				if (chr == "chr1") {
+        	cl2 = read.delim(paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw", sep=""), sep="\t", header=T, as.is=T) 
+				} else {
+        	cl2 = read.delim(paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw", sep=""), sep="\t", header=F, as.is=T)
+					colnames(cl2) = c("chr","s","e","size","rep.repeat","family","class","ram","ram1","ram2","s1","e1","s2","e2","pos1","pos2","rep.repeat1","rep.repeat2","repeat.name1","repeat.name2","rname1","rname2","oi")
+				}
+				cl2 = cl2[, c("chr", "s", "e", "rep.repeat", "family", "class", "ram", "ram1", "ram2")]
+				# dont' know why : DNA_NAM has NA family and class while they are TcMar and DNA
+				cl2$family[cl2$rep.repeat == "DNA1_MAM"] = "TcMar" 
+				cl2$class[cl2$rep.repeat == "DNA1_MAM"] = "DNA" 
+				familyl = unique(cl2$family); names(familyl) = familyl
+				cl.rawl = lapply(familyl, function(f) {
+					return(cl2[cl2$family==f,])
+				})
+        save(cl.rawl, file=paste(dir, "/", n, "/cluster/", n, ".", chr, ".cluster.raw.RData", sep=""))
+				rm(cl2); gc()
+        write.msg(paste("done writing cl.rawl for", n, chr))
+      }
+      filtered.cl = filter.rf.chr(filtered.cl, cl.rawl, max.control.ram, margin, verbose)
+      write.msg(paste("done filtering for", c, chr, "using", i, "th", n, ":", dim(filtered.cl)[1], "rows"))
+			# write intermediate filtering results
+			if (save.temp) write.table(filtered.cl, paste(out.file, n, sep="."), sep="\t", quote=F, row.names=F)
+      rm(cl.rawl); gc()
+    }
+
+    write.table(filtered.cl, out.file, sep="\t", quote=F, row.names=F)
+    write.msg(paste("done filtering for", c, chr, "using all normals"))
+
+    rm(filtered.cl); gc()
+  })
+	return(1)
+}
+
+filter.rf.chr <- function(cl, cl.rawl, max.control.ram = 0, margin=100, verbose=F)
+{
+	exc = data.frame(do.call(rbind, lapply(unique(cl$family), function(f) {
+		#prrint(paste("processing", f))
+    cl.r = cl[cl$family==f,]
+		if (!is.null(cl.rawl[[f]])) {
+    	control = cl.rawl[[f]][cl.rawl[[f]]$ram > max.control.ram,]
+    	ov = ifelse(countOverlaps(IRanges(cl.r$s-margin, cl.r$e+margin), IRanges(as.numeric(control$s), as.numeric(control$e)), type="any")>0,1,0)
+    	return(cl.r[ov==0,])
+		} else return(NULL)
+	})))
+}
+
+filter.rf.chr2 <- function(cl, cl.rawl, max.control.ram=0, margin=100, verbose=F)
+{
+	cl.new = data.frame(do.call(rbind, lapply(unique(cl$family), function(f) {
+		if (verbose) print(paste("processing", f))
+    cl.f = cl[cl$family==f,]
+		cl.f$cram = 0
+		if (!is.null(cl.rawl[[f]])) {
+    	control = cl.rawl[[f]]
+    	ovm = findOverlaps(IRanges(cl.f$s-margin, cl.f$e+margin), IRanges(as.numeric(control$s), as.numeric(control$e)))@matchMatrix
+			cram = do.call(rbind, lapply(unique(ovm[,1]), function(i) {
+				return(c(i, max(control$ram[ovm[ovm[,1] == i,2]])))
+			}))
+			cl.f$cram[cram[,1]] = cram[,2]
+		}
+		return(cl.f)
+	})))
+	return(cl.new$cram[order(as.numeric(rownames(cl.new)))])
+}
+
+filter.rf <- function(cl, cl.rawl, max.control.ram=0, margin=100, verbose=F)
+{
+  rfamily = unique(cl$rfamily)
+	exc = data.frame(do.call(rbind, lapply(rfamily, function(r) {
+		if (verbose) print(paste("processing", r))
+    cl.r = cl[cl$rfamily==r,]
+    control = cl.rawl[[r]][cl.rawl[[r]]$ram > max.control.ram,]
+    ov = ifelse(countOverlaps(IRanges(cl.r$s-margin, cl.r$e+margin), IRanges(as.numeric(control$s), as.numeric(control$e)), type="any")>0,1,0)
+    return(cl.r[ov==0,])
+	})))
+  return(exc)
+}
+
+# Sep. 9
+# recording the filtering info for further investigation
+filter.stat <- function(dir="/files/CBMI/parklab/alee/ra/", tumor.type=c("gbm", "ov"), control.type=NULL, chr="chr10", verbose=T)
+{
+   cancers = unlist(sapply(tumor.type, 
+		function(s) list.files(dir, paste(s, ".*_cancer", sep=""))))
+		names(cancers) = cancers
+
+	if (is.null(control.type))	control.type = tumor.type
+
+	controls = unlist(sapply(control.type, 
+		function(s) list.files(dir, paste(s, ".*_normal", sep=""))))
+		names(controls) = controls
+
+		x = lapply(cancers, function(c) {
+			if (verbose) print(paste("processing", c))
+			y = data.frame(do.call(cbind, lapply(1:length(normals), function(i) { 
+			#y = data.frame(do.call(cbind, lapply(1:3, function(i) { 
+				if (verbose) print(paste("processing", normals[[i]]))
+				if (i==1) {
+					z = filter.stat.sample(dir, c, normals[[i]], chr, cnt.only=F)
+					colnames(z)[match("cram", colnames(z))] = paste("cram", normals[[i]], sep=".") 
+				} else {
+					z = filter.stat.sample(dir, c, normals[[i]], chr, cnt.only=T)
+					colnames(z) = paste("cram", normals[[i]], sep=".")
+				}
+				return(z)
+			})))
+	
+			if (is.null(chr)) {
+				write.table(y, file=paste(dir, c, "/cluster/", c, ".cluster.te.cram", sep=""), sep="\t", quote=F, row.names=F) 
+			} else {
+				write.table(y, file=paste(dir, c, "/cluster/", c, ".", chr, ".cluster.te.cram", sep=""), sep="\t", quote=F, row.names=F) 
+			}
+			rm(y); gc()
+		})
+}
+
+# Sep. 15  after filter.stat
+filter.crf.stat <- function(dir="/files/CBMI/parklab/alee/ra/", tumor.type=c("gbm", "ov"), control.type=NULL, verbose=T)
+{
+   cancers = unlist(sapply(tumor.type, 
+		function(s) list.files(dir, paste(s, ".*_cancer", sep=""))))
+		names(cancers) = cancers
+
+	if (is.null(control.type))	control.type = tumor.type
+
+	controls = unlist(sapply(control.type, 
+		function(s) list.files(dir, paste(s, ".*_normal", sep=""))))
+		names(controls) = controls
+
+		x = lapply(cancers, function(c) {
+			if (verbose) print(paste("processing", c))
+			#y = data.frame(do.call(cbind, lapply(1:(length(normals)-1), function(i) { 
+			y = data.frame(do.call(cbind, lapply(length(normals), function(i) { 
+				if (verbose) print(paste("processing", normals[[i]]))
+				if (i==1 || i==25) {
+					z = get.crcnt.sample(dir, c, normals[[i]], cnt.only=F)
+					colnames(z)[match("ccr", colnames(z))] = paste("ccr", normals[[i]], sep=".")  # control clipped read
+				} else {
+					z = get.crcnt.sample(dir, c, normals[[i]], cnt.only=T)
+					colnames(z) = paste("ccr", normals[[i]], sep=".")
+				}
+				return(z)
+			})))
+	
+			write.table(y, file=paste(dir, c, "/cluster/", c, ".cluster.te.cram.ccr", sep=""), sep="\t", quote=F, row.names=F) 
+			rm(y); gc()
+	})
+}
+
+# Sep.15
+plot.filter.stat <- function(dir="/files/CBMI/parklab/alee/ra/", tumor.type=c("gbm", "ov"), max.control.ram=1, max.control.cr=1)
+{
+	library(calibrate)
+
+	# load filtering info 
+   cancers = unlist(sapply(tumor.type, 
+		function(s) list.files(dir, paste(s, ".*_cancer", sep=""))))
+		names(cancers) = cancers
+
+	x = lapply(cancers, function(c) {
+	#x = lapply(cancers[25], function(c) {
+		print(paste("processing", c))
+		file = paste(dir, c, "/cluster/", c, ".cluster.te.cram.ccr", sep="") 
+		cl = read.delim(file, sep="\t", header=T, as.is=T)
+		cl$score = get.score(cl)
+
+		cl = cl[order(-cl$score),]	
+
+		y = lapply(c(0,1,2), function(s) { 
+		print(paste("processing s", s))
+		#cl0 = cl[cl$ram >=2 & cl$acr>=2 & cl$arr >=0.4,]
+		cl0 = cl[cl$ram >=2 & cl$acr>=2 & cl$arr>=0.4 & cl$score >=s,]
+		cnt0 = dim(cl0)[1]
+
+		# rearrange the indexes to have the paired normal to the front
+		cri = grep("cram", colnames(cl)) 
+		cci = grep("ccr", colnames(cl)) 
+		pcri = grep(paste("cram.", gsub("_cancer", "", c), sep=""), colnames(cl))
+		pcci = grep(paste("ccr.", gsub("_cancer", "", c), sep=""), colnames(cl))
+		cri = c(pcri, cri[cri != pcri])	
+		cci = c(pcci, cci[cci != pcci])	
+
+		cnt1.cr = c(cnt0) 
+		cnt1.cc = c(cnt0) 
+		cnt1.c = c(cnt0) 
+		cl1 = cl0
+		for (i in 1:length(cci)) {
+			cl1 = cl1[cl1[, cri[i]] <= max.control.ram,]
+			cnt1.cr = c(cnt1.cr, dim(cl1)[1])
+		}	
+		cl1 = cl0
+		for (i in 1:length(cci)) {
+			cl1 = cl1[cl1[, cci[i]] <= max.control.cr,]
+			cnt1.cc = c(cnt1.cc, dim(cl1)[1])
+		}
+		cl1 = cl0
+		for (i in 1:length(cci)) {
+			cl1 = cl1[cl1[, cri[i]] <= max.control.ram & cl1[, cci[i]] <= max.control.cr,]
+			cnt1.c = c(cnt1.c, dim(cl1)[1])
+		}
+						
+	if (s==0)  {
+		file=paste(dir, "somatic/", c, ".ram2.acr2.arr0.4.txt", sep="") 
+		cl1 = annot.genes.detail(cl1, margin=5)
+		write.table(cl1[order(-cl1$score),], file, sep="\t", quote=F, row.names=F)
+	}
+
+	pcnt1.cr = round(cnt1.cr/cnt0 * 100, 1)
+	pcnt1.cc = round(cnt1.cc/cnt0 * 100, 1)
+	pcnt1.c = round(cnt1.c/cnt0 * 100, 1)
+	CairoPNG(file=paste(dir, "figure/", "filtering.", c, ".s", s, ".png", sep=""), width=500, height=500)
+	plot(1:length(cnt1.cc), pcnt1.cr, type="b", xlab="Control samples", ylab="Percentage of passing candidates", main=c, ylim=c(0,100))
+	grid()
+	points(1:length(cnt1.cc), pcnt1.cc, col="blue", type="b")
+	points(1:length(cnt1.c), pcnt1.c, col="red", type="b")
+	textxy(1:length(cnt1.c), pcnt1.c+1, cnt1.c, cx=0.8, dcol="magenta")
+	legend("topright", legend=c("ram", "cr", "both"), col=c("black", "blue", "red"), lty=c(1,1,1))
+	dev.off()
+	})
+	})
+}
+
+get.crcnt.sample <- function(dir="/files/CBMI/parklab/alee/ra/", c="ov1411_cancer", n="ov1411_normal", cnt.only=F, margin=5) {
+	# load the input count
+  #cl = read.delim(paste(dir, c, "/cluster/", c, ".cluster.te.cram", sep=""), header=T, as.is=T)
+  cl = read.delim(paste(dir, c, "/cluster/", c, ".cluster.te.cram.ccr", sep=""), header=T, as.is=T)
+
+	cpos.file = paste(dir, n, "/bam/", n, ".sorted.softclips.consd.softclips.consd.cpos.bz2", sep="")
+	cpos.rfile = paste(dir, n, "/bam/", n, ".sorted.softclips.consd.softclips.consd.cpos.RData", sep="")
+	if (file.exists(cpos.rfile)) {
+		write.msg(paste("loading", cpos.rfile))
+		load(cpos.rfile) 
+	} else {
+		write.msg(paste("reading", cpos.file))
+		x = scan(cpos.file, what=list(chr='a', pos=1))
+  	chrl = intersect(paste("chr", c(1:22,"X", "Y"), sep=""), unique(as.character(x$chr))); names(chrl) = chrl
+  	cpos = lapply(chrl, function(c) {
+    	if (verbose) print(paste("reading", c))
+			df = data.frame(chr=x$chr[x$chr==c], pos=x$pos[x$chr==c], stringsAsFactors=F)
+    	p = sort(df$pos[df$pos > 0])
+    	m = sort(-df$pos[df$pos < 0])
+			return(list(p=p, m=m))
+		})
+		save(cpos, file=cpos.rfile)
+		write.msg(paste("done generating", cpos.rfile))
+	}
+	chrl = unique(cl$chr); names(chrl) = chrl
+	df = data.frame(do.call(rbind, lapply(chrl, function(chr) {
+   	if (verbose) print(paste("processing", chr))
+		cl.ch = cl[cl$chr == chr,]
+		cl.ch$cp1[cl.ch$cp1==-1] = -1 - margin 
+		cl.ch$cp2[cl.ch$cp2==-1] = -1 - margin 
+		cl.ch$ccr = points.within(cpos[[chr]]$p, cl.ch$cp1-margin-1, cl.ch$cp1+margin, return.point.counts=T)+ 	
+		             points.within(cpos[[chr]]$m, cl.ch$cp2-margin-1, cl.ch$cp2+margin, return.point.counts=T)	
+		return(cl.ch)
+	})))
+	rm(cl, cpos); gc()
+	if (cnt.only) return(data.frame(ccr=df$ccr))
+	return(df)
+}
+
+filter.stat.sample <- function(dir="/files/CBMI/parklab/alee/ra/", c="ov1411_cancer", n="ov1411_normal", chr=NULL, cnt.only=F)
+{
+	if (is.null(chr)) {
+		chrl = paste("chr", c(1:22, "X", "Y"), sep=""); names(chrl) = chrl
+		x = data.frame(do.call(rbind, lapply(chrl, function(chr) {
+		#x = data.frame(do.call(rbind, lapply(chrl[1:2], function(chr) {
+			print(paste("processing", chr))
+			filter.stat.chr(dir, c, n, chr, cnt.only)
+		})))
+	} else {
+		x = filter.stat.chr(dir, c, n, chr, cnt.only)
+	}
+	return(x)
+}
+
+filter.stat.chr <- function(dir, c, n, chr, cnt.only=F)
+{
+  cl.chr = read.delim(paste(dir, c, "/cluster/", c, ".", chr, ".cluster.te", sep=""), header=T, as.is=T)
+	colnames(cl.chr) = c("chr", "s", "e", "size", "td", "cp1", "cp2", "rep.repeat", "family", "class", "ram", "ram1", "ram2", "cr", "cr1", "cr2", "acr", "acr1", "acr2", "arr", "s1", "e1", "s2", "e2", "score")
+
+ 	load(paste(dir, n, "/cluster/", n, ".", chr, ".cluster.raw.RData", sep="")) # load cl.rawl
+	cram = filter.rf.chr2(cl.chr, cl.rawl)
+	
+	if (cnt.only) return(data.frame(cram=cram))
+	return(cbind(cl.chr, cram)) 
+}
+
+# brute-force filtering only considering ram positions regardless of repeat types/family
+get.somatic.bf <- function(dir = "/files/CBMI/parklab/alee/ra", max.control.ram=0, margin=100, rewrite=T, verbose=F, type=c("gbm", "ov", ""))
+{
+  cancers = list.files(dir, paste(type, ".*_cancer", sep=""))
+  normals = list.files(dir, paste(type, ".*_normal", sep=""))
+
+  # for each cancer sample, filter out ins from all normal samples
+  #x = mclapply(cancers, function(c) {
+  x = lapply(cancers, function(c) {
+		if (type == "") {
+  		out.file = paste(dir, "/somatic/", c, ".maxcram",  max.control.ram, ".cluster", sep="")
+		} else {
+  		out.file = paste(dir, "/somatic_", type, "/", c, ".maxcram", max.control.ram, ".cluster", sep="")
+		}
+    #cl = read.delim(paste(dir, "/", c, "/", c, ".cluster", sep=""), header=T, as.is=T)
+    cl = read.delim(paste(dir, "/", c, "/", c, ".cluster.annot", sep=""), header=T, as.is=T)
+    filtered.cl = cl
+    write.msg(paste("starting germline filtering for", c, ":", dim(cl)[1], "rows..."))
+    for (i in 1:length(normals)) {
+      n = normals[[i]]
+      if (file.exists(paste(dir, "/", n, "/", n, ".cluster.raw.RData", sep="")))  {
+        load(paste(dir, "/", n, "/", n, ".cluster.raw.RData", sep="")) # load cl.rawl
+      } else {
+        cl2 = read.delim(paste(dir, "/", n, "/", n, ".cluster.raw", sep=""), sep="\t", header=T, as.is=T)
+        chrl = unique(cl2$chr);
+        hchrl = paste("chr", c(1:22, "X", "Y"), sep="")
+        chrl = intersect(chrl, hchrl); names(chrl) = chrl
+
+        cl.rawl = lapply(chrl, function(ch) {
+          return(cl2[cl2$chr==ch,])
+        })
+        save(cl.rawl, file=paste(dir, "/", n, "/", n, ".cluster.raw.RData", sep=""))
+        write.msg(paste("done writing cl.rawl for", n))
+      }
+      filtered.cl = filter(filtered.cl, cl.rawl, max.control.ram) 
+      write.msg(paste("done filtering for", c, "using", i, "th", n, ":", dim(filtered.cl)[1], "rows"))
+      write.table(filtered.cl, paste(out.file, n, sep="."), sep="\t", quote=F, row.names=F)
+    	rm(cl.rawl); gc()
+    }
+
+    write.table(filtered.cl, out.file, sep="\t", quote=F, row.names=F)
+    write.msg(paste("done filtering for", c, "using all normals"))
+		
+		rm(cl, filtered.cl); gc() 
+  }) 
+  #}, mc.cores=2) 
+}
+
+filter <- function(cl, cl.rawl, max.control.ram = 0, margin=100, verbose=F)
+{
+  chrl = unique(cl$chr) 
+  hchrl = paste("chr", c(1:22, "X", "Y"), sep="")
+  chrl = intersect(chrl, hchrl); names(chrl) = chrl
+
+  exc = data.frame(do.call(rbind, mclapply(chrl, function(ch) {
+  #exc = data.frame(do.call(rbind, lapply(chrl, function(ch) {
+    cl.ch = cl[cl$chr==ch,]
+    control = cl.rawl[[ch]][cl.rawl[[ch]]$ram > max.control.ram,]
+		ov = ifelse(countOverlaps(IRanges(cl.ch$s-margin, cl.ch$e+margin), IRanges(as.numeric(control$s), as.numeric(control$e)), type="any")>0,1,0)
+		return(cl.ch[ov==0,])
+	})))
+	return(exc)
+}
+
+annot.test <- function()
+{
+  genes = make.gene.table(genome="hg18")
+  genes.detail = make.detail.gene.table(genes)
+	cl = read.table("/files/CBMI/parklab/alee/ra/na18507/na18507.cluster", sep="\t", header=T, as.is=T)
+	cl$gene1 = annot.genes(cl$cp1, genes)
+	cl$gene2 = annot.genes(cl$cp1, genes)
+	cl$gene2 = annot.genes(cl, genes)
+}
+
+annot.genes.cds <- function(cl, margin=2, verbose=F)
+{
+	load(hg18.cds)
+  chrl = unique(as.character(cl$chr)); names(chrl) = chrl
+  df = data.frame(do.call(rbind, lapply(chrl, function(ch) {
+    if (verbose) print(paste("processing", ch))
+    genes.ch = genes.detail[genes.detail$chr == ch, ]
+    cl.ch = cl[cl$chr==ch,]
+    cl.ch$genes1 = "-"
+    m1 = data.frame(findOverlaps(IRanges(cl.ch$cp1-margin, cl.ch$cp1+margin), IRanges(as.numeric(genes.ch$s), as.numeric(genes.ch$e)))@matchMatrix)
+    genes = unlist(lapply(unique(m1$query), function(q) {
+      s = m1$subject[m1$query == q]
+      genes = paste(unique(paste(genes.ch[s,]$name, genes.ch[s,]$type, sep="_")), collapse=",")
+      return(genes)
+    }))
+    cl.ch$genes1[unique(m1$query)] = genes
+
+    cl.ch$genes2 = "-"
+    m2 = data.frame(findOverlaps(IRanges(cl.ch$cp2-margin, cl.ch$cp2+margin), IRanges(as.numeric(genes.ch$s), as.numeric(genes.ch$e)))@matchMatrix)
+		genes = unlist(lapply(unique(m2$query), function(q) {
+			s = m2$subject[m2$query == q]
+			genes = paste(unique(paste(genes.ch[s,]$name, genes.ch[s,]$type, sep="_")), collapse=",")
+			return(genes)
+		}))
+		cl.ch$genes2[unique(m2$query)] = genes
+    return(cl.ch)
+  })))
+	rownames(df) = NULL
+  return(df)
+	return(genes)
+}
+
+# annot.genes: prox_up ( margin 5kb)  / prox_down / 5utr / 3utr / exon / intron /cds 
+# based on chrom / txStart/ txEnd of genes, if multiple gene mapping just report one of them which comes first
+annot.genes.detail <- function(cl, margin=2, verbose=F)
+{
+	load(hg18.genes)
+  chrl = unique(as.character(cl$chr)); names(chrl) = chrl
+  df = data.frame(do.call(rbind, lapply(chrl, function(ch) {
+		if (verbose) print(paste("processing", ch))
+    genes.ch = genes.detail[genes.detail$chr == ch, ]
+    cl.ch = cl[cl$chr==ch,]
+    cl.ch$genes1 = "-"
+    m1 = data.frame(findOverlaps(IRanges(cl.ch$cp1-margin, cl.ch$cp1+margin), IRanges(as.numeric(genes.ch$s), as.numeric(genes.ch$e)))@matchMatrix)
+		genes = unlist(lapply(unique(m1$query), function(q) {
+			s = m1$subject[m1$query == q]
+			genes = paste(unique(paste(genes.ch[s,]$name, genes.ch[s,]$type, sep="_")), collapse=",")
+			return(genes)
+		}))
+		cl.ch$genes1[unique(m1$query)] = genes 
+	
+    cl.ch$genes2 = "-"
+    m2 = data.frame(findOverlaps(IRanges(cl.ch$cp2-margin, cl.ch$cp2+margin), IRanges(as.numeric(genes.ch$s), as.numeric(genes.ch$e)))@matchMatrix)
+		genes = unlist(lapply(unique(m2$query), function(q) {
+			s = m2$subject[m2$query == q]
+			genes = paste(unique(paste(genes.ch[s,]$name, genes.ch[s,]$type, sep="_")), collapse=",")
+			return(genes)
+		}))
+		cl.ch$genes2[unique(m2$query)] = genes 
+    return(cl.ch)
+  })))
+	rownames(df) = NULL
+  return(df)
+}
+
+
+make.detail.gene.table <- function(genes, margin=5e3, verbose=F, save=T) 
+{
+	genes.detail = data.frame(do.call(rbind, lapply(1:dim(genes)[1], function(i) {
+		d = genes[i,]
+		if (verbose & i%%100 == 0) print(paste("processing", i))
+		exon.start = strsplit(d$exonStarts, ",")
+		exon.end = strsplit(d$exonEnds, ",")
+		new.d = data.frame()
+		if (d$strand == "+") {
+			new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$txStart - margin, e=d$txStart-1, name=d$name, type="prox_up"))	
+			new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$txEnd+1, e=d$txEnd + margin, name=d$name, type="prox_down"))
+			new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$txStart, e=d$cdsStart-1, name=d$name, type="5utr"))
+			new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$cdsEnd+1, e=d$txEnd, name=d$name, type="3utr"))
+		} else {
+			new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$txStart - margin, e=d$txStart-1, name=d$name, type="prox_down"))
+			new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$txEnd+1, e=d$txEnd + margin, name=d$name, type="prox_up"))
+			new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$txStart, e=d$cdsStart-1, name=d$name, type="3utr"))
+			new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$cdsEnd+1, e=d$txEnd, name=d$name, type="5utr"))
+		}
+
+		new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=exon.start[[1]][1], e=exon.end[[1]][1], name=d$name, type="exon"))
+		if (length(exon.start[[1]]) > 1) {
+			for (j in 2:length(exon.start[[1]])) {
+				new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=exon.start[[1]][j], e=exon.end[[1]][j], name=d$name, type="exon"))
+				new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=as.numeric(exon.end[[1]][j-1])+1, e=as.numeric(exon.start[[1]][j])-1, name=d$name, type="intron"))
+			}
+		}
+		return(new.d)
+	})))
+	genes.detail = genes.detail[!duplicated(genes.detail[, c("chr", "strand", "s", "e", "type")]),]
+	save(genes.detail, file=hg18.genes)
+	return(genes.detail)
+}
+
+make.cds.table <- function(genes, margin=5e3, verbose=F, save=T)
+{
+  genes.detail = data.frame(do.call(rbind, lapply(1:nrow(genes), function(i) {
+  #genes.detail = data.frame(do.call(rbind, lapply(1:10, function(i) {
+    d = genes[i,]
+		
+    if (verbose & i%%100 == 0) print(paste("processing", i))
+    exon.start = as.numeric(strsplit(d$exonStarts, ",")[[1]])
+    exon.end = as.numeric(strsplit(d$exonEnds, ",")[[1]])
+
+    new.d = data.frame()
+		
+		# annotate prox_up/down based on txStart/txEnd
+		type = ifelse(d$strand == "+", "prox_up", "prox_down")
+    new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$txStart - margin, e=d$txStart-1, name=d$name, type=type))
+
+		type = ifelse(d$strand == "+", "prox_down", "prox_up")
+    new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$txEnd+1, e=d$txEnd + margin, name=d$name, type=type))
+
+		# annotate cds/utr/intron based on exons and cdsStart/cdsEnd
+		for (j in 1:length(exon.start)) {
+			if (exon.start[j] >= d$cdsStart & exon.end[j] <= d$cdsEnd) {
+				new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=exon.start[j], e=exon.end[j], name=d$name, type="cds"))
+			} else if (exon.end[j] < d$cdsStart) {
+				type = ifelse(d$strand == "+", "5utr", "3utr")
+				new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=exon.start[j], e=exon.end[j], name=d$name, type=type))
+			} else if (exon.start[j] > d$cdsEnd) {
+				type = ifelse(d$strand == "+", "3utr", "5utr")
+				new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=exon.start[j], e=exon.end[j], name=d$name, type=type))
+			} else if (exon.start[j] < d$cdsStart & exon.end[j] > d$cdsStart) {
+				type = ifelse(d$strand == "+", "5utr", "3utr")
+					new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=exon.start[j], e=d$cdsStart-1, name=d$name, type=type))
+				if (d$cdsEnd > exon.end[j]) { 
+					new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$cdsStart, e=exon.end[j], name=d$name, type="cds"))
+				} else { 
+					new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$cdsStart, e=d$cdsEnd, name=d$name, type="cds"))
+					type = ifelse(d$strand == "+", "3utr", "5utr")
+					new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$cdsEnd+1, e=exon.end[j], name=d$name, type=type))
+				}
+			} else if (exon.start[j] < d$cdsEnd &  exon.end[j] > d$cdsEnd) {
+				type = ifelse(d$strand == "+", "3utr", "5utr")
+				new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=d$cdsEnd+1, e=exon.end[j], name=d$name, type=type))
+				new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=exon.start[j], e=d$cdsEnd, name=d$name, type="cds"))
+			}
+		}
+		if (length(exon.start)>1) {
+			for (j in 2:length(exon.start)) {
+				new.d = rbind(new.d, data.frame(chr=d$chrom, strand=d$strand, s=exon.end[j-1]+1, e=exon.start[j]-1, name=d$name, type="intron"))
+			}
+		}
+		return(new.d)
+	})))
+  genes.detail = genes.detail[!duplicated(genes.detail[, c("chr", "strand", "s", "e", "type")]),]
+  save(genes.detail, file=hg18.cds)
+  return(genes.detail)
+}
+
+# make gene annotation table from refFlat.txt from UCSC browser
+make.gene.table <- function(genome="hg18")  {
+
+  if (genome == "hg18") {
+    # this part was provided by francesco
+    RefSeqGenes_file<-"/home/el114/gcc/data/annotation/hg18/hg18.refGene.txt"
+    #RefSeqGenes_colClasses_custom<-c("NULL", "character", "character", "character", "integer", "integer", "integer", "integer", "integer", "character", "character", "NULL", "NULL", "character", "character", "NULL")
+    RefSeqGenes_colClasses_custom<-c("NULL", "character", "character", "character", "integer", "integer", "integer", "integer", "integer", "character", "character", "NULL", "NULL", "character", "character", "NULL")
+
+    refLink_file<-"/home/el114/gcc/data/annotation/hg18/hg18.refLink.txt"
+    refLink_colClasses_custom<-c("character", "character", "character", "character", "NULL", "NULL", "character", "NULL")
+  }
+
+  RefSeqGenes<-read.table(file=RefSeqGenes_file, colClasses=RefSeqGenes_colClasses_custom, comment.char = "", sep="\t", header=TRUE, stringsAsFactors=FALSE, quote="")
+
+  refLink<-read.table(file=refLink_file, colClasses=refLink_colClasses_custom, comment.char = "", sep="\t", header=TRUE, stringsAsFactors=FALSE, quote="")
+
+  RefSeqGenes_annotated<-merge(x=RefSeqGenes, y=refLink,
+           by.x = "tname", by.y ="mrnaAcc", all = FALSE, all.x = TRUE, all.y = FALSE,
+           sort = TRUE)
+
+  # For NON protein coding gene the field product and protAcc are empy (==""). Moreover the fields cdsStartStat and cdsEndStat are =="unk"
+  # we can use these fields to filter out non protein coding genes
+  proteinCodingSelection<- (!((RefSeqGenes_annotated$protAcc=="") & (RefSeqGenes_annotated$product == "") & (RefSeqGenes_annotated$cdsStartStat == "unk") & (RefSeqGenes_annotated$cdsEndStat == "unk")))
+  RefSeqGenes_annotated<-RefSeqGenes_annotated[proteinCodingSelection, ]
+
+  # for each gene, take the refseq with the   
+  return(RefSeqGenes_annotated)
+}
+
+analyze.ov <- function()
+{
+	#load("ov.mtrx.RData")
+	load("ov.raw.mtrx.RData")
+	normal.cnt = apply(mtrx[,grep("normal", colnames(mtrx))], 1, sum)
+	mtrx.n = mtrx[normal.cnt > 0,]
+
+  samples = c("gbm0145", "gbm0152", "gbm0185", "gbm0648", "gbm0155", "gbm0786", "gbm0877", "gbm0881", "gbm1086", "gbm1438", "gbm1454", "gbm1459", "gbm1401")   
+  samples.ph = c(paste(samples, "cancer", sep="_"), paste(samples, "normal", sep="_"))
+  names(samples) = samples
+  names(samples.ph) = samples.ph
+
+	# filter cluseters if they appear in other normal genomes 
+  comp = data.frame(do.call(rbind, lapply(samples, function(s) {
+    write.msg(paste("processing", s))
+    sample1 = paste(s, "cancer", sep="_")
+    sample2 = paste(s, "normal", sep="_")
+    comp.s = comp.exc(sample1, sample2, verbose=T)
+		ov = region.overlap(comp.s, mtrx.n) 
+		write.msg(paste(length(ov[ov==1]), "filtered out"))
+		rownames(comp.s) = NULL
+		return(merge(s, comp.s[ov == 0, ]))
+  })))
+	comp = comp[order(-comp$score, -comp$ram, -comp$cr),]	
+	row.names(comp) = NULL
+	write.table(comp, file="comp.raw.txt", quote=F, row.names=F, sep="\t")
+}
+
+run.comp <- function(type = c("exc", "cmm"))
+{
+	type = match.arg(type)
+	#samples = c("gbm0145", "gbm0152", "gbm0185", "gbm0648", "gbm0155", "gbm0786", "gbm0877", "gbm0881", "gbm1086", "gbm1438", "gbm1454", "gbm1459", "gbm0214", "gbm0188", "gbm1401")
+	samples = c("gbm0145", "gbm0152", "gbm0185", "gbm0648", "gbm0155", "gbm0786", "gbm0877", "gbm0881", "gbm1086", "gbm1438", "gbm1454", "gbm1459", "gbm1401")
+	samples.ph = c(paste(samples, "cancer", sep="_"), paste(samples, "normal", sep="_"))
+	names(samples) = samples
+	names(samples.ph) = samples.ph
+
+	comp = lapply(samples, function(s) {
+		write.msg(paste("processing", s))
+		sample1 = paste(s, "cancer", sep="_")
+		sample2 = paste(s, "normal", sep="_")
+		if (type == "exc") {
+			comp.s = comp.exc(sample1, sample2, verbose=T)
+		} else if (type == "cmm") {
+			comp.s = comp.common(sample1, sample2)
+		}
+		return(comp.s)
+	})
+
+	# compile all regions 
+	all.region = do.call(rbind, lapply(comp, function(comp.s) {
+			return(comp.s[, c("chr", "s", "e")])
+	}))
+	all.region$chr = as.character(all.region$chr)
+
+	# generate reduced/normalized regions per chr
+	chrl = unique(all.region$chr);
+	nregion = lapply(chrl, function(ch) {
+		return(nregion.ch = reduce(IRanges(all.region$s[all.region$chr == ch], all.region$e[all.region$chr == ch])))
+	})
+	names(nregion) = chrl
+	# 10199 redueced regions
+
+	# load cluster file for all samples 
+	#cl.all = lapply(samples.ph, function(s) {
+	#		desc = load.desc(s)	
+	#		return(load.cluster(desc, raw=T))
+	#})
+	#save(cl.all, file="cl.all.RData")
+	load("cl.all.RData")
+
+	# mark the existance of ram cluster in each region in each dataset 
+	mtrx = data.frame(do.call(rbind, lapply(chrl, function(ch) {
+		write.msg(paste("processing", ch))
+		region = nregion[[ch]]
+		x = data.frame(do.call(cbind, lapply(samples.ph, function(s) {
+			write.msg(paste("processing", s))
+			cl = cl.all[[s]]
+			m =	data.frame(do.call(rbind, lapply(cl, function(c) {
+				c.ch = c[c$chr==ch, c("chr", "s", "e", "ram")]
+				if (dim(c.ch)[1] == 0)  return(NULL) else
+					return(c.ch)
+			})))
+			rownames(m) = NULL
+			ov = ifelse(countOverlaps(region, IRanges(m$s, m$e)) > 0, 1, 0)
+			return(ov)
+		})))
+		write.msg(paste(ch, dim(x)[1], "entries"))
+		return(cbind(ch, start(region), end(region), x))
+	})))
+	colnames(mtrx) = c("chr", "s", "e", names(samples.ph))
+
+	ov.sum=apply(mtrx, 1, function(x) return(sum(as.numeric(x[-c(1,2,3)]))))
+	mtrx = cbind(mtrx, ov.sum)
+
+	save(mtrx, file="ov.raw.mtrx.RData")
+	write.table(mtrx, file="ov.raw.mtrx", quote=F, row.names=F) 
+}
+
+annot.rfamily <- function(rep.repeat, rannot=NULL, type, verbose=F)
+{
+  if (is.null(rannot)) rannot = load.rannot()
+
+  #df = data.frame(do.call(rbind, lapply(1:dim(cl)[1], function(i) {
+  annot = unlist(lapply(rep.repeat, function(r) {
+    if (verbose) print(paste("processing", r))
+    repeats = strsplit(r, ",")[[1]]
+    annot = paste(unique(rannot[rannot$name %in% repeats, type]), collapse=",")
+    return(annot)
+   }))
+  return(annot)
+}
+
+# extract sample1 only cluster
+comp.exc <- function(sample1, sample2, max.sample2.ram = 0, margin=100, family.filter=T, verbose=F, rewrite=F)
+{
+	write.msg(paste("processing", sample1, sample2))	
+	desc1 = load.desc(sample1)
+	desc2 = load.desc(sample2)
+
+	out.file = paste(desc1$out_path, desc1$sample, ".only.cluster", sep="")
+	if (!rewrite & file.exists(out.file)) {
+		exc = read.table(out.file, sep="\t", header=T)
+		return(exc)
+	}
+	
+	cl1 = load.cluster(desc1)	
+	cl2 = load.cluster(desc2, raw=T)
+	if (max.sample2.ram > 0) 
+		cl2 = load.cluster(desc2, raw=T)
+
+	rnames = intersect(names(cl1), names(cl2)); names(rnames) = rnames
+
+	rannot = load.rannot(rannot.file) # to annotate instances in the same repeat family
+
+	exc = data.frame(do.call(rbind, lapply(rnames, function(r) {
+		if (verbose) print(paste("processing", r))
+  	ov = ifelse(countOverlaps(IRanges(cl1[[r]]$s-margin, cl1[[r]]$e+margin), IRanges(cl2[[r]]$s, cl2[[r]]$e), type="any")>0,1,0)
+		if (verbose)	write.msg(paste(r, dim(cl1[[r]][ov==0,])[1])) 
+
+		if (family.filter) {
+	  	family = rannot[rannot$name== r, "family"]
+			rfamily = NULL
+ 	 		if (family != "NA") rfamily = rannot[rannot$family== family, "name"]
+			if ( length(rfamily) >0 ) {
+				ovf.mtrx = do.call(cbind, lapply(rfamily, function(rf) {
+				ovf = ifelse(countOverlaps(IRanges(cl1[[r]]$s-margin, cl1[[r]]$e+margin), IRanges(cl2[[rf]]$s, cl2[[rf]]$e), type="any")>0,1,0)
+				return(ovf)
+			}))
+				ov = apply(cbind(ov, ovf.mtrx), 1, max)
+			}
+		}
+		if (length(rfamily)>0) {
+			if (verbose) write.msg(paste(r, dim(cl1[[r]][ov==0,])[1]))
+			return(merge(r, cl1[[r]][ov==0,])) 
+		}	else {
+			return(NULL)
+		}
+	})))
+	colnames(exc)[1] = "rname"
+	exc = merge(rannot[,c("name", "class", "family")], exc, rannot, by.x = "name", by.y="rname")
+
+	write.table(exc[order(-exc$score, -exc$ram, -exc$cr),], out.file, sep="\t", row.names=F, quote=F)
+	return(exc)
+}
+
+# load cluster for sample 
+load.cluster <- function(desc, raw=F)
+{
+  write.msg(paste("extracting repeat names from", desc$sample, "..."))
+	if (raw) {
+  	files = list.files(path=paste(desc$out_path, "cluster", sep=""), pattern=paste(".+.cluster.raw$", sep=""), full.names=T)
+	} else {
+  	files = list.files(path=paste(desc$out_path, "cluster", sep=""), pattern=paste(".+.cluster$", sep=""), full.names=T)
+	}
+  rnames =  sub("(\\S*)\\.cluster.*", "\\1", basename(files), perl=T)
+  names(files) = rnames
+  write.msg(paste("done identifying", length(rnames), "repeat cluster files."))
+
+	cl = lapply(files, load.cluster.r) 
+
+	return(cl)
+}
+
+load.cluster.r <- function(file)
+{
+		df = read.delim(file, sep="\t", header=T, as.is=T)
+		return(df)
+}
+
+# common: insertaions from sample 2 which also are observed in sample 1
+comp.common <- function(sample1, sample2, min.ram1=3, min.ram2=3, min.cr1=1, min.cr2=1)
+{
+	desc1 = load.desc(sample1)
+	desc2 = load.desc(sample2)
+
+	write.msg(paste("extracting repeat names from", sample1, sample2, "..."))
+ 	files1 = list.files(path=paste(desc1$out_path, "cluster", sep=""), pattern=paste(".+.cluster$", sep=""), full.names=T)
+ 	files2 = list.files(path=paste(desc2$out_path, "cluster", sep=""), pattern=paste(".+.cluster$", sep=""), full.names=T)
+	rnames1 =  sub("(\\S*)\\.cluster", "\\1", basename(files1), perl=T)
+	rnames2 =  sub("(\\S*)\\.cluster", "\\1", basename(files2), perl=T)
+	names(files1) = rnames1
+	names(files2) = rnames2
+  rnames = intersect(rnames1, rnames2)
+	write.msg(paste("done extracting", length(rnames), "common repeaet names."))
+
+	out.path = paste(desc2$out_path, "../", sample1, ".", sample2, "/common/", sep="")
+  if (!file.exists(out.path)) { dir.create(out.path, recursive=T, mode="0755")}
+
+	write.msg(paste("start extracting common clusters from", sample1, sample2, "..."))
+
+	x = data.frame(do.call(rbind, lapply(rnames, function(r) {
+			out.file = paste(out.path, r, ".common.cluster", sep="")	
+			if (exists(out.file)) {
+				write.msg("reading the common cluster file for", r)
+				combined = read.table(out.file, sep="\t", header=T)
+				write.msg("reading done.")
+				return(combined) 
+			}
+			combined = comp.common.r(files1[[r]], files2[[r]], min.ram1, min.ram2, min.cr1, min.cr2, verbose)
+			if (is.null(combined)) {
+				if (verbose) write.msg(paste("zero common clusters for", r))
+				return(NULL)
+			}
+			if (dim(combined)[1] >0 ) {
+				if (verbose) write.msg(paste("done generaing ", dim(combined)[1], "common clusters for", r))
+				write.table(combined, out.file, sep="\t", quote=F, row.names=F) 
+				return(combined)
+			} else {
+				if (verbose) write.msg(paste("zero common cluster for", r))
+				return(NULL)
+			}
+	})))
+	write.msg("done extracting", dim(x)[1], "common clusters.")
+	return(x)
+}
+
+comp.common.r <- function(file1, file2, min.ram1, min.ram2, min.cr1, min.cr2, verbose)
+{
+	c1 = read.delim(file1, sep="\t", header=T)
+	c2 = read.delim(file2, sep="\t", header=T)
+#	c1 = c1[c1$ram >= min.ram1 & c1$cr >= min.cr1,]
+#	c2 = c2[c2$ram >= min.ram2 & c2$cr >= min.cr2,]
+
+	if (dim(c1)[1] == 0 || dim(c2)[1] == 0) return(NULL)
+
+  chrl = unique(as.character(c1$chr))
+
+  df = data.frame(do.call(rbind, lapply(chrl, function(ch) {
+		if (verbose) write.msg(paste("comparing clusters in", ch))
+    s1 = c1[c1$chr==ch, ]
+    s2 = c2[c2$chr==ch, ]
+    combined = match.cluster(s1, s2)
+		combined = combined[combined$score.1 != -1,]
+    return(combined)
+  })))
+	df = df[order(-df$score, -df$ram, -df$cr),]
+	return(df)
+}
+
+match.cluster <- function(s1, s2)
+{
+  # modify colnames of s2 to have .1 and initialize the merged df with -1
+  colnames(s2) = paste(colnames(s1), rep("1", dim(s1)[2]), sep=".")
+  blank = data.frame(matrix(-1, 1, dim(s1)[2]))
+  colnames(blank) = colnames(s2)
+  blank$ram.1=0
+  merged = cbid(s1, blank)
+
+  m = data.frame(findOverlaps(IRanges(s1$s, s1$e), IRanges(s2$s.1, s2$e.1))@matchMatrix)
+  if (dim(m)[1] > 0) merged[m$query,] = cbind(s1[m$query,], s2[m$subject,])
+
+  #if it has more than two overlapping segments, it reports one with the maximum ram 
+  mov.idx = which(countOverlaps(IRanges(s1$s, s1$e), IRanges(s2$s.1, s2$e.1)) > 1)
+  if (length(mov.idx) > 0) {
+    s2.idx = unlist(lapply(mov.idx, function(i) {
+      subject.idx = m$subject[m$query == i]
+      max.ram = max(s2$ram.1[subject.idx])
+      max.idx = subject.idx[which(s2$ram.1[subject.idx] == max.ram)[1]]
+      return(max.idx)
+    }))
+    merged[mov.idx,] = cbind(s1[mov.idx,], s2[s2.idx,])
+  }
+  return(merged)
+}
+
+get.runlist <- function(desc)
+{
+	write.msg("extracting repeat names - no simple nor low complexity repeats..")
+ 	ram.files = list.files(desc$ram_path, pattern=paste(".+\\.sram\\.bz2", sep=""), full.name=T)
+ 	rnames =  sub("\\.sram\\.bz2", "", basename(ram.files))
+ 	names(ram.files) = rnames
+	
+	# Joe: Use the global variable...
+	#rannot.file = "/groups/park/alee/ra/data/rmasker/hg18.repeats.txt"
+	rannot = load.rannot(rannot.file)
+	rnames.annot = merge(data.frame(name=rnames), rannot)
+	rnames.annot$name = as.character(rnames.annot$name)
+	rnames = rnames.annot[!(rnames.annot$class %in% c("Simple_repeat", "Low_complexity")), "name"]
+	write.msg(paste("done extracting ", length(rnames), "repeats."))
+
+	jobs = do.call(rbind, lapply(rnames, function(r) { 
+		newr = gsub("\\(", "\\\\\\(", r)
+ 		newr = gsub("\\)", "\\\\\\)", newr)
+ 	 	cmd = paste("bjobs -w | awk '/rid.r.", desc$sample, ".", newr, " / { print $1}'", sep="")
+		jid = system(cmd, intern=T)
+		ok.file = paste(desc$out_path, "cluster/", r, ".ok", sep="")  
+		ok.file1 = paste(desc$out_path, "cluster/", desc$sample, ".", r, ".ok", sep="")
+
+ 		if (!file.exists(ok.file) & !file.exists(ok.file1) & length(jid) == 0) {
+			return(r)
+		} else {
+			return(NULL)
+		}
+	}))
+	return(jobs)
+}
+
+rid <- function(sample, min.single.ram=3, lsf=T, verbose=F, rlist.file=NULL)
+{
+	desc = load.desc(sample, sample.desc.file)
+
+	if (is.null(rlist.file)) rnames = get.runlist(desc) else
+		rnames = read.table(rlist.file, header=F, as.is=T)
+
+	write.msg(paste("done extracting", dim(rnames)[1], "repeat names to run."))	
+
+	if (length(rnames) ==0) write.err("no repeat to run.")
+
+	if (lsf) write.msg("starting job submission for each repeat...")
+	else write.msg("starting rid...")
+
+	jobs = do.call(rbind, lapply(rnames, function(r) {
+		if (lsf) bsub.rid.r(sample, r, min.single.ram, verbose)
+		else rid.r(sample, r, min.single.ram, verbose)
+	}))
+
+	if (lsf) write.msg(paste(dim(jobs)[1], "jobs submitted."))
+	else write.msg(paste(dim(jobs)[1], "rid done."))
+
+	return(jobs)
+}
+
+bsub.rid.r <- function(sample, r, min.single.ram=3, verbose)
+{
+  newr = gsub("\\(", "\\\\\\(", r)
+  newr = gsub("\\)", "\\\\\\)", newr)
+
+	cmd = paste("bsub -o \"", log.dir, "/rid.r.", sample, ".", r, ".log\" -J \"rid.r.", sample, ".", r, "\" -R rusage[mem=3000] -q all_unlimited \"R --vanilla --args rid.r sample=\\\\\\\"", sample, "\\\\\\\" r=\\\\\\\"", newr,  "\\\\\\\" min.single.ram=", min.single.ram, " verbose=\\\\\\\"", verbose, "\\\\\\\" < run.rid.r\"", sep="")
+	print(cmd)
+
+	system(cmd, intern=T)
+
+  return(r)
+}
+
+break.cluster <- function(cb, repeats, rannot, verbose=F)
+{
+	cb.refined = do.call("c", lapply(1:length(cb), function(i) {
+		if (verbose) print(paste("processing", i))
+		if (i==1) si=1 else si = cb[i-1] + 1 
+		ei = cb[i]    
+
+	  rv = unlist(lapply(repeats[si:ei], function(r) {
+    	if (length(grep(",", r))) return(strsplit(r, ",")[[1]][[1]]) else return(r)
+  	}))
+		rf = rannot$family[match(rv, rannot$name)]; rf[is.na(rf)] = "NA"
+		if (length(rf)>1) {
+			new.cb = si + unlist(lapply(1:(length(rf)-1), function(j) { if (rf[j] != rf[j+1]) return(j)})) - 1
+			return(c(new.cb, cb[i]))
+		} else {
+			return(cb[i])
+		}
+	}))
+	return(cb.refined)
+}
+
+separate.cluster <- function(cl.row, rf)
+{
+	cl.row = as.list(cl.row)
+	unique.rf = unique(rf)
+	separated.cl.row = do.call(rbind,	lapply(1:length(unique.rf), function(i) {
+		idx = which(rf == unique.rf[i])
+		pos = strsplit(cl.row$pos, ",")[[1]][idx]   
+		repeat.name = strsplit(cl.row$repeat.name, ",")[[1]][idx] 
+		rname = strsplit(cl.row$rname, ",")[[1]][idx] 
+		rep.repeat=unique(repeat.name)
+		rfamily = strsplit(cl.row$family, ",")[[1]][idx] 
+		rclass = strsplit(cl.row$class, ",")[[1]][idx] 
+ 		#rfamily = rannot$family[match(rep.repeat, rannot$name)]; rfamily[is.na(rfamily)] = "NA"
+    #rclass = rannot$class[match(rep.repeat, rannot$name)]; rclass[is.na(rclass)] = "NA"
+		s = abs(as.numeric(head(pos, 1))); e = abs(as.numeric(tail(pos, 1)))
+		ram = length(pos)
+		return(c(s=s, e=e, ram=ram, rep.repeat=paste(rep.repeat, collapse=","),  family=paste(unique(rfamily), collapse=","), class=paste(unique(rclass), collapse=","), repeat.name=paste(repeat.name, collapse=","), pos=paste(pos, collapse=","), rname=paste(rname, collapse=",")))
+	}))
+}
+
+# strand => 1 or -1
+get.cluster <- function(pos, strand, repeats, rnames, gap.cutoff, verbose=F)
+{
+	# separate a clsuter if it's mixed with the repeats of the different repeat family
+  rannot = load.rannot()
+	cb = which(diff(pos,1) > gap.cutoff) 
+	cb = c(cb, length(pos))
+
+	cl = data.frame(do.call(rbind, lapply(1:length(cb), function(i) {
+	#cl = data.frame(do.call(rbind, lapply(1:100, function(i) {
+		if (verbose & i%%100 == 0) print(paste("processing", i))
+		
+		if (i==1) si=1 else si = cb[i-1] + 1 
+		ei = cb[i]    
+	  rv = unlist(lapply(repeats[si:ei], function(r) {
+    	if (length(grep(",", r))) return(strsplit(r, ",")[[1]][[1]]) else return(r)
+  	}))
+		rep.repeat = paste(unique(rv), collapse=",")
+		# need to replace ALR/ALPHA with ALR_ALPHA
+    rfamily = rannot$family[match(rv, rannot$name)]; rfamily[is.na(rfamily)] = "NA"
+    rclass = rannot$class[match(rv, rannot$name)]; rclass[is.na(rclass)] = "NA"
+		cl.row = c(s=pos[si], e=pos[ei], ram=ei-si+1, rep.repeat=rep.repeat, family=paste(rfamily, collapse=","), class=paste(rclass, collapse=","), repeat.name=paste(rv, collapse=","), pos=paste(pos[si:ei]*strand, collapse=","), rname=paste(rnames[si:ei], collapse=","))
+    if (length(unique(rfamily))>1) {
+			#print(paste("breaking clusters for", i, unique(rfamily))); 
+			cl.row = separate.cluster(cl.row, rfamily)
+		}  else {
+			cl.row = c(s=pos[si], e=pos[ei], ram=ei-si+1, rep.repeat=rep.repeat, family=unique(rfamily), class=unique(rclass), repeat.name=paste(rv, collapse=","), pos=paste(pos[si:ei]*strand, collapse=","), rname=paste(rnames[si:ei], collapse=","))
+		}
+		return(cl.row)
+	})))
+	cl$s = as.integer(as.character(cl$s))
+	cl$e = as.integer(as.character(cl$e))
+	cl$ram = as.integer(as.character(cl$ram))
+	cl$rep.repeat = as.character(cl$rep.repeat)
+	cl$family = as.character(cl$family)
+	cl$class = as.character(cl$class)
+	cl$rname = as.character(cl$rname)
+
+	return(cl)
+}
+
+pair.cluster <- function(p.cl, m.cl, gap.cutoff)
+{
+	ov.raw = findOverlaps(IRanges(p.cl$s, p.cl$e + gap.cutoff), IRanges(m.cl$s, m.cl$e))@matchMatrix 
+	colnames(p.cl) = paste(colnames(p.cl), "1", sep="")
+	colnames(m.cl) = paste(colnames(m.cl), "2", sep="")
+	pcl.raw =	cbind(p.cl[ov.raw[,1],], m.cl[ov.raw[,2],])
+
+	# exclude the pairs if the whole negative strand cluster is on the left side of the positive stand cluster: s1 < e2
+	idx = which(pcl.raw$s1 < pcl.raw$e2 & pcl.raw$family1 == pcl.raw$family2 & pcl.raw$family1 != "Unknown" & pcl.raw$family2 != "Unknown")
+	ov = ov.raw[idx,]
+	pcl = pcl.raw[idx,]
+	# check the repeat family are the same for the positive and negative clusters; but dont pair if the family is "unknown"
+	#ovidx = unlist(lapply(1:dim(pcl.raw)[1], function(i) { 
+	#	p.rf = pcl.raw$family1[i]
+	#	m.rf = pcl.raw$family2[i]
+	#	if (p.rf != "Unknown" & m.rf != "Unknown" & p.rf == m.rf) return(i) else return(NULL)
+	#}))
+	#pcl = pcl.raw[ovidx,]
+
+	return(list(ov=ov, pcl=pcl))
+}
+
+load.rl <- function(rl.file, rg="all")
+{
+	if (is.null(rl.file)) return(NULL)  
+	rl = read.table(rl.file)
+	return(rl[rl$V1=="all",	2])
+}
+
+# the merged ram.bz2 needs to be used
+rid.disc <- function(sample="gbm0145_cancer", dir="/files/CBMI/parklab/alee/ra", min.ram=2, jittering=2, verbose=F, chr=NULL, chr.ram=F, short=F)
+{
+	in.dir = paste(dir, "/", sample, "/bam/",  sep="") 
+	out.dir = paste(dir, "/", sample, "/cluster/",  sep="")
+  if (!file.exists(out.dir)) { dir.create(out.dir, recursive=T, mode="0755")}
+
+  if (is.null(chr))	out.prefix = paste(out.dir, sample, sep="") else
+		out.prefix = paste(out.dir, sample, ".", chr, sep="")
+
+	if (!is.null(chr) & chr.ram)
+		ram.file = paste(in.dir, sample, ".", chr,".ram.bz2", sep="") else
+		ram.file = paste(in.dir, sample, ".ram.bz2", sep="")
+		
+	cbam.file = NULL	
+	#cbam.file = paste(in.dir, sample, ".sorted.softclips.consd.sorted.bam", sep="")
+	if (!short) cbam.file = paste(in.dir, sample, ".sorted.softclips.consd.bam", sep="")
+
+	rl.file = paste(in.dir, sample, ".rl", sep="") 
+	isize.file = paste(in.dir, sample, ".isize", sep="") 
+
+  write.msg(paste("loading rl and isize from", rl.file, isize.file, "..."))
+	rl = load.rl(rl.file)	
+	is = load.isize(isize.file, rl)
+	write.msg(paste("fragment:", is$fr, "(mu:", is$mu, "sd:", is$sd, ") intra.gap:", is$intra.gap, " inter.gap:", is$inter.gap, " ins.margin:", is$ins.margin))
+
+  write.msg(paste("loading rams from", ram.file, "..."))
+	ram = load.ram(ram.file, separated=F, rm.dup=F)
+  write.msg("done loading rams.")
+
+  write.msg(paste("loading repeat instances from", rilf, "..."))
+	load(rilf)
+  write.msg("done loading instances.")
+
+	if (is.null(chr)) 	chrl = intersect(names(ram), paste("chr", c(1:22, "X", "Y"), sep="")) else
+		chrl = c(chr)
+	names(chrl) = chrl
+
+	# write headers
+	col.cl.raw = c("chr", "s", "e", "size", "rep.repeat", "family", "class", "ram", "ram1", "ram2", "s1", "e1", "s2", "e2", "pos1", "pos2", "rep.repeat1", "rep.repeat2", "repeat.name1", "repeat.name2", "rname1", "rname2", "oi")
+	col.cl.detail = c("chr", "s", "e", "size", "td", "cp1", "cp2", "rep.repeat", "family", "class", "ram", "ram1", "ram2", "cr", "cr1", "cr2", "acr", "acr1", "acr2", "arr", "s1", "e1", "s2", "e2", "pos1", "pos2", "rep.repeat1", "rep.repeat2", "repeat.name1", "repeat.name2", "rname1", "rname2", "cs", "ce", "oi", "score")
+	col.cl = c("chr", "s", "e", "size", "td", "cp1", "cp2", "rep.repeat", "family", "class", "ram", "ram1", "ram2", "cr", "cr1", "cr2", "acr", "acr1", "acr2", "arr", "s1", "e1", "s2", "e2", "score")
+	col.clipped = c("chr", "s", "e", "cs", "ce", "cpos", "aligned", "cigar", "tname", "ref.seq", "clipped.seq", "clipped.qual")
+
+	if (is.null(chr) | chr == "chr1") {
+		write(paste(col.cl.raw, collapse="\t"), paste(out.prefix, ".cluster.raw", sep="")) 
+ 		write(paste(col.cl.detail, collapse="\t"), paste(out.prefix, ".cluster.detail", sep="")) 
+		write(paste(col.cl, collapse="\t"), paste(out.prefix, ".cluster", sep=""))
+		write(paste(col.cl, collapse="\t"), paste(out.prefix, ".cluster.te", sep=""))
+		write(paste(col.clipped, collapse="\t"), paste(out.prefix, ".clipped", sep=""))
+	}
+
+  #write.msg("loading rip ...")
+	#rip = list(alu=get.rip("ALU"), l1=get.rip("L1"), sva=get.rip("SVA"))
+
+	# identify the paired cluser
+  #cl = mclapply(chrl, mc.cores = 5, function(c) {
+	ptm0 = proc.time()
+  cl = lapply(chrl, function(c) {
+   	write.msg(paste("processing", c))
+		ptm = proc.time()
+    if (dim(ram[[c]]$p)[1] == 0 | dim(ram[[c]]$m)[1] == 0) return (NULL)
+		
+		write.msg(paste("extracting positive strand clusters ..."))
+		ram[[c]]$p$repeatname = gsub("/", "_", ram[[c]]$p$repeatname) # replace ALR/ALPHA to ALR_ALPHA
+		p.cl = get.cluster(ram[[c]]$p$pos, 1, ram[[c]]$p$repeatname, ram[[c]]$p$rname, is$intra.gap, verbose)
+		write.msg(paste("done: positive strand clusters:", dim(p.cl)[1]))
+
+		write.msg(paste("extracting negative strand clusters ..."))
+		ram[[c]]$m$repeatname = gsub("/", "_", ram[[c]]$m$repeatname) # replace ALR/ALPHA to ALR_ALPHA
+		m.cl = get.cluster(ram[[c]]$m$pos, -1, ram[[c]]$m$repeatname, ram[[c]]$m$rname, is$intra.gap, verbose)
+		write.msg(paste("done: negative strand clusters:", dim(m.cl)[1]))
+
+		write.msg(paste("pairing clusters ..."))
+		pov = pair.cluster(p.cl, m.cl, is$inter.gap) 
+		pm.cl = pov$pcl
+		write.msg(paste("done: paired clusters:", dim(pm.cl)[1]))
+
+		# define ram cluster boundaries
+		pm.cl$s = pm.cl$s1 
+		pm.cl$e = pm.cl$e2+rl
+			
+		colnames(p.cl) = paste(colnames(p.cl), '1', sep="")
+		colnames(m.cl) = paste(colnames(m.cl), '2', sep="")
+
+		empty.len = length(setdiff(1:dim(p.cl)[1], pov$ov[,1]))
+		empty.num = rep(0, empty.len)
+		empty.chr = rep("", empty.len) 
+		empty.df  = data.frame(empty.num, empty.num, empty.num, empty.chr, empty.chr, empty.chr, empty.chr, empty.chr, empty.chr)
+		colnames(empty.df) = colnames(m.cl)
+
+		ponly = cbind(p.cl[setdiff(1:dim(p.cl)[1], pov$ov[,1]),], empty.df)
+		ponly$s = ponly$s1 
+		ponly$e = ponly$e1 + is$fr 
+		write.msg(paste("positive ram only clusters:", dim(ponly)[1]))
+
+		empty.len = length(setdiff(1:dim(m.cl)[1], pov$ov[,2]))
+		empty.num = rep(0,empty.len)
+		empty.chr = rep("", empty.len) 
+		empty.df  = data.frame(empty.num, empty.num, empty.num, empty.chr, empty.chr, empty.chr, empty.chr, empty.chr, empty.chr)
+		colnames(empty.df) = colnames(p.cl)
+		monly = cbind(empty.df, m.cl[setdiff(1:dim(m.cl)[1], pov$ov[,2]),])
+		monly$s = monly$s2 - is$fr 
+		monly$e = monly$e2 
+		write.msg(paste("negative ram only clusters:", dim(monly)[1]))
+
+		cl.ch = rbind(pm.cl, ponly, monly)
+		cl.ch$chr = c
+		cl.ch$size = cl.ch$e - cl.ch$s + 1
+		cl.ch$ram = cl.ch$ram1 + cl.ch$ram2
+		cl.ch$rep.repeat = unlist(lapply(1:dim(cl.ch)[1], function(i) {
+			 return(paste(unique(c(strsplit(as.character(cl.ch$rep.repeat1[i]), ",")[[1]], strsplit(as.character(cl.ch$rep.repeat2[i]), ",")[[1]])), collapse=","))
+		}))
+		cl.ch$family = unlist(lapply(1:dim(cl.ch)[1], function(i) {
+			if (cl.ch$family1[i] == "") return(cl.ch$family2[i]) else if
+         (cl.ch$family2[i] == "") return(cl.ch$family1[i]) else 
+				return(cl.ch$family1[i]) # otherwise family1 is equal to family2	
+		}))
+		cl.ch$class = unlist(lapply(1:dim(cl.ch)[1], function(i) {
+			if (cl.ch$class1[i] == "") return(cl.ch$class2[i]) else if
+         (cl.ch$class2[i] == "") return(cl.ch$class1[i]) else 
+				return(cl.ch$class1[i]) # otherwise family1 is equal to family2	
+		}))
+
+		# mark clusters near known instances
+		write.msg("marking clusters near known repeat instances ...")
+		cl.ch$oi = unlist(lapply(1:dim(cl.ch)[1], function(i) {
+			if (verbose & i%%100 ==0) print(paste("processing", i))
+			repeats = strsplit(cl.ch$rep.repeat[i], ",")[[1]]
+			oi = min(unlist(lapply(repeats, function(r) {
+				oi = ifelse(countOverlaps(IRanges(cl.ch$s[i], cl.ch$e[i]), IRanges(ril[[r]][[c]]$s, ril[[r]][[c]]$e) + is$ins.margin)==0, 1, 0)
+			})))
+			return(oi)
+		}))
+		cl.ch = cl.ch[, col.cl.raw]
+		write.table(cl.ch, paste(out.prefix, ".cluster.raw", sep=""), sep="\t", row.names=F, col.names=F, quote=F, append=T)
+		write.msg(paste("done writing", dim(cl.ch)[1], "raw clusters for", c))
+
+		write.msg("annotating repeatmasker instnaces ...")
+		cl.ch.oi = cl.ch[cl.ch$oi == 1 & (cl.ch$ram1 >= min.ram | cl.ch$ram2 >= min.ram), ]
+		cl.ch.oi$cs = cl.ch.oi$s # to use the old count.clipped code using cs and ce
+		cl.ch.oi$ce = cl.ch.oi$e
+		write.msg(paste("done:", dim(cl.ch)[1], "raw clusters,", dim(cl.ch.oi)[1], "out of instances with two rams"))
+
+		if (short) { 
+			clipped.cnt = data.frame(td=-9999, cp1=-1,cp2=-1, cr=0, cr1=0, cr2=0, acr=0, acr1=0, acr2=0, arr=0)
+		} else {	
+			write.msg("counting clipped reads ...")
+			clipped = count.clipped2(cl.ch.oi, cbam.file, verbose, jittering)
+			clipped.cnt = data.frame(do.call(rbind, lapply(clipped, function(x) unlist(x[["ccnt"]]))))
+			write.msg(paste("done:", sum(clipped.cnt$cr), "clipped reads"))
+		}
+		cl.ch.oi = cbind(cl.ch.oi, clipped.cnt)
+
+  	cl.ch.oi$score = get.score(cl.ch.oi[, c("td", "ram", "ram1", "ram2", "acr", "acr1", "acr2")])
+	write.msg("done: calculating scores")
+
+		cl.ch.oi = cl.ch.oi[, col.cl.detail]
+		#cl.ch.oi$rip = annotate.rip(cl.ch.oi, rip)
+
+		#write.table(cl.ch.oi[order(-cl.ch.oi$score, -cl.ch.oi$ram, -cl.ch.oi$acr),], paste(out.prefix, ".cluster.detail", sep=""), sep="\t", quote=F, row.names=F, append=T, col.names=F) 
+		write.table(cl.ch.oi, paste(out.prefix, ".cluster.detail", sep=""), sep="\t", quote=F, row.names=F, append=T, col.names=F) 
+		write.msg(paste("done writing", dim(cl.ch.oi)[1], "detail clusters for", c))
+
+		#cl.ch.oi.short = cl.ch.oi[, -grep("name|pos|repeat1|repeat2", colnames(cl.ch.oi))] 
+		cl.ch.oi.short = cl.ch.oi[, col.cl] 
+		#write.table(cl.ch.oi.short[order(-cl.ch.oi.short$score, -cl.ch.oi.short$ram, -cl.ch.oi.short$acr),], paste(out.prefix, ".cluster", sep=""), sep="\t", quote=F, row.names=F, append=T, col.names=F) 
+		write.table(cl.ch.oi.short, paste(out.prefix, ".cluster", sep=""), sep="\t", quote=F, row.names=F, append=T, col.names=F)
+
+		cl.ch.oi.short.te = cl.ch.oi.short[!cl.ch.oi.short$family %in% c("Simple_repeat", "Satellite", "centr", "Low_complexity", "telo", "NA", "acro", "Unknown"),] 
+		write.table(cl.ch.oi.short.te, paste(out.prefix, ".cluster.te", sep=""), sep="\t", quote=F, row.names=F, append=T, col.names=F)
+
+		write.msg(paste("done writing", dim(cl.ch.oi.short)[1], "clusters (.cluster & .cluster.te) for", c))
+
+		if (short) {
+		clipped.detail=NULL
+		} else {
+	  clipped.detail = data.frame(do.call(rbind, lapply(clipped, function(x)
+      if (!is.null(x$cdf)) return(x[["cdf"]]))))
+		if (dim(clipped.detail)[1] >0) {
+  		colnames(clipped.detail) = c("chr", "s", "e", "cs", "ce", "cpos", "cigar", "tname", "ref.seq", "clipped.seq", "clipped.qual", "aligned")
+			clipped.detail = clipped.detail[, col.clipped]
+	  	write.table(clipped.detail, paste(out.prefix, ".clipped", sep=""),  row.names=F, quote=F, sep="\t", append=T, col.names=F)
+			write.msg(paste("done writing", dim(clipped.detail)[1], "clipped sequence for", c))
+		}
+		}
+	
+		write.msg(paste(c, "elapsed:", (proc.time()-ptm)[["elapsed"]]))
+		return(list(cl.raw = cl.ch, cl = cl.ch.oi, clipped = clipped.detail))
+	})
+	write.msg(paste("all elapsed:", (proc.time()-ptm0)[["elapsed"]]))
+	return(1)
+	# generate fastqs from clipped sequences and map them to the repeat assembly (bwa)
+	# parse them and confirm the clipped parts map to the same repeats (or family) of rams     	  	
+	# around them
+	#return(cl)
+}
+
+# assume regions are from one chromosome
+annotate.rip <- function(region, rip)
+{
+	region$rip = ""
+	chr = region$chr[1]
+
+	#alu	
+	idx = grep("ALU", region$rep.repeat)
+	if (length(idx) > 0) {
+		ov = findOverlaps(IRanges(region$s[idx], region$e[idx]), IRanges(rip$alu$s[rip$alu$chr==chr], rip$alu$e[rip$alu$chr==chr]))@matchMatrix
+		if (dim(ov)[1] > 0) 
+			x = lapply(1:dim(ov)[1], function(i) {
+			region$rip[idx[ov[i,1]]] = paste(rip$alu[ov[i,2],c("s","e", "strand", "type")], collapse=",") 
+			})
+		}
+}
+
+comp.homozdiari <- function(file="/home/el114/repeat_analysis/code/homozdiari_na18507.txt")
+{
+	homozdiari = read.delim(file, sep="\t", header=T)
+	homozdiari.validated = homozdiari[!is.na(homozdiari$validated) & homozdiari$validated==1,]
+
+	homozdiari.chr20 = homozdiari[homozdiari$chr=="chr20",]
+	homozdiari.chr20.validated = homozdiari[homozdiari$chr=="chr20" & !is.na(homozdiari$validated) & homozdiari$validated == 1,]
+	
+	a=findOverlaps(IRanges(s=df$s, e=df$e)+is$gap.size, IRanges(s=homozdiari.chr20$s, homozdiari.chr20$e))@matchMatrix
+	a.validated=findOverlaps(IRanges(s=df$s, e=df$e)+is$gap.size, IRanges(s=homozdiari.chr20.validated$s, homozdiari.chr20.validated$e))@matchMatrix
+
+	common = df[a[,1],]
+	CairoPNG("../tec/figure/RAM_chr20_ALU_homozidari.png")
+	plot(density(pmax(df$ram1, df$ram2)), col = "cyan", lty=3, xlab="RAM count", main="ALU insertions by Homozdiari")	
+	lines(density(pmax(common$ram1, common$ram2)), col = "magenta", lty=3)	
+	lines(density(df$ram), col = "blue")	
+	lines(density(common$ram), col = "red")	
+	legend(x="topright", legend =c("sum_RAM_all", "sum_RAM_common_Homozdiari", "max_RAM_all", "max_RAM_common_Homozdiari"), col=c("cyan", "magenta", "blue", "red"), lty=c(3, 3, 1, 1))
+	abline(v=3, col="black", lty=3)
+	dev.off()
+
+	# let's check the gap within a uni-strand cluster
+	x = do.call(rbind, lapply(1:dim(common)[1], function(i) {
+		print(paste("processing", i))
+  	p1 = as.vector(sapply(strsplit(as.character(common$pos1[[i]]),","), as.integer))
+  	p2 = as.vector(sapply(strsplit(as.character(common$pos2[[i]]),","), as.integer))
+		intra.gap1 = intra.gap2 = inter.gap = 0
+		if (common$ram1[i] > 0) intra.gap1 = tail(p1, -1) - head(p1, -1); 
+		if (common$ram2[i] > 0) intra.gap2 = -(tail(p2, -1) - head(p2, -1))
+		if (common$ram1[i] > 0 & common$ram2[i]) inter.gap = -(tail(p1, 1) + head(p2, 1))
+		return(c(s=common$s[i], e=common$e[i], ram=common$ram[i], ram1=common$ram1[i], ram2=common$ram2[i], avg.intra.gap1=floor(mean(intra.gap1)), max.intra.gap1=max(intra.gap1), avg.intra.gap2=floor(mean(intra.gap2)), max.intra.gap2=max(intra.gap2), inter.gap=inter.gap))
+	}))
+
+	# let's check the gap between two different stand clusters
+}
+
+rid.r <- function(sample, r, min.single.ram=3, verbose=F)
+{
+	ptm = proc.time()
+	desc = load.desc(sample, sample.desc.file)
+	ram.file = paste(desc$ram_path, r, ".sram.bz2", sep="")  
+
+	out.path = paste(desc$out_path, "cluster/", sep="")
+  if (!file.exists(out.path)) { dir.create(out.path, recursive=T, mode="0755")}
+	ok.file = paste(desc$out_path, "cluster/", r, ".ok", sep="")
+
+  write.msg(paste("loading rams from", r, ram.file, "..."))
+  ram = load.ram(ram.file, verbose)
+  write.msg(paste("done loading rams."))
+
+  write.msg(paste("loading isize from", desc$isize_file, "..."))
+	is = load.isize(desc$isize_file, desc$rl)
+  write.msg("done loading isize.")
+
+	# Joe: again, use global variable..
+	#rannot.file = "/groups/park/alee/ra/data/rmasker/hg18.repeats.txt"
+  write.msg(paste("loading repeat annotation from", desc$ri_rfile, rannot.file, "..."))
+  load(desc$ri_rfile)
+	rannot = load.rannot(rannot.file) # to annotate instances in the same repeat family
+  family = rannot[rannot$name == r, "family"]
+	rfamily = NULL
+  if (family != "NA") rfamily = rannot[rannot$family== family, "name"]
+  write.msg("done loading repeat annotation.")
+	
+  write.msg("clustering rams ...")
+  cl = cluster.ram(desc, ram, is, ril, r, rfamily, min.single.ram, verbose)
+  write.msg("done clustering.")
+
+	if (is.null(cl)) {	
+		write("zero cluster", ok.file) 
+		return(1)
+	} else {
+		cl = cl[order(-cl$ram),]
+		row.names(cl) = seq(dim(cl)[1])
+		write.table(cl, paste(out.path, r, ".cluster.raw", sep=""), row.names=F, quote=F, sep="\t")
+	}
+
+	cl.oi = cl[cl$oi == 1 & (cl$ram1 >= min.single.ram | cl$ram2 >= min.single.ram),]
+	if (dim(cl.oi)[1] == 0) {
+		write.msg(paste("no ram cluster out of instances with at least", min.single.ram, "rams."))
+		write(paste("no ram cluster out of instances with at least", min.single.ram, "rams."), ok.file)
+		return(1) 
+	}
+  write.msg(paste(dim(cl.oi)[1], " clusters out of instance with >=", min.single.ram, " rams ..."))
+
+  write.msg("counting clipped reads ...")
+	bamf = paste(desc$cbam_path, desc$sample, ".sorted.softclips.consd.sorted.bam", sep="") 
+  clipped = count.clipped2(cl.oi, bamf, verbose, jittering=0)
+	clipped.cnt = data.frame(do.call(rbind, lapply(clipped, function(x) unlist(x[["ccnt"]]))))
+  write.msg("done counting clipped reads.")
+
+	cl.oi = cbind(cl.oi, clipped.cnt)
+
+	score = 0; ascore = 0
+	score = get.score(cl.oi[, c("td", "ram", "ram1", "ram2", "cr", "cr1", "cr2")])
+
+	cl.oi$score = score
+
+	# dbRIP annotation for ALU, L1, SVA
+  write.msg("annotating dbRIP ...")
+	cl.oi$dbrip = 0 ; rip = NULL	
+	if (length(grep("ALU", r)) > 0) rip = get.rip(rtype="ALU")
+	if (length(grep("L1", r)) > 0) rip = get.rip(rtype="L1") 
+	if (length(grep("SVA", r)) > 0) rip = get.rip(rtype="SVA")
+
+	if (!is.null(rip))  cl.oi$dbrip = region.overlap(cl.oi, rip)
+  write.msg("done annotating dbRIP.")
+
+	col.order = c("score", "dbrip", "chr", "s", "e", "size", "chr", "cs", "ce", "td", "ram", "ram1", "ram2", "cr", "cr1", "cr2", "acr", "acr1", "acr2", "cp1", "cp2", "ls", "le", "rs", "re", "pos", "tname")
+	cl.oi = cl.oi[, col.order]
+	cl.oi = cl.oi[order(-cl.oi$score, -cl.oi$ram, -cl.oi$cr),]
+
+	write.table(cl.oi[, -match(c("pos", "tname"), colnames(cl.oi))],paste(out.path, r, ".cluster", sep=""), row.names=F, quote=F, sep="\t")
+
+	write.table(cl.oi, paste(out.path, r, ".cluster.detail", sep=""), row.names=F, quote=F, sep="\t")
+
+	write.msg("writing clipped read detail ...")
+	clipped.detail = data.frame(do.call(rbind, lapply(clipped, function(x) 
+			if (!is.null(x$cdf)) return(x[["cdf"]]))))
+
+	if (dim(clipped.detail)[1] == 0)  {
+		write.msg("no clipped read.") 
+		write("no clipped read", ok.file)
+		return(1)
+	}
+
+	colnames(clipped.detail) = c("chr", "s", "e", "cs", "ce", "cpos", "cigar", "tname", "ref.seq", "clipped.seq", "clipped.qual")
+
+	write.table(clipped.detail, paste(out.path, r, ".clipped", sep=""), row.names=F, quote=F, sep="\t")
+	write.msg("done writing.")
+
+	write("ok", ok.file)
+
+	write.msg(paste("time:", proc.time()-ptm))
+
+	return(1)
+}
+
+get.score <- function(can, max.ram=10, max.cr=5)
+{
+	s.r1 = mapply(min, as.numeric(can$ram1), max.ram)/max.ram
+	s.r2 = mapply(min, as.numeric(can$ram2), max.ram)/max.ram
+
+	s.c1 = mapply(min, as.numeric(can$acr1), max.cr)/max.cr
+	s.c2 = mapply(min, as.numeric(can$acr2), max.cr)/max.cr
+
+	score = s.r1 + s.r2 + s.c1 + s.c2 
+
+	return(score) 
+}
+
+# return two data frames for cluster (with pos) and cluster detail (with pos and tname)
+cluster.ram <- function(desc, ram, is, ril, rname, rfamily, min.single.ram=3, verbose=F)
+{
+  chrl = names(ram); names(chrl) = chrl
+
+  cl = data.frame(do.call(rbind, lapply(chrl, function(c) {
+  #cl = data.frame(do.call(rbind, lapply(chrl[1:2], function(c) {
+    if (verbose) print(paste("processing", c))
+		if (dim(ram[[c]]$p)[1] == 0 | dim(ram[[c]]$m)[1] == 0) return (NULL) 
+    p = data.frame(rname=ram[[c]]$p$rname, strand=1, pos=ram[[c]]$p$pos)
+    m = data.frame(rname=ram[[c]]$m$rname, strand=-1, pos=ram[[c]]$m$pos)
+    pm = rbind(p,m)
+    pm = pm[order(pm$pos),]
+    tram = dim(pm)[1]
+
+    # identifying cluster boundaries
+    cb = c(which((pm$pos[-1] - pm$pos[-tram]) > is$gap.size), tram)
+		if (verbose) write.msg(paste(length(cb), "cluster boundaries"))
+
+    insf=NULL
+    ins = ril[[rname]][[c]]
+    if (!is.null(rfamily)) {
+      insf = do.call(rbind, lapply(rfamily, function(r) {
+        return(ril[[r]][[c]])
+      }))
+    }
+
+    df = data.frame(do.call(rbind, lapply(1:length(cb), function(i) {
+			#if (verbose) print(paste("processing", i))
+      si = ifelse(i==1, 1, cb[i-1]+1)
+      ei = cb[i]
+      ram = ei - si + 1
+      ram1 = length(which(pm$strand[si:ei] >0))
+      ram2 = length(which(pm$strand[si:ei] <0))
+      s = pm$pos[si]
+      e = pm$pos[ei]
+      size = e-s+1
+      return(c(chr=c, s=s, e=e, size=size, ram=ram, ram1=ram1, ram2=ram2))
+    })))
+ 
+    if (dim(df)[1] != 0) {
+      df$s = as.integer(as.character(df$s))
+      df$e = as.integer(as.character(df$e))
+      df$size = as.integer(as.character(df$size))
+      df$ram = as.integer(as.character(df$ram))
+      df$ram1 = as.integer(as.character(df$ram1))
+      df$ram2 = as.integer(as.character(df$ram2))
+
+			# adjusting cluster boundaries based on the peak patterns
+			df$s[df$ram1 == 0] = df$s[df$ram1 == 0] - (is$mu + 3 * is$id)
+			df$e[df$ram2 == 0] = df$e[df$ram2 == 0] + desc$rl + (is$mu + 3 * is$sd) 
+      df$size = df$e - df$s
+
+			# known instance annotaton
+      df$oi = ifelse(countOverlaps(IRanges(df$s, df$e), IRanges(ins$s-is$ins.margin, ins$e+is$ins.margin), type="any")==0,1,0)
+      df$oif = ifelse(countOverlaps(IRanges(df$s, df$e), IRanges(insf$s-is$ins.margin, insf$e+is$ins.margin), type="any")==0,1,0)
+				
+			# define regions for clipped read search 
+			# cs, ce: clipped search start,end 
+      # ls, rs: left/right cluster start
+			# le, re: left/right cluster end 
+			df$cs = -1; df$ce = -1;  df$ls = -1; df$le = -1; df$rs = -1; df$re = -1 
+			df$pos = ""; df$tname = ""
+
+      si = head(c(1, cb)+1, -1)
+      si[1] = 1
+      ei = cb
+      idx = which(df$oi == 1 & (df$ram1 >= min.single.ram | df$ram2 >=min.single.ram) )
+
+      if (verbose) write.msg(paste(rname, c, length(df$s), "total", length(idx), "oi clusters having at least", min.single.ram, "rams"))
+
+      if (length(idx) >= 1) {
+        for (i in 1:length(idx)) {
+					#print(paste("processing", i))
+          spm = pm[si[idx[i]]:ei[idx[i]],]
+          df$tname[idx[i]] = paste(as.character(spm$rname), collapse=" ")
+          df$pos[idx[i]] = paste(spm$pos * spm$strand, collapse=" ")
+
+					if (df$ram1[idx[i]] >0 & df$ram2[idx[i]] >0) {
+							bp = get.bp("both", spm$pos*spm$strand, desc$rl, wrl=100, max.td=50, margin=50) 
+					} else if (df$ram2[idx[i]] == 0) {
+						 bp = get.bp("left", spm$pos*spm$strand, desc$rl, wrl=100, max.td=50, margin=50) 
+					} else {
+							bp = get.bp("right", spm$pos*spm$strand, desc$rl, wrl=100, max.td=50, margin=50)
+					}
+					df[idx[i], c("cs", "ce", "ls", "le", "rs", "re")] = bp
+        }
+      }
+      rm(p, m, pm, ins)
+      return(df)
+    } else {
+      rm(p, m, pm, ins)
+      return(NULL)
+    }
+  })))
+
+  if (dim(cl)[1] != 0) {
+      return(cl)
+  } else {
+    return (NULL)
+  }
+}
+
+count.clipped2 <- function(can,  bamf, verbose=F, jittering=0)
+{
+	# check cs /ce column defined otherwise use s/e instead
+	if (!("cs" %in% colnames(can))) can$cs = can$s; can$ce = can$e
+
+  what <- c("qname", "pos", "strand", "cigar", "seq", "qual")
+
+  clipped = lapply(1:length(can$cs), function(i) {
+  #clipped = lapply(1:20, function(i) {
+		if (verbose) print(paste("processing", i))
+    which<- GRanges(seqnames = can$chr[i], ranges = IRanges(can$cs[i], can$ce[i]))
+    param <- ScanBamParam(which=which, what=what)
+    map <- scanBam(bamf, param=param)
+
+		ccnt = list(acr=0, acr1=0, acr2=0, cr=0, cr1=0, cr2=0, cp1=-1, cp2=-1, td=-1, arr=0)
+		cdf= NULL	
+    if (length(map[[1]]$seq)>0 & length(map[[1]]$seq)<1000) {
+      lst <- lapply(names(map[[1]]), function(elt) {
+        do.call("c", unname(lapply(map, "[[", elt)))
+      })
+      names(lst) <- names(map[[1]])
+      map.df <- do.call("DataFrame", lst)
+
+      clipped.df1 = get.clipped.pos(map.df, qual.trim=T)
+      clipped.df2 = get.clipped.pos(map.df, qual.trim=F)
+
+			# here: need to implement the jittering.
+			if (dim(clipped.df1)[1] > 0) 
+				ccnt1 = get.clipped.cnt2(as.integer(as.character(clipped.df1$cpos)), jittering)
+				
+			if (dim(clipped.df2)[1] > 0) 
+				ccnt2 = get.clipped.cnt2(as.integer(as.character(clipped.df2$cpos)), jittering)
+
+			if (ccnt1$acr >= ccnt2$acr)	
+				realigned.clipped = realign.clipped(ccnt1, clipped.df1, clipped.df2, jittering)
+			else 
+				realigned.clipped = realign.clipped(ccnt2, clipped.df1, clipped.df2, jittering)
+
+			ccnt = realigned.clipped$ccnt 
+			cdf = merge(can[i, match(c("chr", "s", "e", "cs", "ce"), colnames(can))],realigned.clipped$cdf) 
+    } 
+		if (verbose) print(paste("processing", i, ccnt$cr, ccnt$cr1, ccnt$cr2, ccnt$acr, ccnt$acr1, ccnt$acr2, ccnt$arr)) 
+		return(list(ccnt=ccnt, cdf=cdf))
+	})
+  return(clipped)
+}
+
+realign.clipped <- function(ccnt, df1, df2, jittering)
+{
+	df1$aligned = 0; df2$aligned = 0 
+	cdf = data.frame(do.call(rbind, lapply(1:dim(df1)[1], function(i) {
+		if (df1$cpos[i] > 0) {
+			if (abs(df1$cpos[i] - ccnt$cp1) <= jittering) {
+				df1$aligned[i] = 1
+				return(df1[i,]) 
+			} else if (abs(df2$cpos[i] - ccnt$cp1) <= jittering) {
+				df2$aligned[i] = 1
+				return(df2[i,]) 
+			} else {
+				return(df1[i,]) 
+			}
+		} else {
+			if (abs(df1$cpos[i] + ccnt$cp2) <= jittering) {
+				df1$aligned[i] = 1
+				return(df1[i,]) 
+			} else if (abs(df2$cpos[i] + ccnt$cp2) <= jittering) {
+				df2$aligned[i] = 1
+				return(df2[i,]) 
+			} else {
+				return(df1[i,]) 
+			}
+		}
+	})))
+	ccnt$acr1 = length(which(cdf$aligned == 1 & cdf$cpos >0))
+	ccnt$acr2 = length(which(cdf$aligned == 1 & cdf$cpos <0))
+	ccnt$acr = ccnt$acr1 + ccnt$acr2
+	return(list(ccnt=ccnt, cdf=cdf))
+}
+
+count.clipped <- function(can,  bamf, verbose=F, jittering=0)
+{
+	# check cs /ce column defined otherwise use s/e instead
+	if (!("cs" %in% colnames(can))) {
+		can$cs = can$s; can$ce = can$e
+	}
+
+  what <- c("qname", "pos", "strand", "cigar", "seq", "qual")
+
+  clipped = lapply(1:length(can$cs), function(i) {
+  #clipped = lapply(1:20, function(i) {
+		if (verbose) print(paste("processing", i))
+    which<- GRanges(seqnames = can$chr[i], ranges = IRanges(can$cs[i], can$ce[i]))
+    param <- ScanBamParam(which=which, what=what)
+    map <- scanBam(bamf, param=param)
+
+		ccnt = list(acr=0, acr1=0, acr2=0, cr=0, cr1=0, cr2=0, cp1=-1, cp2=-1, td=-1); cdf= NULL	
+    if (length(map[[1]]$seq)>0 & length(map[[1]]$seq)<1000) {
+      lst <- lapply(names(map[[1]]), function(elt) {
+        do.call("c", unname(lapply(map, "[[", elt)))
+      })
+      names(lst) <- names(map[[1]])
+      map.df <- do.call("DataFrame", lst)
+      clipped.df = get.clipped.pos(map.df)
+			if (dim(clipped.df)[1] > 0) {
+				ccnt = get.clipped.cnt(as.integer(as.character(clipped.df$cpos)))
+      	clipped.df = merge(can[i, match(c("chr", "s", "e", "cs", "ce"), colnames(can))], clipped.df)
+				cdf=clipped.df
+			} 
+    } 
+		if (verbose) print(paste("processing", i, ccnt$cr, ccnt$cr1, ccnt$cr2, ccnt$acr, ccnt$acr1, ccnt$acr2)) 
+		return(list(ccnt=ccnt, cdf=cdf))
+	})
+  return(clipped)
+}
+
+# return maxcnt and clipped position
+get.clipped.cnt3 <- function(pos, jittering)
+{
+
+	cnt=length(pos); acnt=0; cp=-1
+	if (cnt==0) return(list(cnt=cnt, acnt=acnt, cp=cp))
+
+	x = pos
+	for (i in 1:jittering) x = c(x, pos-i, pos+i)
+	
+	acnt = max(table(x))
+
+	org.maxidx = which(table(pos) == max(table(pos)))
+	maxidx = which(table(x) == max(table(x)))
+
+	#if (names(org.maxidx) %in% names(maxidx)) {
+		if (length(org.maxidx) ==1) cp = as.integer(names(org.maxidx)) else
+			cp = as.integer(names(org.maxidx)[floor(length(org.maxidx)/2)])	
+	#} else {
+	#	cp = as.integer(names(maxidx)[floor(length(maxidx)/2)])	
+	#}
+	return(list(cnt=cnt, acnt=acnt, cp=cp))
+}
+
+get.clipped.cnt2 <- function(cpos, jittering=0)
+{
+	p = get.clipped.cnt3(cpos[cpos>0], jittering)	
+	m = get.clipped.cnt3(-cpos[cpos<0], jittering)	
+
+	cr1 = p$cnt; cr2 = m$cnt; cr = cr1+cr2
+	acr1 = p$acnt; acr2 = m$acnt; acr = acr1 + acr2 
+	cp1 = p$cp; cp2 = m$cp  
+	arr = round(acr / cr, 2)
+	td = -9999
+	if (cp2 != -1 & cp1 != -1) 	td = cp2 - cp1  - 1
+
+	return(list(acr = acr, acr1 = acr1, acr2 = acr2, cr=cr, cr1=cr1, cr2=cr2, cp1=cp1, cp2=cp2, td=td, arr=arr))
+}
+
+get.clipped.cnt <- function(cpos)
+{
+	p = cpos[cpos>0]
+	m = -cpos[cpos<0]
+
+	cr1 = length(p)
+	cr2 = length(m)
+	cr = cr1 + cr2 
+
+	cp1 = -1; cp2 = -1; td = -9999
+
+	# set the cp with higher frequency first
+	t1 = t2 = 0
+	if (length(p) > 0) t1 = max(table(p))
+	if (length(m) > 0) t2 = max(table(m))
+	acr1 = t1
+	acr2 = t2 
+	acr = acr1 + acr2
+	
+	if (t1 >= t2 & length(p) >0) {
+		  tie =which(table(p) == max(table(p)))
+			if (length(tie) == 1) cp1 = as.integer(names(tie))
+      else cp1 = as.integer(names(tie)[floor(length(tie)/2)])
+
+			if (length(m) > 0) {
+		  	tie =which(table(m) == max(table(m)))
+				if (length(tie) == 1) cp2 = as.integer(names(tie))
+				else  cp2 = as.integer(names(tie)[ceiling(length(tie)/2)])
+			}
+				#else  cp1 = as.integer(names(tie)[floor(length(tie)/2)])
+					#print(as.integer(names(tie)[i]) - cp1)
+					#cp2 = as.integer(names(sort(-table(m)))[1])
+				#}
+		
+	} else if ( t1 < t2 ) {
+		  tie =which(table(m) ==max(table(m)))
+			if (length(tie) == 1) cp2 = as.integer(names(tie)) else 
+        cp2 = as.integer(names(tie)[ceiling(length(tie)/2)])
+
+			if (length(p) > 0) {
+		  	tie =which(table(p) == max(table(p)))
+				if (length(tie) == 1) cp1 = as.integer(names(tie)) else  
+					cp1 = as.integer(names(tie)[floor(length(tie)/2)])
+			}
+	}
+	if (cp2 != -1 & cp1 != -1) 	td = cp2 - cp1 
+
+	return(list(acr = acr, acr1 = acr1, acr2 = acr2, cr=cr, cr1=cr1, cr2=cr2, cp1=cp1, cp2=cp2, td=td))
+}
+
+get.clipped.pos <- function(map.df, qual.trim=F)
+{
+  df = data.frame(do.call(rbind, lapply(1:dim(map.df)[1], function(i) {
+    d = map.df[i,]
+    rclip.len=0; lclip.len=0
+
+    if (length(grep(".*[MIDNHPS](\\d+)S$", d$cigar))!=0) 
+			rclip.len = as.integer(sub(".*[MIDNHPS](\\d+)S$", "\\1", d$cigar, perl=T))
+    if (length(grep("^(\\d+)S.*", d$cigar))!=0) 
+			lclip.len = as.integer(sub("^(\\d+)S.*", "\\1", d$cigar, perl=T))
+
+   	#print(paste(i, d$cigar, lclip.len, rclip.len))
+    if (d$strand == 1 & lclip.len >0) {
+      cpos = d$pos - 1
+			ref.seq = substr(d$seq[[1]], lclip.len+1, length(d$seq[[1]])-rclip.len)
+      clipped.seq = substr(d$seq[[1]], 1, lclip.len)
+      clipped.qual = substr(d$qual[[1]], 1, lclip.len)
+
+			if (qual.trim & length(grep("[^#]*(#+)$", clipped.qual)) != 0) {
+				# count # on the right of qual
+				badqual.cnt = nchar(sub("[^#]*(#+)$", "\\1", clipped.qual, perl=T))
+				cpos = cpos - badqual.cnt
+      	clipped.seq = substr(clipped.seq, 1, nchar(clipped.seq) - badqual.cnt)
+      	clipped.qual = substr(clipped.qual, 1, nchar(clipped.qual) - badqual.cnt) 
+			}
+
+    	return(c(cpos=cpos, cigar=d$cigar, tname=d$qname, ref.seq=toString(ref.seq), clipped.seq=toString(clipped.seq), clipped.qual = toString(clipped.qual)))
+    } else if (d$strand ==2 & rclip.len >0) {
+			# count deletion
+			del.cnt = 0; new.cigar = d$cigar
+			while (length(grep(".*[MINHPS](\\d+)D.*", new.cigar)) != 0) {
+				del.cnt = del.cnt + as.integer(sub(".*[MINHPS](\\d+)D.*", "\\1", new.cigar))
+				new.cigar = sub("(.*)\\d+D.*", "\\1", new.cigar)
+			}
+      cpos = -(as.integer(d$pos) + length(d$seq[[1]]) - lclip.len - rclip.len + del.cnt)
+      ref.seq = substr(d$seq[[1]], lclip.len+1, length(d$seq[[1]]) - rclip.len)
+      clipped.seq = substr(d$seq[[1]], length(d$seq[[1]]) - rclip.len + 1, length(d$seq[[1]]))
+      clipped.qual = substr(d$qual[[1]], length(d$qual[[1]]) - rclip.len + 1, length(d$qual[[1]]))
+
+			if (qual.trim & length(grep("^(#+)[^#]*", clipped.qual)) != 0) {
+				# count # on the left of the qual
+				badqual.cnt = nchar(sub("^(#+)[^#]*", "\\1", clipped.qual, perl=T))
+				cpos = cpos - badqual.cnt
+      	clipped.seq = substr(clipped.seq, badqual.cnt+1, length(clipped.seq)) 
+      	clipped.qual = substr(clipped.qual, badqual.cnt+1, length(clipped.qual))
+			}
+
+    	return(c(cpos=cpos, cigar=d$cigar, tname=d$qname, ref.seq=toString(ref.seq), clipped.seq=toString(clipped.seq), clipped.qual=toString(clipped.qual)))
+    } else {
+			return(NULL)
+		}
+  })))
+	df$cpos = as.integer(as.character(df$cpos))
+  return(df)
+}
+
+# rl: read length for ram ID 
+# wrl: whole read length for searching clipped reads
+# etd: estimated target duplication site
+get.bp <- function(ctype=c("both", "left", "right"), posv, rl=50, wrl=100, max.td=50, margin=50)
+{
+  ctype = match.arg(ctype)
+  if (ctype == "left") { 
+		ls = min(posv)
+		le = max(posv) + rl
+		rs = 0 
+		re = 0 
+		cs = le - (wrl + margin + max.td); 
+		ce = le + (wrl + margin); 
+	} else if (ctype == "right") {
+		ls = 0 
+		le = 0 
+		rs = min(-posv) 
+		re = max(-posv) + rl 
+		cs = rs - ( wrl + margin )
+		ce = rs + ( wrl + margin + max.td )
+	} else {
+    #delete the leftmost - and rightmost +  
+    firstp = match(1, sign(posv))
+    if (firstp > 1) posv =  posv[-(1:(match(1, sign(posv))-1))]
+		ls = posv[1]
+		le = max(posv) + rl
+    if (length(which(posv<0)) >0) {
+      lastm = max(which(sign(posv) == -1))
+      if (lastm < length(posv)) posv = posv[1:lastm]
+      rs = min(-posv[posv<0])
+			re = max(-posv[posv<0]) + rl
+			cs = rs - ( wrl + margin )
+			ce = le + ( wrl + margin )
+    } else {
+			rs = 0
+			re = 0
+			cs = le - (wrl + margin + max.td); 
+			ce = le + (wrl + margin); 
+    }
+  }
+  return(list(cs=cs, ce=ce, ls=ls, le=le, rs=rs, re=re ))
+}
+
+# seperated: rams are seperated per repeat : three column ram file otherwise four column
+load.ram <- function(file, separated=F, rm.dup=F, verbose=F)
+{
+	if (separated) x = scan(file, what = list(rname='a', chr='a', pos=1)) else
+		x = scan(file, what = list(rname='a', chr='a', pos=1, repeatname='a'))
+	
+  chrl = unique(as.character(x$chr));
+  ram = lapply(chrl, function(c) {
+    if (verbose) print(paste("reading", c))
+		if (separated) df = data.frame(rname = x$rname[x$chr == c], pos = x$pos[x$chr == c], stringsAsFactors=F) else
+    	df = data.frame(repeatname = x$repeatname[x$chr==c], pos = x$pos[x$chr == c], rname = x$rname[x$chr == c], stringsAsFactors=F)
+
+    df.p = df[df$pos > 0,]
+    df.m = df[df$pos < 0,]
+    df.m$pos = -df.m$pos
+    df.p = df.p[order(df.p$pos),]
+    df.m = df.m[order(df.m$pos),]
+
+    if (rm.dup) {
+      df.p = df.p[!duplicated(df.p$pos),]
+      df.m = df.m[!duplicated(df.m$pos),]
+    }
+    return(list(p=df.p, m=df.m))
+  })
+  names(ram) = paste("chr", chrl, sep="")
+
+  return(ram)
+}
+
+load.desc <- function(sample, sample.desc.file="/home/el114/repeat_analysis/code/sample.desc")
+{
+  samples = read.table(sample.desc.file, sep="\t", header=T, stringsAsFactors=F)
+  return (samples[samples$sample == sample,])
+}
+
+# Joe: defaulting to global var
+#load.rannot <- function(file="/groups/park/alee/ra/data/rmasker/hg18.repeats.txt")
+load.rannot <- function(file=rannot.file)
+{
+  rannot = read.table(file, sep="\t", header=F, col.names=c("name","class"), as.is=T)
+  rannot$class.org = rannot$class
+  rannot$class = unlist(lapply(rannot$class.org, function(x) strsplit(x, "/")[[1]][[1]]))
+  rannot$family = unlist(lapply(rannot$class.org, function(x) {
+      if (length(strsplit(x, "/")[[1]]) > 1) {
+        return(strsplit(x, "/")[[1]][[2]])
+      } else  {
+        return("NA")
+      }
+      }))
+  return(rannot)
+}
+
+write.err <- function(msg)
+{
+	stop(msg)
+}
+
+write.msg <- function(msg)
+{
+	write(msg, stdout())
+}
+
+load.isize <- function(isize.file=NULL, rl, mu, sd)
+{
+	if (!is.null(isize.file)) {
+		is = read.table(isize.file)
+  	mu = floor(is[is$V1=="all",2])
+  	sd = is[is$V1=="all",3]
+	}
+	fr = floor(mu + 3 * sd)
+	#intra.gap = fr-rl
+	intra.gap = floor((fr-rl) * 2/3)
+	inter.gap = intra.gap * 2
+	gap.size = floor(mu*2/3 + rl)
+  ins.margin = floor(1.5 * fr)
+  return(list(fr = fr, mu=mu, sd=sd, gap.size=gap.size, intra.gap=intra.gap, inter.gap=inter.gap, ins.margin=ins.margin))
+}
+
+get.rip <- function(rtype=c("SVA", "ALU", "L1", "ALL"))
+{
+  rtype = match.arg(rtype)
+  rip = data.frame()
+  if (rtype %in% c("SVA", "ALL"))
+    rip = rbind(rip, read.delim("/home/el114/repeat_analysis/data/dbRIP/SVA_hg18_v1_short.txt", header=F, as.is=T))
+  if (rtype %in% c("ALU", "ALL"))
+    rip = rbind(rip, read.delim("/home/el114/repeat_analysis/data/dbRIP/Alu_hg18_v1_short.txt", header=F, as.is=T))
+  if (rtype %in% c("L1", "ALL"))
+    rip = rbind(rip, read.delim("/home/el114/repeat_analysis/data/dbRIP/L1_hg18_v1_short.txt", header=F, as.is=T))
+  colnames(rip) = c("chr", "s", "e", "strand", "type", "disease", "genoRegion")
+  return(rip)
+}
+
+region.overlap <- function(a, b, margin=0, single.chr=F)
+{
+  if (single.chr)  return(region.overlap.chr(a, b, margin))
+
+	chrl = unique(as.character(a$chr))
+  ov = unlist(lapply(chrl, function(ch) {
+    return(region.overlap.chr(a[a$chr==ch,], b[b$chr==ch,], margin))
+  }))
+}
+
+region.overlap.chr <- function(a, b, margin)
+{
+    ocnt = countOverlaps(IRanges(a$s-margin, a$e+margin), IRanges(b$s, b$e))
+		ov = ifelse(ocnt>0, 1, 0)
+    return(ov)
+}
