@@ -1,0 +1,157 @@
+#! /bin/bash
+
+nonmatched_flag=false
+while getopts :t:c:m:n: o
+do
+	case "${o}" in
+	t)
+		anatype=${OPTARG};;
+	c)
+		tsample=${OPTARG};;
+	m)
+		matched=${OPTARG};;
+	n)
+		nonmatched_flag=true
+		nonmatched=${OPTARG};;
+	esac
+done
+
+file_split(){
+	fList=("cluster" "cluster.raw" "clipped")
+	fLen=${#fList[@]}
+
+	fpath=$1/cluster_$2m
+	for (( i=0; i<${fLen}; i++ ))
+	do
+		fExt=${fList[$i]}
+		if [ -f $fpath/$1.$fExt ]
+		then
+			ext=""
+			name=$1.$fExt
+			#echo '"'$name'"' spliting...
+			arr=(${name//./ })
+			for k in "${!arr[@]}"
+			do
+				if [ $k -gt 0 ]
+				then
+					ext=$ext'.'${arr[k]}
+				fi
+			done
+
+			cd $fpath
+			for idx in `seq 1 24`
+			do
+				if [ $idx == 23 ]
+				then
+				if [ $fExt == "clipped" ]
+				then
+				chrnum='X'
+				else 
+					chrnum='chrX'
+				fi
+				elif [ $idx == 24 ]
+				then
+				if [ $fExt == "clipped" ]
+				then
+				chrnum='Y'
+				else 
+					chrnum='chrY'
+				fi
+				else
+				if [ $fExt == "clipped" ]
+				then
+					chrnum=$idx
+				else
+					chrnum='chr'$idx
+				fi
+				fi
+				fname=${arr[0]}'.'${chrnum}$ext
+
+				head -1 $name | sed -e "s/ /       /g" > $fname
+				echo '$1=="'"${chrnum}"\"' {print $0}' > ${chrnum}.awk
+				awk -f ${chrnum}.awk $name >> $fname
+			done
+			rm -rf 'chr'*.awk
+
+			mv $name $name.bak
+			cd ../..
+		fi
+	done
+}
+
+
+echo -n "preprocessing..."
+echo ${tsample} > cancer
+file_split $tsample $anatype
+rm -rf ${fpath}/${tsample}.*.RData
+if [ -f ${fpath}/${tsample}.somatic ]
+then
+	rm -rf ${fpath}/${tsample}.somatic*
+fi
+
+
+echo ${matched} > matched
+file_split $matched $anatype
+
+
+if [ $nonmatched_flag == true ]
+then
+	if [ ! -f nonmatched ]
+	then
+		echo "We need a \"nonmatched\" file"
+		exit 1
+	fi
+
+	while read line
+	do
+		file_split $line $anatype
+	done < "nonmatched"
+else
+	rm -rf nonmatched
+fi
+echo " done!"
+
+
+while read line
+do
+	export `echo $line | sed -e 's/ //g'`
+done < "conf_file"
+export tea_base=$tea_home
+
+echo "source(\"${tea_base}/R/rid.r\")" > run.r
+echo "get.calls('hg19','${anatype}','somatic')" >> run.r
+
+Rscript run.r
+
+rm -rf cancer matched run.r
+
+
+curr_dir=`pwd`
+
+echo 'NR!=1 {print $2":"$3"-"$4}' > tmp.awk
+awk -f tmp.awk ${tsample}/cluster_${anatype}m/${tsample}.somatic > chr.tmp
+rm -rf tmp.awk
+
+if [ ! -f igv.batch ]
+then
+	touch igv.batch
+else
+	rm -rf igv.batch
+	touch igv.batch
+fi
+if [ ! -d ${curr_dir}/${tsample}.igv ]
+then
+	mkdir ${curr_dir}/${tsample}.igv
+fi
+
+echo new >> igv.batch
+echo load ${curr_dir}/${tsample}/bam/${tsample}.${anatype}m.bam,${curr_dir}/${tsample}/bam/${tsample}.softclips.consd.bam >> igv.batch
+echo snapshotDirectory ${curr_dir}/${tsample}.igv >> igv.batch
+echo genome hg19 >> igv.batch
+while read line
+do
+	echo goto $line >> igv.batch
+	echo collapse >> igv.batch
+	echo snapshot >> igv.batch
+done < "chr.tmp"
+rm -rf chr.tmp
