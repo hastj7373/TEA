@@ -7,7 +7,7 @@ use File::Basename;
 use IO::File;
 use IO::Compress::Gzip qw(gzip $GzipError);
 use List::Util qw(min max sum);
-
+#use warnings;
 my $cmd = basename($0);
 
 # user-defined variables
@@ -38,6 +38,11 @@ my $bwa = "$hash{'bwa_home'}"; $bwa = "$bwa/bwa";
 my $samtools = "$hash{'samtools_home'}"; $samtools = "$samtools/samtools";
 my $assembler = "$hash{'cap3_home'}"; $assembler = "$assembler/cap3";
 my $bzip2 = "bzip2";
+my $bedtools = "$hash{'bedtools_home'}"; $bedtools = "$bedtools/bedtools";
+my $reference = "$hash{'fasta_location'}";
+my $retro_ref = "$hash{'retro'}";
+my $temp_loc = "$hash{'tmp_dir'}";
+
 
 my $usage = qq{
 
@@ -135,7 +140,8 @@ sub tea
            -j INT  jittering or allowed gap in extracting clipped positions (2)
            -e STR  rid execution function (rid | rid.te | rid.te.primate) (rid)
            -t      contig generation (no) 
-
+		   -T	transduction (no)
+		   -O	orphan (no)
            ### LSF parameters 
            -m      LSF job for each chr (no)
            -L STR  LSF log dir (./log)
@@ -145,7 +151,7 @@ sub tea
 	};
 
 	my %opts = ();
-	getopts("hd:g:l:k:n:r:s:c:Smq:GP:a:p:xR:j:oM:fFie:tb:", \%opts);
+	getopts("hd:g:l:k:n:r:s:c:Smq:GP:a:p:xR:j:oOM:fFie:tTb:", \%opts);
 	if (@ARGV < 1 || exists($opts{h})) { die $usage };
 
 	my $sample = shift(@ARGV);
@@ -175,8 +181,12 @@ sub tea
 	my $family = 0;
 	my $skip_cbam = 0;
 	my $exec = "rid";
-	my $contig = 0;
+	my $contig = 1;
 	my $time = "72:00";
+	my $orphan = 0;
+	my $transduction = 0;
+	my $merges = 0;
+
 
 	$bdir = $opts{d} if (defined($opts{d}));
 	my $dir = "$bdir/$sample";
@@ -199,19 +209,34 @@ sub tea
 	$family = 1 if (defined $opts{f});
 	$jittering = $opts{j} if (defined $opts{j});
 	$skip_cbam = 1 if (defined $opts{F});
-	$contig = 1 if (defined $opts{t});
+	$contig = 0 if (defined $opts{t});
 	$time = $opts{b} if (defined $opts{b});
 
-	my $ra = "$tea/lib/assebmly/repeat.combined.div30.isize150.fa";	
+	$orphan = 1 if (defined $opts{O});
+	$transduction = 1 if (defined $opts{T});
+	##HC
+	$merges = 1 if (defined $opts{G});
+
+	my $ra = "$tea/lib/assembly/repeat.combined.div30.isize150.fa";	
+  
 	$ra = $opts{r} if (defined($opts{r}));
 	$rasym = $opts{R} if (defined($opts{R}));
 	$scratch = $opts{s} if (defined($opts{s}));
 	$tea = $opts{P} if (defined($opts{P}));
-
+  #my $ra = "$tea/lib/assebmly/repeat.combined.div30.isize150.fa";
+  my $ra_um = "$tea/lib/assembly/repeat.combined.div30.isize150.fa";
 	my $bash_binary = `which bash`;
 	print "#!$bash_binary\n";
 	print "export tea_base=$tea\n";
-	print "export PATH=\$PATH:$tea/R:$tea/scripts\n";
+	
+    #Only harvard	
+ 	print "export PATH=$tea/R:$tea/scripts:\$PATH\n"; 
+	print "module load stats/R/2.15.3\n";
+  print "export R_LIBS=/opt/R-2.15.3/lib64/R/library/:/home/el114/hyunchul/R/library\n";
+	print "export PERL5LIB=/home/ly55/perl/share/perl/5.10.0:/home/ly55/perl/lib/perl5/:/home/ly55/perl/lib/perl/5.10.0:/home/el114/hyunchul/lib/perl5/:/home/el114/hyunchul/lib/share/perl5/\n";
+
+
+
 
 	my $ascratch = "$scratch/assembly";
 	my $sscratch = "$scratch/$sample";
@@ -256,35 +281,51 @@ sub tea
 			if (!-e $clbamf) { 
 				print STDERR "no bam with unmapped and soft clipped reads: $clbamf"; 
 				die "no bam with unmapped and soft clipped reads: $clbamf"; 
-			} elsif (-e $umbamf2) {
-				print STDERR "$umbamf2 already exists";
-				die "$umbamf2 already exists";
-			 } else {
+			} #elsif (-e $umbamf2) {
+				#print STDERR "$umbamf2 already exists";
+				#die "$umbamf2 already exists";} 
+				else {
 				# better make a function for the task below: generating um.bam and umm.bz2
+				
+				if ($transduction)  {
+					print qq{
+						python $tea/scripts/python/transduction_module.py $bdir $sample $tea $bedtools $samtools
+					}
+				}
+				if ($orphan )  {
+					$contig=1;
+					print qq{
+						python $tea/scripts/python/orphan_module.py $bdir $sample $tea $bedtools $samtools
+					}
+				}
+				if ($transduction == 0 && $orphan == 0){
 				print qq{
 				echo "generating a bam with unmapped reads ..."
-				$samtools view -hX $clbamf | perl -ne '\@a=split(/\\t/); if (m/^@/ || \$a[1] =~ /[uU]/) { print } ' | samtools view -bS - > $umbamf1 
+				$samtools view -hX $clbamf | perl -ne '\@a=split(/\\t/); if (m/^@/ || \$a[1] =~ /[uU]/) { print } ' | $samtools view -bS - > $umbamf1 
 				tea.pl rmdup $umbamf1 $umbamf2
 				$samtools index $umbamf2
-				};
-				print qq{
 				echo "generating unmapped read positions umm.bz2 ..."
-				$samtools view -X $umbamf2 | perl -e 'my %h = (); while (<>) { \@a=split(/\\t/); if (\$a[1] =~ m/U/ && !(\$a[1] =~ m/u/) && \$a[4]>0 && (\$_ =~ /XT:A:U/ || !(\$_ =~ /XT:A/))) { \$r = \$a[0]; \$r =~ s/sc\$//; \$r =~ s/mu[12]\$//;  if (!exists(\$h{\$r})) { \$a[2] =~ s/chr//; \$h{\$r} = 1; if (\$a[1] =~ /r/) { print "\$a[0]\\t\$a[2]\\t-\$a[3]\\tx\\n"} else { print "\$a[0]\\t\$a[2]\\t\$a[3]\\tx\\n"} } }}' | $bzip2 - > $umbz2 
+				#$samtools view -X $umbamf2 | perl -e 'my %h = (); while (<>) { \@a=split(/\\t/); if (\$a[1] =~ m/U/ && !(\$a[1] =~ m/u/) && \$a[4]>0 && (\$_ =~ /XT:A:U/ || !(\$_ =~ /XT:A/))) { \$r = \$a[0]; \$r =~ s/sc\$//; \$r =~ s/mu[12]\$//;  if (!exists(\$h{\$r})) { \$a[2] =~ s/chr//; \$h{\$r} = 1; if (\$a[1] =~ /r/) { print "\$a[0]\\t\$a[2]\\t-\$a[3]\\tx\\n"} else { print "\$a[0]\\t\$a[2]\\t\$a[3]\\tx\\n"} } }}' | $bzip2 - > $umbz2 
+				#$samtools view -X um2_sorted.bam | perl -e 'my %h = (); while (<>) { \@a=split(/\\t/); if (\$a[1] =~ m/U/ && !(\$a[1] =~ m/u/) && \$a[4]>0 && (\$_ =~ /XT:A:U/ || !(\$_ =~ /XT:A/))) { \$r = \$a[0]; \$r =~ s/sc\$//; \$r =~ s/mu[12]\$//;  if (!exists(\$h{\$r})) { \$a[2] =~ s/chr//; \$h{\$r} = 1; if (\$a[1] =~ /r/) { print "\$a[0]\\t\$a[2]\\t-\$a[3]\\tx\\n"} else { print "\$a[0]\\t\$a[2]\\t\$a[3]\\tx\\n"} } }}' | $bzip2 - > $umbz2 
 				}
-			} 
+				}
+	
+				}
 		} else {
 			if (!-e $dbamf) { die "no $dbamf in $bamdir" }
 			print "echo \"sorting and generating the index for $dbamf...\"\n";
 			$fprefix = $dbamf2;
 			$fprefix =~ s/\.bam$//;
-			print "$samtools sort -m $sortmem $dbamf $fprefix; $samtools index $fprefix.bam\n";
+			print "$samtools sort -m $sortmem $dbamf $fprefix\n";
+      print "$samtools index $fprefix.bam\n";
 	
 			if (!$no_clipped) {
 				if (!-e $cldbamf) { die "no $cldbamf in $bamdir" }
 			  print "echo \"sorting and generating the index for $cldbamf...\"\n";
 				$fprefix = $cldbamf2;
 				$fprefix =~ s/\.bam$//;
-			  print "$samtools sort -m $sortmem $cldbamf $fprefix; $samtools index $fprefix.bam\n";
+			  print "$samtools sort -m $sortmem $cldbamf $fprefix\n";
+        print "$samtools index $fprefix.bam\n";
 			}
 		}
 	
@@ -495,9 +536,17 @@ sub tea
 		#	python $tea/R/pathogen_enrich.py $bamdir/$sample $tea/lib/viruses.txt $dir/cluster_vam/$sample.enrich $dir/cluster_vam/$sample.cluster
 		#}
 	}
+	if  ($step == 8)
+	{
+		print qq {
+			echo "pathogen enrichment..."
+			python $tea/R/pathogen_enrich.py $bamdir/$sample $tea/lib/viruses.txt $dir/cluster_vam/$sample.enrich $dir/cluster_vam/$sample.cluster
+		}
+	}
 
 	# call germline
-	if ($step <= 7 && $rasym ne "va") {
+	if ($step <= 7){ 
+	#if ($step <= 7 && $rasym ne "um") {
 		my $R = "R --no-save --no-restore --no-environ --args ";
 		if ($exec eq "rid.te.primate") {
 			$R .= "te.primate.germline";
@@ -509,7 +558,8 @@ sub tea
 		if ($parallel) { $booleanS .= " parallel=T" } else { $booleanS .= " parallel=F" }
 		if ($contig) { $booleanS .= " contig=T" } else { $booleanS .= " cointig=F" }
 		my $min_out_conf = 5;
-		if ($exogenous) { $min_out_conf = 2 }; 
+		##HC
+		if ($exogenous) { $min_out_conf = 5 }; 
 
 		if ($parallel) {
 			my $job = "$sample.$rasym.germline";
@@ -536,6 +586,19 @@ sub tea
 			$R sample=\\"$sample\\" dir=\\"$bdir\\" ref=\\"$ref\\" rasym=\\"$rasym\\" \\
 			min.ram=$minram min.out.conf=$min_out_conf $booleanS < $tea/R/run.rid.r
 			};
+			if ($transduction)  {
+					print qq{
+						mv $bdir/$sample/cluster_umm $bdir/$sample/cluster_transduction
+						python $tea/scripts/python/transduction_contig_module2.py $bdir/ $sample $bedtools $samtools $bwa $ra_um $reference 
+					}
+				} 
+			if ($orphan)  {
+					print qq{
+						#mv $bdir/$sample/cluster_umm $bdir/$sample/cluster_orphan
+						python $tea/scripts/python/orphan_contig_module2.py $bdir/ $sample $bedtools $samtools $bwa $ra_um $reference
+						python $tea/scripts/python/post_process.py $bdir/ $sample $reference $tea $ra_um $bwa
+					}
+				} 
 		}
 	} 
 
@@ -545,7 +608,7 @@ sub tea
 sub bam_chr
 {
     my $bamf = @_[0];
-    my @headers = `samtools view -H $bamf`;
+    my @headers = `$samtools view -H $bamf`;
     my $bam_chr = 0;
     for my $h (@headers) {
         if ($h =~ m/^\@SQ/) {
@@ -1004,7 +1067,7 @@ sub contig {
 	my $assembler = $assembler; $assembler = $opts{a} if (defined $opts{a});
 	my $dir = ""; $dir = $opts{d} if (defined $opts{d});
 	my $odir = "."; $odir = $opts{o} if (defined $opts{o});
-	my $tdir = "/comm/home/hcjung/scratch/$map"; $tdir = $opts{t} if (defined $opts{t});
+	my $tdir = "$temp_loc/$map"; $tdir = $opts{t} if (defined $opts{t});
 	my $conf = 0;  $conf = $opts{C} if (defined $opts{C}); 
 	if (! -d $tdir) { system("mkdir -p $tdir") }
 	my $exogenous = 0; $exogenous = 1 if (defined $opts{x});
@@ -1069,7 +1132,7 @@ sub contig {
 	    &clipped_contig($s, \%can, $dir, $rasym, $parallel, $verbose) if (!$ronly && !$eonly);
 	    &ram_contig($s, \%can, $dir, $exogenous, $rasym, $parallel, $verbose) if (!$conly && !$eonly);
 	    &eram_contig($s, \%can, $dir, $exogenous, $verbose) if (!$conly && !$ronly);
-	}
+	} 
 
 	print "generating the contigs...\n" if ($verbose);
 	&make_contig2(\%can, $odir, $tdir, $ronly, $conly, $eonly, $assembler, $verbose);
@@ -1091,9 +1154,10 @@ sub ram_contig_line
 	my ($s, $href, $fh, $chr, $hprn, $hnrn, $hpcrn, $hncrn, $verbose) = @_;
 	while (<$fh>) {
 		chomp; my @a = split(/\t/);
+		$chr = $a[0];
 		if ($chr eq "") { 
 			$chr = $a[0]; 
-			unless ($chr =~ m/^chr/) { $chr = "chr$chr"; }; 
+			#unless ($chr =~ m/^chr/) { $chr = "chr$chr"; }; 
 		}
 		#$chr = "chr$chr";
         my $hhref = $href->{$s}{$chr};
@@ -1184,33 +1248,33 @@ sub eram_contig
 				#$bchr =~ s/chr//;
 				if ($pramsite ne "0-0") {
 				
-				open(my $fh, "samtools view -F 0x4 -F 0x10 $bamf $bchr:$pramsite |");
+				open(my $fh, "$samtools view -F 0x4 -F 0x10 $bamf $bchr:$pramsite |");
 				&eram_contig_line($s, $href, $fh, $chr, $site, 1, \%prn, $verbose);
 				close $fh;
 
-				open(my $fh, "samtools view -F 0x4 -F 0x10 $clbamf $bchr:$pramsite |");	
+				open(my $fh, "$samtools view -F 0x4 -F 0x10 $clbamf $bchr:$pramsite |");	
 				&eram_contig_line($s, $href, $fh, $chr, $site, 1, \%pcrn, $verbose);
 				close $fh;
 				}
 
 				if ($nramsite ne "0-0") {
-                open(my $fh, "samtools view -F 0x4 -f 0x10 $bamf $bchr:$nramsite |");
+                open(my $fh, "$samtools view -F 0x4 -f 0x10 $bamf $bchr:$nramsite |");
                 &eram_contig_line($s, $href, $fh, $chr, $site, 0, \%nrn, $verbose);
                 close $fh;
 
-                open(my $fh, "samtools view -F 0x4 -f 0x10 $clbamf $bchr:$nramsite |");
+                open(my $fh, "$samtools view -F 0x4 -f 0x10 $clbamf $bchr:$nramsite |");
                 &eram_contig_line($s, $href, $fh, $chr, $site, 0, \%ncrn, $verbose);
                 close $fh;
 				}
 			} else {
 				if ($pramsite ne "0-0") {
-				open(my $fh, "samtools view -F 0x4 -F 0x10 $umbamf $bchr:$pramsite |");	
+				open(my $fh, "$samtools view -F 0x4 -F 0x10 $umbamf $bchr:$pramsite |");	
 				&eram_contig_line($s, $href, $fh, $chr, $site, 1, \%pcrn, $verbose);
 				close $fh;
 				}
 
 				if ($nramsite ne "0-0") {
-                open(my $fh, "samtools view -F 0x4 -f 0x10 $umbamf $bchr:$nramsite |");
+                open(my $fh, "$samtools view -F 0x4 -f 0x10 $umbamf $bchr:$nramsite |");
                 &eram_contig_line($s, $href, $fh, $chr, $site, 0, \%ncrn, $verbose);
                 close $fh;
 				}
@@ -1290,7 +1354,7 @@ sub get_read_seq
 	my ($seq, $qual);
 	my $um = 0; if ($bamf =~ /um.bam/) { $um = 1 }; # search an unmapped bam
 	print "start reading $bamf for assembling repeat read sequences\n";
-	open(F, "samtools view -X $bamf |");
+	open(F, "$samtools view -X $bamf |");
 	my (@a, $n, $s, @b);
 	while (<F>) { 
 		if ($x == 0 && $y == 0) { last; }
@@ -1914,9 +1978,16 @@ sub bam2fq
 	
 	my ( $outfn1, $outfn2, $outfn, $z1, $z2, $z, $out, %out_1, %out_2 );
 	
-	open(F, "samtools view $fname |") or die "Can't open $fname: $!";
+	open(F, "$samtools view $fname |") or die "Can't open $fname: $!";
 	my $prefix = basename($fname);
-	$prefix =~ s/.bam//;
+
+
+	my @str = split /\./, $prefix;
+
+
+	$prefix = join(".", @str[0..($#str-1)]);
+	
+	#$prefix =~ s/.bam//;
 	
 	if ($verbose) { print "reading $fname ...\n";	}
 
@@ -2064,21 +2135,27 @@ sub cbam
 	print "$bamf:\n";
 	my $outf2 = basename($bamf);
 	my $outf3 = basename($bamf);
-	$outf2 =~ s/\.(sorted\.|)bam/.softclips.consd.raw.bam/;
+	
+	my @str = split /\./, $outf2;
+	$outf2 = join(".", @str[0..($#str-1)]);
+	$outf2 = $outf2 . '.softclips.consd.raw.bam';
+	$outf3 = $outf2 . '.softclips.consd.cpos.bz2';
+	
+	#$outf2 =~ s/\.(sorted\.|)bam/.softclips.consd.raw.bam/;
 	$outf2 = "$outdir/$outf2";  
-	$outf3 =~ s/\.(sorted\.|)bam/.softclips.consd.cpos.bz2/;
+	#$outf3 =~ s/\.(sorted\.|)bam/.softclips.consd.cpos.bz2/;
 	$outf3 = "$outdir/$outf3";  
 
-	open(O2, "| samtools view -bS - > $outf2") || die "Can't create $outf2";
+	open(O2, "| $samtools view -bS - > $outf2") || die "Can't create $outf2";
 	open(O3, "| bzip2 - > $outf3") || die "Can't create $outf3";
 
 	# print the bam header
-  open(F, "samtools view -H $bamf |");
+  open(F, "$samtools view -H $bamf |");
 	my @header = <F>;
 	print O2 @header;
   close F;
 
-	open(F, "samtools view $bamf|") || die "Can't open $bamf";
+	open(F, "$samtools view $bamf|") || die "Can't open $bamf";
 	my ($cigar, $qual, $qual1, $qual2, $s1, $s2, $selected, $selected2, $cpos);
 	while(<F>) {
 		chomp; my @a=split(/\t/);
@@ -2129,7 +2206,7 @@ sub cbam
 	print "start sorting and generating the index for $outf2 ...\n";
 	my $prefix = $outf2;
 	$prefix =~ s/\.raw\.bam$//;
-	system("samtools sort $outf2 $prefix; samtools index $prefix.bam; rm $outf2");
+	system("$samtools sort $outf2 $prefix; $samtools index $prefix.bam; rm $outf2");
 	print "done generating cbam and its index.\n";
 	
 }
@@ -2274,7 +2351,7 @@ sub bamram
 	my $rbamf = "$dir/".shift(@ARGV);
 	my $ramf = "$dir/".shift(@ARGV);
 
-	open(REF, "samtools view $refbam | ") or die "no reference bam: $refbam: $!";
+	open(REF, "$samtools view $refbam | ") or die "no reference bam: $refbam: $!";
 
 	# load repeat mappings into a hash
 	my %h = (); # record end(1/2):READNAME\tREPAT_NAME1:fr1,REPEAT_NAME2:fr2, ...
@@ -2292,7 +2369,7 @@ sub bamram
 		$end =~ s/.*_(1|2).*\.bam/$1/;
 		print "reading bamfile: $rabam, end: $end\n";
 		my ($mapcnt, $dupmapcnt) = (0, 0);
-		open(RA, "samtools view $rabam | ") or die "no reapeat assembly  bam: $rabam: $!";
+		open(RA, "$samtools view $rabam | ") or die "no reapeat assembly  bam: $rabam: $!";
 		while (<RA>) {
 				chomp; my @a=split(/\t/);
 				if ($a[1] & 0x4) { next; }
@@ -2325,17 +2402,17 @@ sub bamram
 	}
 
 	open(O, "| bzip2 - > $ramf") or die "can't create $ramf";
-	open(O2, "| samtools view -bS - > $rbamf") or die "can't create $rbamf";
+	open(O2, "| $samtools view -bS - > $rbamf") or die "can't create $rbamf";
 
   # print the bam header
 	print "starting reading $refbam\n";
-  open(F, "samtools view -H $refbam |");
+  open(F, "$samtools view -H $refbam |");
   my @header = <F>;
 	print O2 @header;
   close F;
 
 	# matching read ids from the referent bam and generate a ram file and a bam only with rams
-	open(F, "samtools view $refbam |" )or die "can't open $refbam";
+	open(F, "$samtools view $refbam |" )or die "can't open $refbam";
 	my ($cnt, $str, $map, $prname) = (0, "", "", "");
 
 	my %ram = (); # in the case of cl=1, generate unique RAM map positions out of max two read pairs
@@ -2634,15 +2711,15 @@ sub match_id
 	my $rbam = "$out_dir/$base.ram.bam";
 #	open(O, "|bzip2 - > $outf") || die "Can't create $outf";
 
-	open(O2, "| samtools view -bS - > $rbam") || die "Can't create $rbam";
+	open(O2, "| $samtools view -bS - > $rbam") || die "Can't create $rbam";
 
 	# print the bam header
-  open(F, "samtools view -H $bamf |");
+  open(F, "$samtools view -H $bamf |");
 	my @header = <F>;
 	print O2 @header;
   close F;
 
-	open(F, "samtools view $bamf|") || die "Can't open $bamf";
+	open(F, "$samtools view $bamf|") || die "Can't open $bamf";
 	my $cnt=0;
 	while (<F>) {
 		chomp;
@@ -2706,15 +2783,15 @@ sub make_rbam
 	print "matching ids for $bamf\n" if ($verbose);
 	my $base = basename($bamf); $base =~ s/.bam//;
 	my $rbam = "$out_dir/$base.ram.bam";
-	open(O2, "| samtools view -bS - > $rbam") || die "Can't create $rbam";
+	open(O2, "| $samtools view -bS - > $rbam") || die "Can't create $rbam";
 
 	# print the bam header
-  open(F, "samtools view -H $bamf |");
+  open(F, "$samtools view -H $bamf |");
 	my @header = <F>;
 	print O2 @header;
   close F;
 
-	open(F, "samtools view $bamf|") || die "Can't open $bamf";
+	open(F, "$samtools view $bamf|") || die "Can't open $bamf";
 	my $cnt=0;
 	while (<F>) {
 		chomp;
