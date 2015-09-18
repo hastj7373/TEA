@@ -53,6 +53,6 @@ retro = repeat.combined.div30.isize150.fa
  * Output format is described in [here](https://github.com/hastj7373/TEA/blob/master/output_format.txt)
 
 2.If you want to call somatic variants, use **somatic.call** script. 
- '''
+```
  ./somatic.call -t ra -c cancer_sample -m normal_sample -n nonmatched
-'''
+```
