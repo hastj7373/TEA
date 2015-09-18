@@ -59,4 +59,4 @@ retro = repeat.combined.div30.isize150.fa
 * -t (type) : ra (do not change this parameter under current version). 
 * -c (cancer_sample) : cancer sample name
 * -m (matched_normal_sample) : matched normal sample name
-* -n (nonmatched_samples) : list of nonmatched normal samples (specify file name). [see example file] (https://github.com/hastj7373/TEA/blob/master/nonmatched)
+* -n (nonmatched_samples) : file with a list of nonmatched normal samples [see example file] (https://github.com/hastj7373/TEA/blob/master/nonmatched)
