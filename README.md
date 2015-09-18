@@ -62,4 +62,4 @@ retro = repeat.combined.div30.isize150.fa
 * -n (nonmatched_samples) : This parameter is optional. Specify a file with a list of nonmatched normal samples. [see example file] (https://github.com/hastj7373/TEA/blob/master/nonmatched)
  * Example
 
- ![Image of thridstep](https://github.com/hastj7373/TEA/blob/master/somatic_step.gif)
+ ![Image of thridstep](https://github.com/hastj7373/TEA/blob/master/somatic_step.png)
