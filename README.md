@@ -63,4 +63,6 @@ retro = repeat.combined.div30.isize150.fa
  * Example
 
  ![Image of thridstep](https://github.com/hastj7373/TEA/blob/master/fourth_step.png)
+ ```
  ./somatic.call -t ra -c TCGA-AY-A54L-01A-11D-A28G-10_wgs_Illumina -m TCGA-AY-A54L-10A-01D-A28G-10_wgs_Illumina
+ ```
