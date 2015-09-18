@@ -52,11 +52,11 @@ retro = repeat.combined.div30.isize150.fa
 1.TEA produces **sample_name.germline.contig**
  * Output format is described in [here](https://github.com/hastj7373/TEA/blob/master/output_format.txt)
 
-2.If you want to call somatic variants, use **somatic.call** script. 
+2.If you want to call somatic variants, use **somatic.call** script after running TEA on each sample. This script produces  **sample_name.soamtic.contig**
 ```
  ./somatic.call -t ra -c cancer_sample -m normal_sample -n nonmatched
 ```
-* -t (type) : ra (don't change this parameter under current version). 
+* -t (type) : ra (do not change this parameter under current version). 
 * -c (cancer_sample) : cancer sample name
 * -m (matched_normal_sample) : matched normal sample name
 * -n (nonmatched_samples) : list of nonmatched normal samples (specify file name)
