@@ -1,0 +1,40 @@
+1.sample : Sample name
+2.chr  : chromosome
+3.s : The start position of a positive ram cluster (a cluster on the left).
+4.e : The end position of a negative ram cluster (a cluster on the right).
+5.size : the distance between s and e.
+6.tsd : The length of target side duplication (The distance between pbp and nbp)
+7.pbp : The position of breakpoints defined by clipping positions of positivie-stand reads
+8.nbp : The position of breakpoints defined by clipping positions of negative-stand reads
+9.rep.repeat  : representative repeat 
+10.family :  repeat family
+11.class : repeat class
+12.ram : The number of supporting paired reads which are uniquely mapped to the reference and their mates are mapped to a TE sequence (pram + nram)
+13.pram : The number of rams mapped to positive strand
+14.nram : The number of rams mapped to negative strand
+15.cr : The number of supporting clipped reads  within the ram cluster boundary (pcr + ncr)
+16.pcr : The number of supporting clipped reads mapping to the positive strand
+17.ncr : The number of supporting clipped reads mapping to the negative strand
+18.acr : The number of  clipped reads that pile up at the estimated breakpoints (well-positioned clipped reads, subset of cr, pacr + nacr).
+19.pacr : The number of well-positioned positive clipped reads
+20.nacr : The number of well-positined negative clipped reads
+21.acrr : The ratio of acr to cr
+22.pram_start : Start position of prams
+23.pram_end : End position of prams
+24.nram_start : Start position of nrams
+25.nram_end :  End position of nrams
+26.pgene : gene on postivie strand
+27.ngene : gene on negative strand
+28.score : the sum of the supporting RAM and clipped read counts, each scaled to a range from 0 to 1
+29.oi : The presence or absence of repeat in a reference genome. 
+30.desc : description when virus-tea module runs
+31.conf : confidence level (1-5)
+32.orientation : plus or minus
+33.polyA :  The presence or absence of polyA
+34.polyT : The presence or absence of polyT
+35.pclipped : assembled contigs of positive clipped reads
+36.nclipped : assembled contigs of negative clipped reads
+37.prammate : assembled contigs of positive ram reads
+38.nrammate :  assembled contigs of negative ram reads
+39.eprammate : similar to prammate, but assemed contigs using all reads of which one-end is not mapped to TE. 
+40.enrammate : similar to nrammate, but assemed contigs using all reads of which one-end is not mapped to TE. 

@@ -49,5 +49,5 @@ retro = repeat.combined.div30.isize150.fa
  
 4. Output Results
 
-TEA produces sample_name.germline.contig
- * Output format is described in [here](https://github.com/hastj7373/TEA/blob/master/output_format.txt))
+TEA produces **sample_name.germline.contig**
+ * Output format is described in [here](https://github.com/hastj7373/TEA/blob/master/output_format.txt)
