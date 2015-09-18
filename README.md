@@ -56,3 +56,7 @@ retro = repeat.combined.div30.isize150.fa
 ```
  ./somatic.call -t ra -c cancer_sample -m normal_sample -n nonmatched
 ```
+**-t (type) : ra (don't change this parameter under current version). 
+**-c (cancer_sample) : cancer sample name
+**-m (matched_normal_sample) : matched normal sample name
+**-n (nonmatched_samples) : list of nonmatched normal samples
