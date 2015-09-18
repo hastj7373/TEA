@@ -48,6 +48,6 @@ retro = repeat.combined.div30.isize150.fa
   ![Image of thridstep](https://github.com/hastj7373/TEA/blob/master/third_step.gif)
  
 
- 4. Output
+ 4. Output Results
 
- sample_name.germline.contig
+ TEA produces sample_name.germline.contig
