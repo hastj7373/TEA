@@ -16,9 +16,9 @@
 16.pcr : The number of supporting clipped reads mapping to the positive strand
 17.ncr : The number of supporting clipped reads mapping to the negative strand
 18.acr : The number of  clipped reads that pile up at the estimated breakpoints (well-positioned clipped reads, subset of cr, pacr + nacr).
-19.pacr : The number of well-positioned positive clipped reads (aligned to pbp +/- 2bp)
-20.nacr : The number of well-positined negative clipped reads (aligned to nbp +/- 2bp)
-21.acrr : The ratio of acr to cr. The higher value reflects less noise near the breakpoint (i.e. clipped reads well support the breakpoints)
+19.pacr : The number of well-positioned positive clipped reads
+20.nacr : The number of well-positined negative clipped reads
+21.acrr : The ratio of acr to cr
 22.pram_start : Start position of prams
 23.pram_end : End position of prams
 24.nram_start : Start position of nrams
@@ -26,7 +26,7 @@
 26.pgene : gene on postivie strand
 27.ngene : gene on negative strand
 28.score : the sum of the supporting RAM and clipped read counts, each scaled to a range from 0 to 1
-29.oi : The presence (1) or absence (0) of repeat in a reference genome. 1 means that there is no TE of the same family according to repeatmasker within 500 bp of the breakpoints
+29.oi : The presence or absence of repeat in a reference genome. 
 30.desc : description when virus-tea module runs
 31.conf : confidence level (1-5)
 32.orientation : plus or minus
