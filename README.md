@@ -4,7 +4,7 @@ Welcome to the companion site for the Tea repeat analysis pipeline. Tea stands f
 Installation requires the following software to be present on the system: 
 
 1. BWA
- * BWA 0.6.2 is required. 
+ * BWA 0.6.2 is required. Tea supports bam files aligned with 'bwa sampe' NOT with 'bwa mem.' xTea supporting bwa mem is in preparation for release. 
 2. Samtools
  * Samtools 0.1.5 or above. 
 3. Meerkat
