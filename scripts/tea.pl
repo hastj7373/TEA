@@ -230,10 +230,10 @@ sub tea
 	print "export tea_base=$tea\n";
 	
     #Only harvard	
- 	print "export PATH=$tea/R:$tea/scripts:\$PATH\n"; 
-	print "module load stats/R/2.15.3\n";
-  print "export R_LIBS=/opt/R-2.15.3/lib64/R/library/:/home/el114/hyunchul/R/library\n";
-	print "export PERL5LIB=/home/ly55/perl/share/perl/5.10.0:/home/ly55/perl/lib/perl5/:/home/ly55/perl/lib/perl/5.10.0:/home/el114/hyunchul/lib/perl5/:/home/el114/hyunchul/lib/share/perl5/\n";
+ 	#print "export PATH=$tea/R:$tea/scripts:\$PATH\n"; 
+	#print "module load stats/R/2.15.3\n";
+  #print "export R_LIBS=/opt/R-2.15.3/lib64/R/library/:/home/el114/hyunchul/R/library\n";
+	p#rint "export PERL5LIB=/home/ly55/perl/share/perl/5.10.0:/home/ly55/perl/lib/perl5/:/home/ly55/perl/lib/perl/5.10.0:/home/el114/hyunchul/lib/perl5/:/home/el114/hyunchul/lib/share/perl5/\n";
 
 
 
